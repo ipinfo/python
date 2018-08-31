@@ -1,0 +1,2 @@
+class RequestQuotaExceededError(Exception):
+    pass
