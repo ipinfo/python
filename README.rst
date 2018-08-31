@@ -27,7 +27,7 @@ Authentication
 The IPInfo library can be authenticated with your IPInfo API token, which is passed in as a positional argument. It also works without an authentication token, but in a more limited capacity.
 
 >>> access_token = '123456789abc'
->>> handler = ipinfo(access_token)
+>>> handler = ipinfo.getHandler(access_token)
 
 
 Details Data
@@ -115,14 +115,14 @@ Cache behavior can be modified by setting the `cache_options` keyword argument. 
 * Default maximum cache size: 4096 (multiples of 2 are recommended to increase efficiency)
 * Default TTL: 24 hours (in seconds)
 
->>> handler = ipinfo(cache_options={'ttl':30, 'maxsize': 128})
+>>> handler = ipinfo.getHandler(cache_options={'ttl':30, 'maxsize': 128})
 
 Using a different cache
 -----------------------
 
 It's possible to use a custom cache by creating a child class of the `CacheInterface <https://github.com/jhtimmins/ipinfo-python/blob/master/cache/interface.py>`_ class and passing this into the handler object with the `cache` keyword argument. FYI this is known as `the Strategy Pattern <https://sourcemaking.com/design_patterns/strategy>`_.
 
->>> handler = ipinfo(cache=my_fancy_custom_class)
+>>> handler = ipinfo.getHandler(cache=my_fancy_custom_class)
 
 
 Internationalization
