@@ -1,7 +1,7 @@
-IPInfo-Python: A Python wrapper for the `IPInfo <https://ipinfo.io/>`_ API.
+The official Python library for the `IPInfo <https://ipinfo.io/>`_ API.
 ###########################################################################
 
-IPInfo-Python is a lightweight wrapper for the IPInfo API, which provides up-to-date IP address data.
+`ipinfo` is a lightweight wrapper for the IPInfo API, which provides up-to-date IP address data.
 
 .. contents::
 
