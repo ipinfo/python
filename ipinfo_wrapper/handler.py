@@ -13,7 +13,7 @@ class Handler():
     API_URL = 'https://ipinfo.io'
     CACHE_MAXSIZE = 4096
     CACHE_TTL = 60 * 60 * 24
-    COUNTRY_FILE_DEFAULT = '/ipinfo/countries.json'
+    COUNTRY_FILE_DEFAULT = 'countries.json'
 
     def __init__(self, access_token=None, **kwargs):
         self.access_token = access_token
@@ -67,7 +67,7 @@ class Handler():
 
     def _read_country_names(self, countries_file = None):
         if not countries_file:
-            countries_file = os.getcwd() + self.COUNTRY_FILE_DEFAULT
+            countries_file = os.path.join(os.path.dirname(__file__), self.COUNTRY_FILE_DEFAULT)
         with open(countries_file) as f:
             countries_json = f.read()
 
