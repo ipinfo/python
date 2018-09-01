@@ -1,7 +1,7 @@
-IPInfo-Python: A Python wrapper for the `IPInfo <https://ipinfo.io/>`_ API.
+The official Python library for the `IPInfo <https://ipinfo.io/>`_ API.
 ###########################################################################
 
-IPInfo-Python is a lightweight wrapper for the IPInfo API, which provides up-to-date IP address data.
+`ipinfo_wrapper` is a lightweight wrapper for the IPInfo API, which provides up-to-date IP address data.
 
 .. contents::
 
@@ -10,11 +10,11 @@ IPInfo-Python is a lightweight wrapper for the IPInfo API, which provides up-to-
 Usage
 =====
 
-The `IPInfo.getDetails()` method accepts an IP address as an optional, positional argument. If no IP address is specified, the API will return data for the IP address from which it receives the request.
+The `Handler.getDetails()` method accepts an IP address as an optional, positional argument. If no IP address is specified, the API will return data for the IP address from which it receives the request.
 
->>> import ipinfo
+>>> import ipinfo_wrapper
 >>> access_token = '123456789abc'
->>> handler = ipinfo.getHandler(access_token)
+>>> handler = ipinfo_wrapper.getHandler(access_token)
 >>> ip_address = '216.239.36.21'
 >>> details = handler.getDetails(ip_address)
 >>> details.city
@@ -27,7 +27,7 @@ Authentication
 The IPInfo library can be authenticated with your IPInfo API token, which is passed in as a positional argument. It also works without an authentication token, but in a more limited capacity.
 
 >>> access_token = '123456789abc'
->>> handler = ipinfo(access_token)
+>>> handler = ipinfo_wrapper.getHandler(access_token)
 
 
 Details Data
@@ -115,14 +115,14 @@ Cache behavior can be modified by setting the `cache_options` keyword argument. 
 * Default maximum cache size: 4096 (multiples of 2 are recommended to increase efficiency)
 * Default TTL: 24 hours (in seconds)
 
->>> handler = ipinfo(cache_options={'ttl':30, 'maxsize': 128})
+>>> handler = ipinfo_wrapper.getHandler(cache_options={'ttl':30, 'maxsize': 128})
 
 Using a different cache
 -----------------------
 
 It's possible to use a custom cache by creating a child class of the `CacheInterface <https://github.com/jhtimmins/ipinfo-python/blob/master/cache/interface.py>`_ class and passing this into the handler object with the `cache` keyword argument. FYI this is known as `the Strategy Pattern <https://sourcemaking.com/design_patterns/strategy>`_.
 
->>> handler = ipinfo(cache=my_fancy_custom_class)
+>>> handler = ipinfo_wrapper.getHandler(cache=my_fancy_custom_class)
 
 
 Internationalization
