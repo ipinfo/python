@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(name='ipinfo_wrapper',
       version='0.1.3',
-      description='Official Python library for IPInfo',
+      description='Official Python library for IPinfo',
       url='https://github.com/ipinfo/python',
       author='James Timmins',
       author_email='jameshtimmins@gmail.com',
