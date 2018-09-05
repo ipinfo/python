@@ -1,7 +1,7 @@
-The official Python library for the `IPInfo <https://ipinfo.io/>`_ API.
+The official Python library for the `IPinfo <https://ipinfo.io/>`_ API.
 ###########################################################################
 
-`ipinfo_wrapper` is a lightweight wrapper for the IPInfo API, which provides up-to-date IP address data.
+`ipinfo_wrapper` is a lightweight wrapper for the IPinfo API, which provides up-to-date IP address data.
 
 .. contents::
 
@@ -24,7 +24,7 @@ Emeryville
 
 Authentication
 ==============
-The IPInfo library can be authenticated with your IPInfo API token, which is passed in as a positional argument. It also works without an authentication token, but in a more limited capacity.
+The IPinfo library can be authenticated with your IPinfo API token, which is passed in as a positional argument. It also works without an authentication token, but in a more limited capacity.
 
 >>> access_token = '123456789abc'
 >>> handler = ipinfo_wrapper.getHandler(access_token)
@@ -32,7 +32,7 @@ The IPInfo library can be authenticated with your IPInfo API token, which is pas
 
 Details Data
 =============
-`handler.getDetails()` will return a `Details` object that contains all fields listed `IPInfo developer docs <https://ipinfo.io/developers/responses#full-response>`_ with a few minor additions. Properties can be accessed directly.
+`handler.getDetails()` will return a `Details` object that contains all fields listed `IPinfo developer docs <https://ipinfo.io/developers/responses#full-response>`_ with a few minor additions. Properties can be accessed directly.
 
 >>> details.hostname
 cpe-104-175-221-247.socal.res.rr.com
@@ -127,7 +127,7 @@ It's possible to use a custom cache by creating a child class of the `CacheInter
 
 Internationalization
 ====================
-When looking up an IP address, the response object includes a `details.country_name` attribute which includes the country name based on American English. It is possible to return the country name in other languages by setting the `countries_file` keyword argument when creating the `IPInfo` object.
+When looking up an IP address, the response object includes a `details.country_name` attribute which includes the country name based on American English. It is possible to return the country name in other languages by setting the `countries_file` keyword argument when creating the `IPinfo` object.
 
 The file must be a `.json` file with the following structure::
 
