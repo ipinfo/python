@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='ipinfo_wrapper',
-      version='0.1.4',
+      version='0.1.5',
       description='Official Python library for IPInfo',
       url='https://github.com/ipinfo/python',
       author='James Timmins',
@@ -11,6 +11,7 @@ setup(name='ipinfo_wrapper',
       install_requires=[
         'requests',
         'cachetools',
+        'pytest',
       ],
       include_package_data=True,
       zip_safe=False)
