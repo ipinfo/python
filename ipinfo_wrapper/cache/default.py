@@ -1,7 +1,9 @@
-from .interface import CacheInterface
 import cachetools
+from .interface import CacheInterface
+
 
 class DefaultCache(CacheInterface):
+    """Default, in-memory cache."""
 
     def __init__(self, maxsize, ttl, **cache_options):
         self.cache = cachetools.TTLCache(maxsize, ttl, **cache_options)
