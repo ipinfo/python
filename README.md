@@ -15,7 +15,9 @@ The free plan is limited to 1,000 requests a day, and doesn't include some of th
 
 #### Installation
 
-```pip install ipinfo```
+```
+pip install ipinfo
+```
 
 #### Quick Start
 
@@ -112,28 +114,28 @@ United States
 
 ```
 >>> details.all
-    {
-    'asn': {  'asn': 'AS20001',
-               'domain': 'twcable.com',
+{
+'asn': {  'asn': 'AS20001',
+           'domain': 'twcable.com',
+           'name': 'Time Warner Cable Internet LLC',
+           'route': '104.172.0.0/14',
+           'type': 'isp'},
+'city': 'Los Angeles',
+'company': {   'domain': 'twcable.com',
                'name': 'Time Warner Cable Internet LLC',
-               'route': '104.172.0.0/14',
                'type': 'isp'},
-    'city': 'Los Angeles',
-    'company': {   'domain': 'twcable.com',
-                   'name': 'Time Warner Cable Internet LLC',
-                   'type': 'isp'},
-    'country': 'US',
-    'country_name': 'United States',
-    'hostname': 'cpe-104-175-221-247.socal.res.rr.com',
-    'ip': '104.175.221.247',
-    'ip_address': IPv4Address('104.175.221.247'),
-    'loc': '34.0293,-118.3570',
-    'latitude': '34.0293',
-    'longitude': '-118.3570',
-    'phone': '323',
-    'postal': '90016',
-    'region': 'California'
-    }
+'country': 'US',
+'country_name': 'United States',
+'hostname': 'cpe-104-175-221-247.socal.res.rr.com',
+'ip': '104.175.221.247',
+'ip_address': IPv4Address('104.175.221.247'),
+'loc': '34.0293,-118.3570',
+'latitude': '34.0293',
+'longitude': '-118.3570',
+'phone': '323',
+'postal': '90016',
+'region': 'California'
+}
 ```
 
 #### Caching
@@ -166,13 +168,13 @@ When looking up an IP address, the response object includes a `details.country_n
 The file must be a `.json` file with the following structure:
 
 ```
-    {
-     "BD": "Bangladesh",
-     "BE": "Belgium",
-     "BF": "Burkina Faso",
-     "BG": "Bulgaria"
-     ...
-    }
+{
+ "BD": "Bangladesh",
+ "BE": "Belgium",
+ "BF": "Burkina Faso",
+ "BG": "Bulgaria"
+ ...
+}
 ```
 
 ### Other Libraries
