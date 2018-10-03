@@ -1,1 +1,1 @@
-include ipinfo_wrapper/countries.json
+include ipinfo/countries.json
