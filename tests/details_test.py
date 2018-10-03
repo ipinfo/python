@@ -1,5 +1,5 @@
 import pytest
-from ipinfo_wrapper.details import Details
+from ipinfo.details import Details
 
 
 def test_init():

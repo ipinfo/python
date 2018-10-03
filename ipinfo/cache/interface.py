@@ -1,5 +1,6 @@
 import abc
 
+
 class CacheInterface(metaclass=abc.ABCMeta):
     """Interface for using custom cache."""
 

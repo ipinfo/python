@@ -1,7 +1,7 @@
-import ipinfo_wrapper
-from ipinfo_wrapper.handler import Handler
+import ipinfo
+from ipinfo.handler import Handler
 
 
 def test_get_handler():
-    handler = ipinfo_wrapper.getHandler()
+    handler = ipinfo.getHandler()
     assert(isinstance(handler, Handler))

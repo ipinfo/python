@@ -1,6 +1,6 @@
-from ipinfo_wrapper.cache.default import DefaultCache
-from ipinfo_wrapper.details import Details
-from ipinfo_wrapper.handler import Handler
+from ipinfo.cache.default import DefaultCache
+from ipinfo.details import Details
+from ipinfo.handler import Handler
 import ipaddress
 
 

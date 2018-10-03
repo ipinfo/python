@@ -1,4 +1,4 @@
-from ipinfo_wrapper.cache.default import DefaultCache
+from ipinfo.cache.default import DefaultCache
 
 
 def _get_new_cache():
