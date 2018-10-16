@@ -67,7 +67,7 @@ class Handler():
         headers = {
             'user-agent': 'IPinfoClient/Python{version}/1.0'.format(version=sys.version_info[0]),
             'accept': 'application/json'
-            }
+        }
 
         if self.access_token:
             headers['authorization'] = 'Bearer {}'.format(self.access_token)

@@ -153,6 +153,26 @@ Cache behavior can be modified by setting the `cache_options` keyword argument. 
 >>> handler = ipinfo.getHandler(cache_options={'ttl':30, 'maxsize': 128})
 ```
 
+##### Memcached (beta)
+
+Support for integrating with memcached as the cache backend exists.
+
+You _must_ use and install [python-memcached](https://github.com/linsomniac/python-memcached) in your project separately, as it won't be installed by this package itself.
+
+Here's how to use it:
+
+```python
+import ipinfo
+from ipinfo.cache.memcached import Memcached
+
+servers = ['127.0.0.1:11211']
+handlers = ipinfo.getHandler(cache=Memcached(servers))
+```
+
+You can specify multiple servers in the list for a Memcached cluster. You can also input a single string of servers separated by `,` or `;`. Finally, the `Memcached` class takes any keyword arguments that the internal [client class](https://github.com/linsomniac/python-memcached/blob/release-1.57/memcache.py#L168-L174) takes.
+
+Memcached cache invalidation [is a bit complex](https://github.com/memcached/memcached/wiki/Programming#cache-invalidation), so in the beta implementation this is not customizable.
+
 ##### Using a different cache
 
 It's possible to use a custom cache by creating a child class of the [CacheInterface](https://github.com/ipinfo/python/blob/master/ipinfo_wrapper/cache/interface.py) class and passing this into the handler object with the `cache` keyword argument. FYI this is known as [the Strategy Pattern](https://sourcemaking.com/design_patterns/strategy).
