@@ -1,3 +1,7 @@
+"""
+A default cache implementation that uses `cachetools` for an in-memory LRU cache.
+"""
+
 import cachetools
 from .interface import CacheInterface
 

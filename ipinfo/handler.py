@@ -1,6 +1,9 @@
+"""
+Main API client handler for fetching data from the IPinfo service.
+"""
+
 import ipaddress
 import json
-import operator
 import os
 import requests
 import sys
@@ -9,7 +12,7 @@ from .details import Details
 from .exceptions import RequestQuotaExceededError
 
 
-class Handler():
+class Handler:
     """
     Allows client to request data for specified IP address. Instantiates and
     and maintains access to cache.

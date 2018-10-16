@@ -1,3 +1,7 @@
+"""
+Abstract interface for caching IPinfo data.
+"""
+
 import abc
 
 
