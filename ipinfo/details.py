@@ -1,3 +1,7 @@
+"""
+Details returned by the IPinfo service.
+"""
+
 class Details:
     """Encapsulates data for single IP address."""
 
