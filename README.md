@@ -15,46 +15,43 @@ The free plan is limited to 1,000 requests a day, and doesn't include some of th
 
 #### Installation
 
-```
+```bash
 pip install ipinfo
 ```
 
 #### Quick Start
 
-```
->>> import ipinfo
->>> access_token = '123456789abc'
->>> handler = ipinfo.getHandler(access_token)
->>> ip_address = '216.239.36.21'
->>> details = handler.getDetails(ip_address)
->>> details.city
-Emeryville
->>> details.loc
-37.8342,-122.2900
+```python
+import ipinfo
+
+handler = ipinfo.getHandler(access_token='123456789abc')
+details = handler.getDetails(ip_address='216.239.36.21')
+print(details.city) # Emeryville
+print(details.loc)  # 37.8342,-122.2900
 ```
 
 #### Usage
 
 The `Handler.getDetails()` method accepts an IP address as an optional, positional argument. If no IP address is specified, the API will return data for the IP address from which it receives the request.
 
-```
->>> import ipinfo
->>> access_token = '123456789abc'
->>> handler = ipinfo.getHandler(access_token)
->>> details = handler.getDetails()
->>> details.city
-Emeryville
->>> details.loc
-37.8342,-122.2900
+```python
+import ipinfo
+
+access_token = '123456789abc'
+handler = ipinfo.getHandler(access_token)
+details = handler.getDetails()
+print(details.city) # Emeryville
+print(details.loc)  # 37.8342,-122.2900
 ```
 
 #### Authentication
 
 The IPinfo library can be authenticated with your IPinfo API token, which is passed in as a positional argument. It also works without an authentication token, but in a more limited capacity.
 
-```
->>> access_token = '123456789abc'
->>> handler = ipinfo.getHandler(access_token)
+```python
+import ipinfo
+
+handler = ipinfo.getHandler(access_token='123456789abc')
 ```
 
 #### Details Data
@@ -149,16 +146,24 @@ Cache behavior can be modified by setting the `cache_options` keyword argument. 
 * Default maximum cache size: 4096 (multiples of 2 are recommended to increase efficiency)
 * Default TTL: 24 hours (in seconds)
 
-```
->>> handler = ipinfo.getHandler(cache_options={'ttl':30, 'maxsize': 128})
+```python
+import ipinfo
+
+handler = ipinfo.getHandler(cache_options={'ttl':30, 'maxsize': 128})
 ```
 
 ##### Using a different cache
 
-It's possible to use a custom cache by creating a child class of the [CacheInterface](https://github.com/ipinfo/python/blob/master/ipinfo_wrapper/cache/interface.py) class and passing this into the handler object with the `cache` keyword argument. FYI this is known as [the Strategy Pattern](https://sourcemaking.com/design_patterns/strategy).
+It's possible to use a custom cache by creating a child class of the [CacheInterface](https://github.com/ipinfo/python/blob/master/ipinfo/cache/interface.py) class and passing this into the handler object with the `cache` keyword argument. FYI this is known as [the Strategy Pattern](https://sourcemaking.com/design_patterns/strategy).
 
-```
->>> handler = ipinfo.getHandler(cache=my_fancy_custom_class)
+```python
+import ipinfo
+from ipinfo.cache.interface import CacheInterface
+
+class MyCustomCache(CacheInterface):
+    ...
+
+handler = ipinfo.getHandler(cache=MyCustomCache())
 ```
 
 #### Modifying request options
@@ -178,13 +183,13 @@ When looking up an IP address, the response object includes a `details.country_n
 
 The file must be a `.json` file with the following structure:
 
-```
+```json
 {
- "BD": "Bangladesh",
- "BE": "Belgium",
- "BF": "Burkina Faso",
- "BG": "Bulgaria"
- ...
+  "BD": "Bangladesh",
+  "BE": "Belgium",
+  "BF": "Burkina Faso",
+  "BG": "Bulgaria",
+  ...
 }
 ```
 
