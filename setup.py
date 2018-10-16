@@ -20,7 +20,6 @@ setup(name='ipinfo',
       install_requires=[
         'requests',
         'cachetools',
-        'pytest',
       ],
       include_package_data=True,
       zip_safe=False)
