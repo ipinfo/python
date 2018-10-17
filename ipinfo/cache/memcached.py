@@ -22,7 +22,7 @@ class Memcached(CacheInterface):
         self.cache = memcache.Client(servers, **kwargs)
 
     def __contains__(self, key):
-        return self.cache.get is not None
+        return self.cache.get(key) is not None
 
     def __setitem__(self, key, value):
         return self.cache.set(key, value)
