@@ -3,9 +3,11 @@ Abstract interface for caching IPinfo data.
 """
 
 import abc
+import six
 
 
-class CacheInterface(metaclass=abc.ABCMeta):
+@six.add_metaclass(abc.ABCMeta)
+class CacheInterface():
     """Interface for using custom cache."""
 
     @abc.abstractmethod
