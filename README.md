@@ -161,6 +161,17 @@ It's possible to use a custom cache by creating a child class of the [CacheInter
 >>> handler = ipinfo.getHandler(cache=my_fancy_custom_class)
 ```
 
+#### Modifying request options
+
+Request behavior can be modified by setting the `request_options` keyword argument. `request_options` is a dictionary in which the keys are keyword arguments specified in the `requests` library. The nesting of keyword arguments is to prevent name collisions between this library and its dependencies.
+
+* Default request timeout: 2 seconds
+
+```
+>>> handler = ipinfo.getHandler(request_options={'timeout': 4})
+```
+
+
 #### Internationalization
 
 When looking up an IP address, the response object includes a `details.country_name` attribute which includes the country name based on American English. It is possible to return the country name in other languages by setting the `countries_file` keyword argument when creating the `IPinfo` object.
