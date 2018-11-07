@@ -22,11 +22,16 @@ class Handler:
     CACHE_MAXSIZE = 4096
     CACHE_TTL = 60 * 60 * 24
     COUNTRY_FILE_DEFAULT = 'countries.json'
+    REQUEST_TIMEOUT_DEFAULT = 2
 
     def __init__(self, access_token=None, **kwargs):
         """Initialize the Handler object with country name list and the cache initialized."""
         self.access_token = access_token
         self.countries = self._read_country_names(kwargs.get('countries_file'))
+
+        self.request_options = kwargs.get('request_options', {})
+        if 'timeout' not in self.request_options:
+            self.request_options['timeout'] = self.REQUEST_TIMEOUT_DEFAULT
 
         if 'cache' in kwargs:
             self.cache = kwargs['cache']
@@ -57,7 +62,7 @@ class Handler:
             if ip_address:
                 url += '/' + ip_address
 
-            response = requests.get(url, headers=self._get_headers())
+            response = requests.get(url, headers=self._get_headers(), **self.request_options)
             if response.status_code == 429:
                 raise RequestQuotaExceededError()
             response.raise_for_status()
