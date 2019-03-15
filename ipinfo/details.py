@@ -14,7 +14,7 @@ class Details:
         if attr in self.details:
             return self.details[attr]
         else:
-            raise AttributeError('{attr} is not a valid attribute of Details'.format(attr))
+            raise AttributeError('{} is not a valid attribute of Details'.format(attr))
 
     @property
     def all(self):
