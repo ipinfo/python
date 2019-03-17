@@ -46,13 +46,7 @@ class Handler:
         raw_details = self._requestDetails(ip_address)
         raw_details['country_name'] = self.countries.get(raw_details.get('country'))
         raw_details['ip_address'] = ipaddress.ip_address(raw_details.get('ip'))
-
-        lat, lon = None, None
-        coords = tuple(raw_details.get('loc', '').split(','))
-        if coords:
-            lat, lon = coords[0], coords[1]
-        raw_details['latitude'], raw_details['longitude'] = lat, lon
-
+        raw_details['latitude'], raw_details['longitude'] = self._read_coords(raw_details.get('loc'))
         return Details(raw_details)
 
     def _requestDetails(self, ip_address=None):
@@ -75,12 +69,19 @@ class Handler:
         headers = {
             'user-agent': 'IPinfoClient/Python{version}/1.0'.format(version=sys.version_info[0]),
             'accept': 'application/json'
-            }
+        }
 
         if self.access_token:
             headers['authorization'] = 'Bearer {}'.format(self.access_token)
 
         return headers
+
+    def _read_coords(self, location):
+        lat, lon = None, None
+        coords = tuple(location.split(',')) if location else ''
+        if len(coords) == 2 and coords[0] and coords[1]:
+            lat, lon = coords[0], coords[1]
+        return lat, lon
 
     def _read_country_names(self, countries_file=None):
         """Read list of countries from specified country file or default file."""
