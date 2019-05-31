@@ -1,7 +1,8 @@
+import ipaddress
+
 from ipinfo.cache.default import DefaultCache
 from ipinfo.details import Details
 from ipinfo.handler import Handler
-import ipaddress
 
 
 def test_init():
