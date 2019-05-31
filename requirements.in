@@ -1,7 +1,8 @@
-cachetools==2.1.0
-pip-tools==3.1.0
-pycodestyle==2.4.0
-pytest==3.8.2
-python-dateutil==2.6.1
-pytz==2017.2
+# For app
 requests>=2.18.4
+cachetools==3.1.1
+pytest==4.5.0
+
+# For dev
+pip-tools==3.7.0
+black==19.3b0
