@@ -21,5 +21,5 @@ pytest==4.5.0
 requests==2.21.0
 six==1.12.0               # via pip-tools, pytest
 toml==0.10.0              # via black
-urllib3==1.24.1           # via requests
+urllib3==1.24.2           # via requests
 wcwidth==0.1.7            # via pytest
