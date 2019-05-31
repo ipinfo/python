@@ -10,7 +10,7 @@ You can visit our developer docs at https://ipinfo.io/developers.
 
 setup(
     name="ipinfo",
-    version="1.1.1",
+    version="1.1.2",
     description="Official Python library for IPInfo",
     long_description=long_description,
     url="https://github.com/ipinfo/python",
