@@ -70,7 +70,7 @@ class Handler:
     def _get_headers(self):
         """Built headers for request to IPinfo API."""
         headers = {
-            "user-agent": "IPinfoClient/Python{version}/1.0".format(
+            "user-agent": "IPinfoClient/Python{version}/2.0.0".format(
                 version=sys.version_info[0]
             ),
             "accept": "application/json",
