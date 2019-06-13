@@ -10,12 +10,12 @@ You can visit our developer docs at https://ipinfo.io/developers.
 
 setup(
     name="ipinfo",
-    version="1.1.2",
+    version="2.0.0",
     description="Official Python library for IPInfo",
     long_description=long_description,
     url="https://github.com/ipinfo/python",
-    author="James Timmins",
-    author_email="jameshtimmins@gmail.com",
+    author="IPinfo",
+    author_email="support@ipinfo.io",
     license="Apache License 2.0",
     packages=["ipinfo", "ipinfo.cache"],
     install_requires=["requests", "cachetools", "six"],

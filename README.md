@@ -77,21 +77,6 @@ US
 United States
 ```
 
-### IP Address
-
-`details.ip_address` will return the an `ipaddress` object from the [Python Standard Library](https://docs.python.org/3/library/ipaddress.html). `details.ip` will still return a string.
-
-```python
->>> details.ip
-104.175.221.247
->>> type(details.ip)
-<class 'str'>
->>> details.ip_address
-104.175.221.247
->>> type(details.ip_address)
-<class 'ipaddress.IPv4Address'>
-```
-
 #### Longitude and Latitude
 
 `details.latitude` and `details.longitude` will return latitude and longitude, respectively, as strings. `details.loc` will still return a composite string of both values.
@@ -125,7 +110,6 @@ United States
 'country_name': 'United States',
 'hostname': 'cpe-104-175-221-247.socal.res.rr.com',
 'ip': '104.175.221.247',
-'ip_address': IPv4Address('104.175.221.247'),
 'loc': '34.0293,-118.3570',
 'latitude': '34.0293',
 'longitude': '-118.3570',

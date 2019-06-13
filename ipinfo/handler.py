@@ -2,7 +2,6 @@
 Main API client handler for fetching data from the IPinfo service.
 """
 
-import ipaddress
 import json
 import os
 import sys
@@ -30,7 +29,6 @@ class Handler:
         """Initialize the Handler object with country name list and the cache initialized."""
         self.access_token = access_token
         self.countries = self._read_country_names(kwargs.get("countries_file"))
-
         self.request_options = kwargs.get("request_options", {})
         if "timeout" not in self.request_options:
             self.request_options["timeout"] = self.REQUEST_TIMEOUT_DEFAULT
@@ -47,7 +45,6 @@ class Handler:
         """Get details for specified IP address as a Details object."""
         raw_details = self._requestDetails(ip_address)
         raw_details["country_name"] = self.countries.get(raw_details.get("country"))
-        raw_details["ip_address"] = ipaddress.ip_address(raw_details.get("ip"))
         raw_details["latitude"], raw_details["longitude"] = self._read_coords(
             raw_details.get("loc")
         )
@@ -73,7 +70,7 @@ class Handler:
     def _get_headers(self):
         """Built headers for request to IPinfo API."""
         headers = {
-            "user-agent": "IPinfoClient/Python{version}/1.0".format(
+            "user-agent": "IPinfoClient/Python{version}/2.0.0".format(
                 version=sys.version_info[0]
             ),
             "accept": "application/json",
