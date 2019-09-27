@@ -44,11 +44,46 @@ class Handler:
     def getDetails(self, ip_address=None):
         """Get details for specified IP address as a Details object."""
         raw_details = self._requestDetails(ip_address)
-        raw_details["country_name"] = self.countries.get(raw_details.get("country"))
-        raw_details["latitude"], raw_details["longitude"] = self._read_coords(
-            raw_details.get("loc")
-        )
+        self._format_details(raw_details)
         return Details(raw_details)
+
+    def getBatchDetails(self, ip_addresses):
+        """Get details for a batch of IP addresses at once."""
+        result = {}
+
+        # Pre-populate with anything we've got in the cache, and keep around
+        # the IPs not in the cache.
+        lookup_addresses = []
+        for ip_address in ip_addresses:
+            if ip_address in self.cache:
+                result[ip_address] = self.cache[ip_address]
+            else:
+                lookup_addresses.append(ip_address)
+
+        # Do the lookup
+        url = self.API_URL + "/batch"
+        headers = self._get_headers()
+        headers["content-type"] = "application/json"
+        response = requests.post(
+            url, json=lookup_addresses, headers=headers, **self.request_options
+        )
+        if response.status_code == 429:
+            raise RequestQuotaExceededError()
+        response.raise_for_status()
+
+        # Fill up cache
+        json_response = response.json()
+        for ip_address, details in json_response.items():
+            self.cache[ip_address] = details
+
+        # Merge cached results with new lookup
+        result.update(json_response)
+
+        # Format every result
+        for detail in result.values():
+            self._format_details(detail)
+
+        return result
 
     def _requestDetails(self, ip_address=None):
         """Get IP address data by sending request to IPinfo API."""
@@ -80,6 +115,12 @@ class Handler:
             headers["authorization"] = "Bearer {}".format(self.access_token)
 
         return headers
+
+    def _format_details(self, details):
+        details["country_name"] = self.countries.get(details.get("country"))
+        details["latitude"], details["longitude"] = self._read_coords(
+            details.get("loc")
+        )
 
     def _read_coords(self, location):
         lat, lon = None, None
