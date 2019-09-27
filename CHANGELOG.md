@@ -1,5 +1,12 @@
 # IPInfo Changelog
 
+## 2.1.0
+
+- Released a batch ops function on the handler called `getBatchDetails` which
+  accepts a list of IP addresses (or an IP address plus a path to more specific
+  details, e.g. `8.8.8.8/country`). See documentation on batch operations in the
+  README for more details.
+
 ## 2.0.0
 
 #### Breaking Changes
