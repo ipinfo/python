@@ -81,7 +81,8 @@ class Handler:
 
         # Format every result
         for detail in result.values():
-            self._format_details(detail)
+            if isinstance(detail, dict):
+                self._format_details(detail)
 
         return result
 

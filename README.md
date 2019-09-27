@@ -175,6 +175,49 @@ The file must be a `.json` file with the following structure:
 }
 ```
 
+### Batch Operations
+
+Looking up a single IP at a time can be slow. It could be done concurrently from
+the client side, but IPinfo supports a batch endpoint to allow you to group
+together IPs and let us handle retrieving details for them in bulk for you.
+
+```python
+>>> import ipinfo, pprint
+>>> access_token = '123456789abc'
+>>> handler = ipinfo.getHandler(access_token)
+>>> pprint.pprint(handler.getBatchDetails([
+...   '1.1.1.1',
+...   '8.8.8.8',
+...   '1.2.3.4/country',
+... ]))
+{'1.1.1.1': {'city': '',
+             'country': 'AU',
+             'country_name': 'Australia',
+             'hostname': 'one.one.one.one',
+             'ip': '1.1.1.1',
+             'latitude': '-33.4940',
+             'loc': '-33.4940,143.2100',
+             'longitude': '143.2100',
+             'org': 'AS13335 Cloudflare, Inc.',
+             'region': ''},
+ '1.2.3.4/country': 'US',
+ '8.8.8.8': {'city': 'Mountain View',
+             'country': 'US',
+             'country_name': 'United States',
+             'hostname': 'dns.google',
+             'ip': '8.8.8.8',
+             'latitude': '37.3860',
+             'loc': '37.3860,-122.0838',
+             'longitude': '-122.0838',
+             'org': 'AS15169 Google LLC',
+             'postal': '94035',
+             'region': 'California',
+             'timezone': 'America/Los_Angeles'}}
+```
+
+Please see [the official documentation](https://ipinfo.io/developers/batch) for
+more information and limitations.
+
 ## Other Libraries
 
 There are official IPinfo client libraries available for many languages including PHP, Go, Java, Ruby, and many popular frameworks such as Django, Rails and Laravel. There are also many third party libraries and integrations available for our API.
