@@ -28,9 +28,9 @@ pip install ipinfo
 >>> ip_address = '216.239.36.21'
 >>> details = handler.getDetails(ip_address)
 >>> details.city
-Emeryville
+'Mountain View'
 >>> details.loc
-37.8342,-122.2900
+'37.3861,-122.0840'
 ```
 
 ### Usage
@@ -43,9 +43,9 @@ The `Handler.getDetails()` method accepts an IP address as an optional, position
 >>> handler = ipinfo.getHandler(access_token)
 >>> details = handler.getDetails()
 >>> details.city
-Emeryville
+'Mountain View'
 >>> details.loc
-37.8342,-122.2900
+'37.3861,-122.0840'
 ```
 
 ### Authentication
@@ -63,7 +63,7 @@ The IPinfo library can be authenticated with your IPinfo API token, which is pas
 
 ```python
 >>> details.hostname
-cpe-104-175-221-247.socal.res.rr.com
+'any-in-2415.1e100.net'
 ```
 
 #### Country Name
@@ -72,9 +72,9 @@ cpe-104-175-221-247.socal.res.rr.com
 
 ```python
 >>> details.country
-US
+'US'
 >>> details.country_name
-United States
+'United States'
 ```
 
 #### Longitude and Latitude
@@ -83,11 +83,11 @@ United States
 
 ```python
 >>> details.loc
-34.0293,-118.3570
+'37.3861,-122.0840'
 >>> details.latitude
-34.0293
+'37.3861'
 >>> details.longitude
--118.3570
+'-122.0840'
 ```
 
 #### Accessing all properties
@@ -95,28 +95,35 @@ United States
 `details.all` will return all details data as a dictionary.
 
 ```python
->>> details.all
-{
-'asn': {  'asn': 'AS20001',
-           'domain': 'twcable.com',
-           'name': 'Time Warner Cable Internet LLC',
-           'route': '104.172.0.0/14',
-           'type': 'isp'},
-'city': 'Los Angeles',
-'company': {   'domain': 'twcable.com',
-               'name': 'Time Warner Cable Internet LLC',
-               'type': 'isp'},
-'country': 'US',
-'country_name': 'United States',
-'hostname': 'cpe-104-175-221-247.socal.res.rr.com',
-'ip': '104.175.221.247',
-'loc': '34.0293,-118.3570',
-'latitude': '34.0293',
-'longitude': '-118.3570',
-'phone': '323',
-'postal': '90016',
-'region': 'California'
-}
+>>> import pprint
+>>> pprint.pprint(details.all)
+{'abuse': {'address': 'US, CA, Mountain View, 1600 Amphitheatre Parkway, 94043',
+           'country': 'US',
+           'email': 'network-abuse@google.com',
+           'name': 'Abuse',
+           'network': '216.239.32.0/19',
+           'phone': '+1-650-253-0000'},
+ 'asn': {'asn': 'AS15169',
+         'domain': 'google.com',
+         'name': 'Google LLC',
+         'route': '216.239.36.0/24',
+         'type': 'business'},
+ 'city': 'Mountain View',
+ 'company': {'domain': 'google.com', 'name': 'Google LLC', 'type': 'business'},
+ 'country': 'US',
+ 'country_name': 'United States',
+ 'hosting': {'host': 'google',
+             'id': 'GOOGLE',
+             'name': 'Google LLC',
+             'network': '216.239.32.0/19'},
+ 'hostname': 'any-in-2415.1e100.net',
+ 'ip': '216.239.36.21',
+ 'latitude': '37.3861',
+ 'loc': '37.3861,-122.0840',
+ 'longitude': '-122.0840',
+ 'postal': '94035',
+ 'region': 'California',
+ 'timezone': 'America/Los_Angeles'}
 ```
 
 ### Caching
@@ -174,6 +181,49 @@ The file must be a `.json` file with the following structure:
   ...
 }
 ```
+
+### Batch Operations
+
+Looking up a single IP at a time can be slow. It could be done concurrently from
+the client side, but IPinfo supports a batch endpoint to allow you to group
+together IPs and let us handle retrieving details for them in bulk for you.
+
+```python
+>>> import ipinfo, pprint
+>>> access_token = '123456789abc'
+>>> handler = ipinfo.getHandler(access_token)
+>>> pprint.pprint(handler.getBatchDetails([
+...   '1.1.1.1',
+...   '8.8.8.8',
+...   '1.2.3.4/country',
+... ]))
+{'1.1.1.1': {'city': '',
+             'country': 'AU',
+             'country_name': 'Australia',
+             'hostname': 'one.one.one.one',
+             'ip': '1.1.1.1',
+             'latitude': '-33.4940',
+             'loc': '-33.4940,143.2100',
+             'longitude': '143.2100',
+             'org': 'AS13335 Cloudflare, Inc.',
+             'region': ''},
+ '1.2.3.4/country': 'US',
+ '8.8.8.8': {'city': 'Mountain View',
+             'country': 'US',
+             'country_name': 'United States',
+             'hostname': 'dns.google',
+             'ip': '8.8.8.8',
+             'latitude': '37.3860',
+             'loc': '37.3860,-122.0838',
+             'longitude': '-122.0838',
+             'org': 'AS15169 Google LLC',
+             'postal': '94035',
+             'region': 'California',
+             'timezone': 'America/Los_Angeles'}}
+```
+
+Please see [the official documentation](https://ipinfo.io/developers/batch) for
+more information and limitations.
 
 ## Other Libraries
 
