@@ -37,9 +37,11 @@ class Handler:
             self.cache = kwargs["cache"]
         else:
             cache_options = kwargs.get("cache_options", {})
-            maxsize = cache_options.get("maxsize", self.CACHE_MAXSIZE)
-            ttl = cache_options.get("ttl", self.CACHE_TTL)
-            self.cache = DefaultCache(maxsize, ttl, **cache_options)
+            if "maxsize" not in cache_options:
+                cache_options["maxsize"] = self.CACHE_MAXSIZE
+            if "ttl" not in cache_options:
+                cache_options["ttl"] = self.CACHE_TTL
+            self.cache = DefaultCache(**cache_options)
 
     def getDetails(self, ip_address=None):
         """Get details for specified IP address as a Details object."""
