@@ -4,7 +4,7 @@ from ipinfo.cache.default import DefaultCache
 def _get_new_cache():
     maxsize = 4
     ttl = 8
-    return DefaultCache(maxsize, ttl)
+    return DefaultCache(maxsize=maxsize, ttl=ttl)
 
 
 def test_contains():
