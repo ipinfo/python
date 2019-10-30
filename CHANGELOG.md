@@ -1,6 +1,23 @@
 # IPInfo Changelog
 
+## 3.0.0
+
+#### Breaking Changes
+
+- [PR #19](https://github.com/ipinfo/python/pull/19)
+  DefaultCache requires keyword arguments now instead of positional arguments,
+  in particular `maxsize` and `ttl`.
+
+#### Bug Fix
+
+- [PR #19](https://github.com/ipinfo/python/pull/19)
+  [Issue #18](https://github.com/ipinfo/python/issues/18)
+  An issue with the handler not being created if you provide your own custom
+  `maxsize`/`ttl` values has been fixed.
+
 ## 2.1.0
+
+#### General
 
 - Released a batch ops function on the handler called `getBatchDetails` which
   accepts a list of IP addresses (or an IP address plus a path to more specific
