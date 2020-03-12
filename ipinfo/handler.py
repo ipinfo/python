@@ -2,6 +2,7 @@
 Main API client handler for fetching data from the IPinfo service.
 """
 
+from ipaddress import IPv4Address, IPv6Address
 import json
 import os
 import sys
@@ -90,6 +91,12 @@ class Handler:
 
     def _requestDetails(self, ip_address=None):
         """Get IP address data by sending request to IPinfo API."""
+
+        # If the supplied IP address uses the objects defined in the built-in module ipaddress
+        # extract the appropriate string notation before formatting the URL
+        if isinstance(ip_address, IPv4Address) or isinstance(ip_address, IPv6Address):
+            ip_address = ip_address.exploded
+
         if ip_address not in self.cache:
             url = self.API_URL
             if ip_address:
