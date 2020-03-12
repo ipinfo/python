@@ -58,6 +58,11 @@ class Handler:
         # the IPs not in the cache.
         lookup_addresses = []
         for ip_address in ip_addresses:
+            # If the supplied IP address uses the objects defined in the built-in module ipaddress
+            # extract the appropriate string notation before formatting the URL
+            if isinstance(ip_address, IPv4Address) or isinstance(ip_address, IPv6Address):
+                ip_address = ip_address.exploded
+
             if ip_address in self.cache:
                 result[ip_address] = self.cache[ip_address]
             else:
