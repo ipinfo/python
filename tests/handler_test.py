@@ -1,3 +1,4 @@
+from ipaddress import IPv4Address
 import json
 
 from ipinfo.cache.default import DefaultCache
@@ -30,6 +31,22 @@ def test_get_details():
     handler._requestDetails = lambda x: fake_details
 
     details = handler.getDetails(fake_details["ip"])
+    assert isinstance(details, Details)
+    assert details.country == fake_details["country"]
+    assert details.country_name == "United States"
+    assert details.ip == fake_details["ip"]
+    assert details.loc == fake_details["loc"]
+    assert details.longitude == "56.78"
+    assert details.latitude == "12.34"
+
+
+def test_builtin_ip_types():
+    handler = Handler()
+    fake_details = {"country": "US", "ip": "127.0.0.1", "loc": "12.34,56.78"}
+
+    handler._requestDetails = lambda x: fake_details
+
+    details = handler.getDetails(IPv4Address(fake_details["ip"]))
     assert isinstance(details, Details)
     assert details.country == fake_details["country"]
     assert details.country_name == "United States"
