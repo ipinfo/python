@@ -1,5 +1,5 @@
 """
-Main API client handler for fetching data from the IPinfo service.
+Main API client asynchronous handler for fetching data from the IPinfo service.
 """
 
 from ipaddress import IPv4Address, IPv6Address
@@ -14,9 +14,9 @@ from .details import Details
 from .exceptions import RequestQuotaExceededError
 
 
-class Handler:
+class AsyncHandler:
     """
-    Allows client to request data for specified IP address.
+    Allows client to request data for specified IP address asynchronously.
     Instantiates and maintains access to cache.
     """
 
@@ -44,13 +44,33 @@ class Handler:
                 cache_options["ttl"] = self.CACHE_TTL
             self.cache = DefaultCache(**cache_options)
 
-    def getDetails(self, ip_address=None):
+    async def getDetails(self, ip_address=None):
         """Get details for specified IP address as a Details object."""
-        raw_details = self._requestDetails(ip_address)
+        # If the supplied IP address uses the objects defined in the built-in
+        # module ipaddress, extract the appropriate string notation before
+        # formatting the URL.
+        if isinstance(ip_address, IPv4Address) or isinstance(ip_address, IPv6Address):
+            ip_address = ip_address.exploded
+
+        if ip_address in self.cache:
+            return Details(self.cache[ip_address])
+
+        # not in cache; get result, format it, and put in cache.
+        url = self.API_URL
+        if ip_address:
+            url += "/" + ip_address
+        response = requests.get(
+            url, headers=self._get_headers(), **self.request_options
+        )
+        if response.status_code == 429:
+            raise RequestQuotaExceededError()
+        response.raise_for_status()
+        raw_details = response.json()
         self._format_details(raw_details)
+        self.cache[ip_address] = raw_details
         return Details(raw_details)
 
-    def getBatchDetails(self, ip_addresses):
+    async def getBatchDetails(self, ip_addresses):
         """Get details for a batch of IP addresses at once."""
         result = {}
 
@@ -58,8 +78,9 @@ class Handler:
         # the IPs not in the cache.
         lookup_addresses = []
         for ip_address in ip_addresses:
-            # If the supplied IP address uses the objects defined in the built-in module ipaddress
-            # extract the appropriate string notation before formatting the URL
+            # If the supplied IP address uses the objects defined in the
+            # built-in module ipaddress extract the appropriate string notation
+            # before formatting the URL.
             if isinstance(ip_address, IPv4Address) or isinstance(ip_address, IPv6Address):
                 ip_address = ip_address.exploded
 
@@ -67,6 +88,10 @@ class Handler:
                 result[ip_address] = self.cache[ip_address]
             else:
                 lookup_addresses.append(ip_address)
+
+        # all in cache - return early.
+        if len(lookup_addresses) == 0:
+            return result
 
         # Do the lookup
         url = self.API_URL + "/batch"
@@ -79,43 +104,17 @@ class Handler:
             raise RequestQuotaExceededError()
         response.raise_for_status()
 
-        # Fill up cache
+        # Format & fill up cache
         json_response = response.json()
         for ip_address, details in json_response.items():
-            self.cache[ip_address] = details
+            if isinstance(details, dict):
+                self._format_details(details)
+                self.cache[ip_address] = details
 
         # Merge cached results with new lookup
         result.update(json_response)
 
-        # Format every result
-        for detail in result.values():
-            if isinstance(detail, dict):
-                self._format_details(detail)
-
         return result
-
-    def _requestDetails(self, ip_address=None):
-        """Get IP address data by sending request to IPinfo API."""
-
-        # If the supplied IP address uses the objects defined in the built-in module ipaddress
-        # extract the appropriate string notation before formatting the URL
-        if isinstance(ip_address, IPv4Address) or isinstance(ip_address, IPv6Address):
-            ip_address = ip_address.exploded
-
-        if ip_address not in self.cache:
-            url = self.API_URL
-            if ip_address:
-                url += "/" + ip_address
-
-            response = requests.get(
-                url, headers=self._get_headers(), **self.request_options
-            )
-            if response.status_code == 429:
-                raise RequestQuotaExceededError()
-            response.raise_for_status()
-            self.cache[ip_address] = response.json()
-
-        return self.cache[ip_address]
 
     def _get_headers(self):
         """Built headers for request to IPinfo API."""
