@@ -7,6 +7,7 @@ import json
 import os
 import sys
 
+import aiohttp
 import requests
 
 from .cache.default import DefaultCache
@@ -41,6 +42,9 @@ class AsyncHandler:
         if "timeout" not in self.request_options:
             self.request_options["timeout"] = self.REQUEST_TIMEOUT_DEFAULT
 
+        # setup aiohttp
+        self.httpsess = None
+
         # setup cache
         if "cache" in kwargs:
             self.cache = kwargs["cache"]
@@ -52,8 +56,34 @@ class AsyncHandler:
                 cache_options["ttl"] = self.CACHE_TTL
             self.cache = DefaultCache(**cache_options)
 
+    async def init(self):
+        """
+        Initializes internal aiohttp connection pool.
+
+        This isn't _required_, as the pool is initialized lazily when needed.
+        But in case you require non-lazy initialization, you may await this.
+
+        This is idempotent.
+        """
+        await self._ensure_aiohttp_ready()
+
+    async def deinit(self):
+        """
+        Deinitialize the async handler.
+
+        This is required in case you need to let go of the memory/state
+        associated with the async handler in a long-running process.
+
+        This is idempotent.
+        """
+        if self.httpsess:
+            await self.httpsess.close()
+            self.httpsess = None
+
     async def getDetails(self, ip_address=None):
         """Get details for specified IP address as a Details object."""
+        self._ensure_aiohttp_ready()
+
         # If the supplied IP address uses the objects defined in the built-in
         # module ipaddress, extract the appropriate string notation before
         # formatting the URL.
@@ -82,6 +112,8 @@ class AsyncHandler:
 
     async def getBatchDetails(self, ip_addresses):
         """Get details for a batch of IP addresses at once."""
+        self._ensure_aiohttp_ready()
+
         result = {}
 
         # Pre-populate with anything we've got in the cache, and keep around
@@ -127,6 +159,11 @@ class AsyncHandler:
         result.update(json_response)
 
         return result
+
+    def _ensure_aiohttp_ready(self):
+        """Ensures aiohttp internal state is initialized."""
+        if not self.httpsess:
+            self.httpsess = aiohttp.ClientSession()
 
     def _get_headers(self):
         """Built headers for request to IPinfo API."""

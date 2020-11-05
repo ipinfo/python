@@ -13,6 +13,7 @@ async def test_init():
     assert handler.access_token == token
     assert isinstance(handler.cache, DefaultCache)
     assert "PK" in handler.countries
+    await handler.deinit()
 
 
 @pytest.mark.asyncio
@@ -20,6 +21,7 @@ async def test_headers():
     token = "mytesttoken"
     handler = AsyncHandler(token)
     headers = handler._get_headers()
+    await handler.deinit()
 
     assert "user-agent" in headers
     assert "accept" in headers
@@ -77,3 +79,5 @@ async def test_get_details():
         assert domains["ip"] == "8.8.8.8"
         assert domains["total"] == 12988
         assert len(domains["domains"]) == 5
+
+    await handler.deinit()
