@@ -8,7 +8,6 @@ import os
 import sys
 
 import aiohttp
-import requests
 
 from .cache.default import DefaultCache
 from .details import Details
@@ -139,26 +138,26 @@ class AsyncHandler:
         if len(lookup_addresses) == 0:
             return result
 
-        # Do the lookup
+        # do http req
         url = self.API_URL + "/batch"
         headers = self._get_headers()
         headers["content-type"] = "application/json"
-        response = requests.post(
-            url, json=lookup_addresses, headers=headers, **self.request_options
-        )
-        if response.status_code == 429:
-            raise RequestQuotaExceededError()
-        response.raise_for_status()
+        async with self.httpsess.post(
+            url, data=json.dumps(lookup_addresses), headers=headers
+        ) as resp:
+            if resp.status == 429:
+                raise RequestQuotaExceededError()
+            resp.raise_for_status()
+            json_resp = await resp.json()
 
-        # Format & fill up cache
-        json_response = response.json()
-        for ip_address, details in json_response.items():
+        # format & fill up cache
+        for ip_address, details in json_resp.items():
             if isinstance(details, dict):
                 self._format_details(details)
                 self.cache[ip_address] = details
 
-        # Merge cached results with new lookup
-        result.update(json_response)
+        # merge cached results with new lookup
+        result.update(json_resp)
 
         return result
 

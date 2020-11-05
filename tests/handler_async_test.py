@@ -28,8 +28,9 @@ async def test_headers():
     assert "authorization" in headers
 
 
+@pytest.mark.parametrize('n', range(5))
 @pytest.mark.asyncio
-async def test_get_details():
+async def test_get_details(n):
     token = os.environ.get("IPINFO_TOKEN", "")
     handler = AsyncHandler(token)
     details = await handler.getDetails("8.8.8.8")
@@ -79,5 +80,26 @@ async def test_get_details():
         assert domains["ip"] == "8.8.8.8"
         assert domains["total"] == 12988
         assert len(domains["domains"]) == 5
+
+    await handler.deinit()
+
+@pytest.mark.parametrize('n', range(5))
+@pytest.mark.asyncio
+async def test_get_batch_details(n):
+    token = os.environ.get("IPINFO_TOKEN", "")
+    handler = AsyncHandler(token)
+    ips = ["1.1.1.1", "8.8.8.8", "9.9.9.9"]
+    details = await handler.getBatchDetails(ips)
+
+    for ip in ips:
+        assert ip in details
+        d = details[ip]
+        assert d["ip"] == ip
+        if token:
+            assert "asn" in d
+            assert "company" in d
+            assert "privacy" in d
+            assert "abuse" in d
+            assert "domains" in d
 
     await handler.deinit()

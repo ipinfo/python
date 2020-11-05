@@ -5,6 +5,7 @@ import os
 from ipinfo.cache.default import DefaultCache
 from ipinfo.details import Details
 from ipinfo.handler import Handler
+import pytest
 
 
 def test_init():
@@ -25,7 +26,8 @@ def test_headers():
     assert "authorization" in headers
 
 
-def test_get_details():
+@pytest.mark.parametrize('n', range(5))
+def test_get_details(n):
     token = os.environ.get("IPINFO_TOKEN", "")
     handler = Handler(token)
     details = handler.getDetails("8.8.8.8")
