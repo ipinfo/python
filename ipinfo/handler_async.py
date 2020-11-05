@@ -172,7 +172,7 @@ class AsyncHandler:
     def _get_headers(self):
         """Built headers for request to IPinfo API."""
         headers = {
-            "user-agent": "IPinfoClient/Python{version}/3.0.0".format(
+            "user-agent": "IPinfoClient/Python{version}/4.0.0".format(
                 version=sys.version_info[0]
             ),
             "accept": "application/json",
