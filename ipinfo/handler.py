@@ -27,13 +27,21 @@ class Handler:
     REQUEST_TIMEOUT_DEFAULT = 2
 
     def __init__(self, access_token=None, **kwargs):
-        """Initialize the Handler object with country name list and the cache initialized."""
+        """
+        Initialize the Handler object with country name list and the
+        cache initialized.
+        """
         self.access_token = access_token
+
+        # load countries file
         self.countries = self._read_country_names(kwargs.get("countries_file"))
+
+        # setup req opts
         self.request_options = kwargs.get("request_options", {})
         if "timeout" not in self.request_options:
             self.request_options["timeout"] = self.REQUEST_TIMEOUT_DEFAULT
 
+        # setup cache
         if "cache" in kwargs:
             self.cache = kwargs["cache"]
         else:
@@ -58,8 +66,9 @@ class Handler:
         # the IPs not in the cache.
         lookup_addresses = []
         for ip_address in ip_addresses:
-            # If the supplied IP address uses the objects defined in the built-in module ipaddress
-            # extract the appropriate string notation before formatting the URL
+            # If the supplied IP address uses the objects defined in the
+            # built-in module ipaddress extract the appropriate string notation
+            # before formatting the URL.
             if isinstance(ip_address, IPv4Address) or isinstance(
                 ip_address, IPv6Address
             ):
@@ -99,8 +108,9 @@ class Handler:
     def _requestDetails(self, ip_address=None):
         """Get IP address data by sending request to IPinfo API."""
 
-        # If the supplied IP address uses the objects defined in the built-in module ipaddress
-        # extract the appropriate string notation before formatting the URL
+        # If the supplied IP address uses the objects defined in the built-in
+        # module ipaddress extract the appropriate string notation before
+        # formatting the URL.
         if isinstance(ip_address, IPv4Address) or isinstance(
             ip_address, IPv6Address
         ):
@@ -149,7 +159,10 @@ class Handler:
         return lat, lon
 
     def _read_country_names(self, countries_file=None):
-        """Read list of countries from specified country file or default file."""
+        """
+        Read list of countries from specified country file or
+        default file.
+        """
         if not countries_file:
             countries_file = os.path.join(
                 os.path.dirname(__file__), self.COUNTRY_FILE_DEFAULT

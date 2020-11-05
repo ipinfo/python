@@ -27,13 +27,21 @@ class AsyncHandler:
     REQUEST_TIMEOUT_DEFAULT = 2
 
     def __init__(self, access_token=None, **kwargs):
-        """Initialize the Handler object with country name list and the cache initialized."""
+        """
+        Initialize the Handler object with country name list and the
+        cache initialized.
+        """
         self.access_token = access_token
+
+        # load countries file
         self.countries = self._read_country_names(kwargs.get("countries_file"))
+
+        # setup req opts
         self.request_options = kwargs.get("request_options", {})
         if "timeout" not in self.request_options:
             self.request_options["timeout"] = self.REQUEST_TIMEOUT_DEFAULT
 
+        # setup cache
         if "cache" in kwargs:
             self.cache = kwargs["cache"]
         else:
