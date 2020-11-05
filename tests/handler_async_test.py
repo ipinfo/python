@@ -5,6 +5,7 @@ from ipinfo.details import Details
 from ipinfo.handler_async import AsyncHandler
 import pytest
 
+
 @pytest.mark.asyncio
 async def test_init():
     token = "mytesttoken"
@@ -27,7 +28,7 @@ async def test_headers():
 
 @pytest.mark.asyncio
 async def test_get_details():
-    token = os.environ.get('IPINFO_TOKEN', '')
+    token = os.environ.get("IPINFO_TOKEN", "")
     handler = AsyncHandler(token)
     details = await handler.getDetails("8.8.8.8")
     assert isinstance(details, Details)
@@ -62,7 +63,10 @@ async def test_get_details():
         assert privacy["hosting"] == False
 
         abuse = details.abuse
-        assert abuse["address"] == "US, CA, Mountain View, 1600 Amphitheatre Parkway, 94043"
+        assert (
+            abuse["address"]
+            == "US, CA, Mountain View, 1600 Amphitheatre Parkway, 94043"
+        )
         assert abuse["country"] == "US"
         assert abuse["email"] == "network-abuse@google.com"
         assert abuse["name"] == "Abuse"

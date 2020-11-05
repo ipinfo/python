@@ -26,7 +26,7 @@ def test_headers():
 
 
 def test_get_details():
-    token = os.environ.get('IPINFO_TOKEN', '')
+    token = os.environ.get("IPINFO_TOKEN", "")
     handler = Handler(token)
     details = handler.getDetails("8.8.8.8")
     assert isinstance(details, Details)
@@ -61,7 +61,10 @@ def test_get_details():
         assert privacy["hosting"] == False
 
         abuse = details.abuse
-        assert abuse["address"] == "US, CA, Mountain View, 1600 Amphitheatre Parkway, 94043"
+        assert (
+            abuse["address"]
+            == "US, CA, Mountain View, 1600 Amphitheatre Parkway, 94043"
+        )
         assert abuse["country"] == "US"
         assert abuse["email"] == "network-abuse@google.com"
         assert abuse["name"] == "Abuse"

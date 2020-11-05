@@ -49,7 +49,9 @@ class AsyncHandler:
         # If the supplied IP address uses the objects defined in the built-in
         # module ipaddress, extract the appropriate string notation before
         # formatting the URL.
-        if isinstance(ip_address, IPv4Address) or isinstance(ip_address, IPv6Address):
+        if isinstance(ip_address, IPv4Address) or isinstance(
+            ip_address, IPv6Address
+        ):
             ip_address = ip_address.exploded
 
         if ip_address in self.cache:
@@ -81,7 +83,9 @@ class AsyncHandler:
             # If the supplied IP address uses the objects defined in the
             # built-in module ipaddress extract the appropriate string notation
             # before formatting the URL.
-            if isinstance(ip_address, IPv4Address) or isinstance(ip_address, IPv6Address):
+            if isinstance(ip_address, IPv4Address) or isinstance(
+                ip_address, IPv6Address
+            ):
                 ip_address = ip_address.exploded
 
             if ip_address in self.cache:
@@ -144,7 +148,10 @@ class AsyncHandler:
         return lat, lon
 
     def _read_country_names(self, countries_file=None):
-        """Read list of countries from specified country file or default file."""
+        """
+        Read list of countries from specified country file or
+        default file.
+        """
         if not countries_file:
             countries_file = os.path.join(
                 os.path.dirname(__file__), self.COUNTRY_FILE_DEFAULT
