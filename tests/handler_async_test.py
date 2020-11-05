@@ -96,6 +96,8 @@ async def test_get_batch_details(n):
         assert ip in details
         d = details[ip]
         assert d["ip"] == ip
+        assert d["country"] == "US"
+        assert d["country_name"] == "United States"
         if token:
             assert "asn" in d
             assert "company" in d
