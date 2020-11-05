@@ -95,19 +95,21 @@ class AsyncHandler:
         if ip_address in self.cache:
             return Details(self.cache[ip_address])
 
-        # not in cache; get result, format it, and put in cache.
+        # not in cache; do http req
         url = self.API_URL
         if ip_address:
             url += "/" + ip_address
-        response = requests.get(
-            url, headers=self._get_headers(), **self.request_options
-        )
-        if response.status_code == 429:
-            raise RequestQuotaExceededError()
-        response.raise_for_status()
-        raw_details = response.json()
+        headers = self._get_headers()
+        async with self.httpsess.get(url, headers=headers) as resp:
+            if resp.status == 429:
+                raise RequestQuotaExceededError()
+            resp.raise_for_status()
+            raw_details = await resp.json()
+
+        # format & cache
         self._format_details(raw_details)
         self.cache[ip_address] = raw_details
+
         return Details(raw_details)
 
     async def getBatchDetails(self, ip_addresses):
@@ -162,8 +164,11 @@ class AsyncHandler:
 
     def _ensure_aiohttp_ready(self):
         """Ensures aiohttp internal state is initialized."""
-        if not self.httpsess:
-            self.httpsess = aiohttp.ClientSession()
+        if self.httpsess:
+            return
+
+        timeout = aiohttp.ClientTimeout(total=self.request_options["timeout"])
+        self.httpsess = aiohttp.ClientSession(timeout=timeout)
 
     def _get_headers(self):
         """Built headers for request to IPinfo API."""
