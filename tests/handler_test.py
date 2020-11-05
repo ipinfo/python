@@ -26,7 +26,7 @@ def test_headers():
     assert "authorization" in headers
 
 
-@pytest.mark.parametrize('n', range(5))
+@pytest.mark.parametrize("n", range(5))
 def test_get_details(n):
     token = os.environ.get("IPINFO_TOKEN", "")
     handler = Handler(token)

@@ -28,7 +28,7 @@ async def test_headers():
     assert "authorization" in headers
 
 
-@pytest.mark.parametrize('n', range(5))
+@pytest.mark.parametrize("n", range(5))
 @pytest.mark.asyncio
 async def test_get_details(n):
     token = os.environ.get("IPINFO_TOKEN", "")
@@ -83,7 +83,8 @@ async def test_get_details(n):
 
     await handler.deinit()
 
-@pytest.mark.parametrize('n', range(5))
+
+@pytest.mark.parametrize("n", range(5))
 @pytest.mark.asyncio
 async def test_get_batch_details(n):
     token = os.environ.get("IPINFO_TOKEN", "")
