@@ -88,6 +88,8 @@ async def test_get_details(n):
 @pytest.mark.asyncio
 async def test_get_batch_details(n):
     token = os.environ.get("IPINFO_TOKEN", "")
+    if not token:
+        pytest.skip("token required for batch tests")
     handler = AsyncHandler(token)
     ips = ["1.1.1.1", "8.8.8.8", "9.9.9.9"]
     details = await handler.getBatchDetails(ips)

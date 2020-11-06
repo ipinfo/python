@@ -82,6 +82,8 @@ def test_get_details(n):
 @pytest.mark.parametrize("n", range(5))
 def test_get_batch_details(n):
     token = os.environ.get("IPINFO_TOKEN", "")
+    if not token:
+        pytest.skip("token required for batch tests")
     handler = Handler(token)
     ips = ["1.1.1.1", "8.8.8.8", "9.9.9.9"]
     details = handler.getBatchDetails(ips)
