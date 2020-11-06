@@ -79,6 +79,27 @@ def test_get_details(n):
         assert len(domains["domains"]) == 5
 
 
+@pytest.mark.parametrize("n", range(5))
+def test_get_batch_details(n):
+    token = os.environ.get("IPINFO_TOKEN", "")
+    handler = Handler(token)
+    ips = ["1.1.1.1", "8.8.8.8", "9.9.9.9"]
+    details = handler.getBatchDetails(ips)
+
+    for ip in ips:
+        assert ip in details
+        d = details[ip]
+        assert d["ip"] == ip
+        assert d["country"] == "US"
+        assert d["country_name"] == "United States"
+        if token:
+            assert "asn" in d
+            assert "company" in d
+            assert "privacy" in d
+            assert "abuse" in d
+            assert "domains" in d
+
+
 def test_builtin_ip_types():
     handler = Handler()
     fake_details = {"country": "US", "ip": "127.0.0.1", "loc": "12.34,56.78"}
