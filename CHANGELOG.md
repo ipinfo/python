@@ -1,5 +1,13 @@
 # IPInfo Changelog
 
+## 4.0.0
+
+#### Breaking Changes
+
+- [PR #32](https://github.com/ipinfo/python/pull/32)
+  All EOL Python versions are no longer supported; currently, Python 3.6 or greater is now **required**.
+  An asynchronous handler is available from `getHandlerAsync` which returns an `AsyncHandler` which uses **aiohttp**.
+
 ## 3.0.0
 
 #### Breaking Changes

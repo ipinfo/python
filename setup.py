@@ -10,7 +10,7 @@ You can visit our developer docs at https://ipinfo.io/developers.
 
 setup(
     name="ipinfo",
-    version="3.0.0",
+    version="4.0.0",
     description="Official Python library for IPInfo",
     long_description=long_description,
     url="https://github.com/ipinfo/python",
@@ -18,7 +18,7 @@ setup(
     author_email="support@ipinfo.io",
     license="Apache License 2.0",
     packages=["ipinfo", "ipinfo.cache"],
-    install_requires=["requests", "cachetools", "six"],
+    install_requires=["requests", "cachetools", "aiohttp<=4"],
     include_package_data=True,
     zip_safe=False,
 )

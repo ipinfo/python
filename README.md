@@ -33,6 +33,37 @@ pip install ipinfo
 '37.3861,-122.0840'
 ```
 
+#### Async/Await
+
+An asynchronous handler is available as well, and can be accessed and used in
+almost the same exact way as the synchronous handler:
+
+```python
+>>> import ipinfo
+>>> access_token = '123456789abc'
+>>> handler = ipinfo.getHandlerAsync(access_token)
+>>> ip_address = '216.239.36.21'
+>>> async def do_req():
+...     details = await handler.getDetails(ip_address)
+...     print(details.city)
+...     print(details.loc)
+...
+>>>
+>>> import asyncio
+>>> loop = asyncio.get_event_loop()
+>>> loop.run_until_complete(do_req())
+Mountain View
+37.4056,-122.0775
+>>>
+>>> ip_address = '1.1.1.1'
+>>> loop.run_until_complete(do_req())
+New York City
+40.7143,-74.0060
+```
+
+Internally the library uses `aiohttp`, but as long as you provide an event
+loop (as in this example via `asyncio`), it shouldn't matter.
+
 ### Usage
 
 The `Handler.getDetails()` method accepts an IP address as an optional, positional argument. If no IP address is specified, the API will return data for the IP address from which it receives the request.
@@ -157,6 +188,9 @@ handler = ipinfo.getHandler(cache=MyCustomCache())
 ```
 
 ### Modifying request options
+
+**Note**: the asynchronous handler currently only accepts the `timeout` option,
+input the same way as shown below.
 
 Request behavior can be modified by setting the `request_options` keyword argument. `request_options` is a dictionary in which the keys are keyword arguments specified in the `requests` library. The nesting of keyword arguments is to prevent name collisions between this library and its dependencies.
 
