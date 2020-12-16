@@ -1,12 +1,19 @@
 # IPInfo Changelog
 
+## 4.1.0 (WIP)
+
+- Most private functions on all handlers (i.e. those that start with `_`) are
+  now moved to `ipinfo.handler_utils`.
+
 ## 4.0.0
 
 #### Breaking Changes
 
 - [PR #32](https://github.com/ipinfo/python/pull/32)
-  All EOL Python versions are no longer supported; currently, Python 3.6 or greater is now **required**.
-  An asynchronous handler is available from `getHandlerAsync` which returns an `AsyncHandler` which uses **aiohttp**.
+  All EOL Python versions are no longer supported; currently, Python 3.6 or
+  greater is now **required**.
+  An asynchronous handler is available from `getHandlerAsync` which returns an
+  `AsyncHandler` which uses **aiohttp**.
 
 ## 3.0.0
 
