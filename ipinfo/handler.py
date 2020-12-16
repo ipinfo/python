@@ -12,6 +12,7 @@ import requests
 from .cache.default import DefaultCache
 from .details import Details
 from .exceptions import RequestQuotaExceededError
+from . import handler_utils
 
 
 class Handler:
@@ -20,10 +21,8 @@ class Handler:
     Instantiates and maintains access to cache.
     """
 
-    API_URL = "https://ipinfo.io"
     CACHE_MAXSIZE = 4096
     CACHE_TTL = 60 * 60 * 24
-    COUNTRY_FILE_DEFAULT = "countries.json"
     REQUEST_TIMEOUT_DEFAULT = 2
 
     def __init__(self, access_token=None, **kwargs):
@@ -34,7 +33,9 @@ class Handler:
         self.access_token = access_token
 
         # load countries file
-        self.countries = self._read_country_names(kwargs.get("countries_file"))
+        self.countries = handler_utils.read_country_names(
+            kwargs.get("countries_file")
+        )
 
         # setup req opts
         self.request_options = kwargs.get("request_options", {})
@@ -55,7 +56,7 @@ class Handler:
     def getDetails(self, ip_address=None):
         """Get details for specified IP address as a Details object."""
         raw_details = self._requestDetails(ip_address)
-        self._format_details(raw_details)
+        handler_utils.format_details(raw_details, self.countries)
         return Details(raw_details)
 
     def getBatchDetails(self, ip_addresses):
@@ -80,8 +81,8 @@ class Handler:
                 lookup_addresses.append(ip_address)
 
         # Do the lookup
-        url = self.API_URL + "/batch"
-        headers = self._get_headers()
+        url = handler_utils.API_URL + "/batch"
+        headers = handler_utils.get_headers(self.access_token)
         headers["content-type"] = "application/json"
         response = requests.post(
             url, json=lookup_addresses, headers=headers, **self.request_options
@@ -101,7 +102,7 @@ class Handler:
         # Format every result
         for detail in result.values():
             if isinstance(detail, dict):
-                self._format_details(detail)
+                handler_utils.format_details(detail, self.countries)
 
         return result
 
@@ -117,12 +118,14 @@ class Handler:
             ip_address = ip_address.exploded
 
         if ip_address not in self.cache:
-            url = self.API_URL
+            url = handler_utils.API_URL
             if ip_address:
                 url += "/" + ip_address
 
             response = requests.get(
-                url, headers=self._get_headers(), **self.request_options
+                url,
+                headers=handler_utils.get_headers(self.access_token),
+                **self.request_options
             )
             if response.status_code == 429:
                 raise RequestQuotaExceededError()
@@ -130,44 +133,3 @@ class Handler:
             self.cache[ip_address] = response.json()
 
         return self.cache[ip_address]
-
-    def _get_headers(self):
-        """Built headers for request to IPinfo API."""
-        headers = {
-            "user-agent": "IPinfoClient/Python{version}/4.0.0".format(
-                version=sys.version_info[0]
-            ),
-            "accept": "application/json",
-        }
-
-        if self.access_token:
-            headers["authorization"] = "Bearer {}".format(self.access_token)
-
-        return headers
-
-    def _format_details(self, details):
-        details["country_name"] = self.countries.get(details.get("country"))
-        details["latitude"], details["longitude"] = self._read_coords(
-            details.get("loc")
-        )
-
-    def _read_coords(self, location):
-        lat, lon = None, None
-        coords = tuple(location.split(",")) if location else ""
-        if len(coords) == 2 and coords[0] and coords[1]:
-            lat, lon = coords[0], coords[1]
-        return lat, lon
-
-    def _read_country_names(self, countries_file=None):
-        """
-        Read list of countries from specified country file or
-        default file.
-        """
-        if not countries_file:
-            countries_file = os.path.join(
-                os.path.dirname(__file__), self.COUNTRY_FILE_DEFAULT
-            )
-        with open(countries_file) as f:
-            countries_json = f.read()
-
-        return json.loads(countries_json)

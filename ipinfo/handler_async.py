@@ -12,6 +12,7 @@ import aiohttp
 from .cache.default import DefaultCache
 from .details import Details
 from .exceptions import RequestQuotaExceededError
+from . import handler_utils
 
 
 class AsyncHandler:
@@ -20,10 +21,8 @@ class AsyncHandler:
     Instantiates and maintains access to cache.
     """
 
-    API_URL = "https://ipinfo.io"
     CACHE_MAXSIZE = 4096
     CACHE_TTL = 60 * 60 * 24
-    COUNTRY_FILE_DEFAULT = "countries.json"
     REQUEST_TIMEOUT_DEFAULT = 2
 
     def __init__(self, access_token=None, **kwargs):
@@ -34,7 +33,9 @@ class AsyncHandler:
         self.access_token = access_token
 
         # load countries file
-        self.countries = self._read_country_names(kwargs.get("countries_file"))
+        self.countries = handler_utils.read_country_names(
+            kwargs.get("countries_file")
+        )
 
         # setup req opts
         self.request_options = kwargs.get("request_options", {})
@@ -95,10 +96,10 @@ class AsyncHandler:
             return Details(self.cache[ip_address])
 
         # not in cache; do http req
-        url = self.API_URL
+        url = handler_utils.API_URL
         if ip_address:
             url += "/" + ip_address
-        headers = self._get_headers()
+        headers = handler_utils.get_headers(self.access_token)
         async with self.httpsess.get(url, headers=headers) as resp:
             if resp.status == 429:
                 raise RequestQuotaExceededError()
@@ -106,7 +107,7 @@ class AsyncHandler:
             raw_details = await resp.json()
 
         # format & cache
-        self._format_details(raw_details)
+        handler_utils.format_details(raw_details, self.countries)
         self.cache[ip_address] = raw_details
 
         return Details(raw_details)
@@ -139,11 +140,13 @@ class AsyncHandler:
             return result
 
         # do http req
-        url = self.API_URL + "/batch"
-        headers = self._get_headers()
+        url = handler_utils.API_URL + "/batch"
+        headers = handler_utils.get_headers(self.access_token)
         headers["content-type"] = "application/json"
         async with self.httpsess.post(
-            url, data=json.dumps(lookup_addresses), headers=headers
+            url,
+            data=json.dumps(lookup_addresses),
+            headers=headers
         ) as resp:
             if resp.status == 429:
                 raise RequestQuotaExceededError()
@@ -153,7 +156,7 @@ class AsyncHandler:
         # format & fill up cache
         for ip_address, details in json_resp.items():
             if isinstance(details, dict):
-                self._format_details(details)
+                handler_utils.format_details(details, self.countries)
                 self.cache[ip_address] = details
 
         # merge cached results with new lookup
@@ -168,44 +171,3 @@ class AsyncHandler:
 
         timeout = aiohttp.ClientTimeout(total=self.request_options["timeout"])
         self.httpsess = aiohttp.ClientSession(timeout=timeout)
-
-    def _get_headers(self):
-        """Built headers for request to IPinfo API."""
-        headers = {
-            "user-agent": "IPinfoClient/Python{version}/4.0.0".format(
-                version=sys.version_info[0]
-            ),
-            "accept": "application/json",
-        }
-
-        if self.access_token:
-            headers["authorization"] = "Bearer {}".format(self.access_token)
-
-        return headers
-
-    def _format_details(self, details):
-        details["country_name"] = self.countries.get(details.get("country"))
-        details["latitude"], details["longitude"] = self._read_coords(
-            details.get("loc")
-        )
-
-    def _read_coords(self, location):
-        lat, lon = None, None
-        coords = tuple(location.split(",")) if location else ""
-        if len(coords) == 2 and coords[0] and coords[1]:
-            lat, lon = coords[0], coords[1]
-        return lat, lon
-
-    def _read_country_names(self, countries_file=None):
-        """
-        Read list of countries from specified country file or
-        default file.
-        """
-        if not countries_file:
-            countries_file = os.path.join(
-                os.path.dirname(__file__), self.COUNTRY_FILE_DEFAULT
-            )
-        with open(countries_file) as f:
-            countries_json = f.read()
-
-        return json.loads(countries_json)

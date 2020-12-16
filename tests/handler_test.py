@@ -5,6 +5,7 @@ import os
 from ipinfo.cache.default import DefaultCache
 from ipinfo.details import Details
 from ipinfo.handler import Handler
+from ipinfo import handler_utils
 import pytest
 
 
@@ -19,7 +20,7 @@ def test_init():
 def test_headers():
     token = "mytesttoken"
     handler = Handler(token)
-    headers = handler._get_headers()
+    headers = handler_utils.get_headers(token)
 
     assert "user-agent" in headers
     assert "accept" in headers
@@ -75,7 +76,8 @@ def test_get_details(n):
 
         domains = details.domains
         assert domains["ip"] == "8.8.8.8"
-        assert domains["total"] == 12988
+        # NOTE: actual number changes too much
+        assert "total" in domains
         assert len(domains["domains"]) == 5
 
 
