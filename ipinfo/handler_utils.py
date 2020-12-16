@@ -6,14 +6,17 @@ import json
 import os
 import sys
 
+from .version import SDK_VERSION
+
 API_URL = "https://ipinfo.io"
 COUNTRY_FILE_DEFAULT = "countries.json"
 
 def get_headers(access_token):
     """Build headers for request to IPinfo API."""
     headers = {
-        "user-agent": "IPinfoClient/Python{version}/4.0.0".format(
-            version=sys.version_info[0]
+        "user-agent": "IPinfoClient/Python{version}/{sdk_version}".format(
+            version=sys.version_info[0],
+            sdk_version=SDK_VERSION
         ),
         "accept": "application/json",
     }

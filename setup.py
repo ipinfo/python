@@ -1,5 +1,7 @@
 from setuptools import setup
 
+from ipinfo.version import SDK_VERSION
+
 long_description = """
 The official Python library for IPinfo.
 
@@ -10,7 +12,7 @@ You can visit our developer docs at https://ipinfo.io/developers.
 
 setup(
     name="ipinfo",
-    version="4.0.0",
+    version=SDK_VERSION,
     description="Official Python library for IPInfo",
     long_description=long_description,
     url="https://github.com/ipinfo/python",
