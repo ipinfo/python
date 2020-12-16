@@ -104,13 +104,13 @@ class AsyncHandler:
             if resp.status == 429:
                 raise RequestQuotaExceededError()
             resp.raise_for_status()
-            raw_details = await resp.json()
+            details = await resp.json()
 
         # format & cache
-        handler_utils.format_details(raw_details, self.countries)
-        self.cache[ip_address] = raw_details
+        handler_utils.format_details(details, self.countries)
+        self.cache[ip_address] = details
 
-        return Details(raw_details)
+        return Details(details)
 
     async def getBatchDetails(self, ip_addresses):
         """Get details for a batch of IP addresses at once."""

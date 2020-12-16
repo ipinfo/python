@@ -55,9 +55,33 @@ class Handler:
 
     def getDetails(self, ip_address=None):
         """Get details for specified IP address as a Details object."""
-        raw_details = self._requestDetails(ip_address)
-        handler_utils.format_details(raw_details, self.countries)
-        return Details(raw_details)
+        # If the supplied IP address uses the objects defined in the built-in
+        # module ipaddress extract the appropriate string notation before
+        # formatting the URL.
+        if isinstance(ip_address, IPv4Address) or isinstance(
+            ip_address, IPv6Address
+        ):
+            ip_address = ip_address.exploded
+
+        if ip_address in self.cache:
+            return Details(self.cache[ip_address])
+
+        # not in cache; do http req
+        url = handler_utils.API_URL
+        if ip_address:
+            url += "/" + ip_address
+        headers = handler_utils.get_headers(self.access_token)
+        response = requests.get(url, headers=headers, **self.request_options)
+        if response.status_code == 429:
+            raise RequestQuotaExceededError()
+        response.raise_for_status()
+        details = response.json()
+
+        # format & cache
+        handler_utils.format_details(details, self.countries)
+        self.cache[ip_address] = details
+
+        return Details(details)
 
     def getBatchDetails(self, ip_addresses):
         """Get details for a batch of IP addresses at once."""
@@ -105,31 +129,3 @@ class Handler:
                 handler_utils.format_details(detail, self.countries)
 
         return result
-
-    def _requestDetails(self, ip_address=None):
-        """Get IP address data by sending request to IPinfo API."""
-
-        # If the supplied IP address uses the objects defined in the built-in
-        # module ipaddress extract the appropriate string notation before
-        # formatting the URL.
-        if isinstance(ip_address, IPv4Address) or isinstance(
-            ip_address, IPv6Address
-        ):
-            ip_address = ip_address.exploded
-
-        if ip_address not in self.cache:
-            url = handler_utils.API_URL
-            if ip_address:
-                url += "/" + ip_address
-
-            response = requests.get(
-                url,
-                headers=handler_utils.get_headers(self.access_token),
-                **self.request_options
-            )
-            if response.status_code == 429:
-                raise RequestQuotaExceededError()
-            response.raise_for_status()
-            self.cache[ip_address] = response.json()
-
-        return self.cache[ip_address]
