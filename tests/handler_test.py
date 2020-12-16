@@ -27,8 +27,7 @@ def test_headers():
     assert "authorization" in headers
 
 
-@pytest.mark.parametrize("n", range(5))
-def test_get_details(n):
+def test_get_details():
     token = os.environ.get("IPINFO_TOKEN", "")
     handler = Handler(token)
     details = handler.getDetails("8.8.8.8")
@@ -81,24 +80,40 @@ def test_get_details(n):
         assert len(domains["domains"]) == 5
 
 
-@pytest.mark.parametrize("n", range(5))
-def test_get_batch_details(n):
+#############
+# BATCH TESTS
+#############
+
+_batch_ip_addrs = ["1.1.1.1", "8.8.8.8", "9.9.9.9"]
+
+
+def _prepare_batch_test():
+    """Helper for preparing batch test cases."""
     token = os.environ.get("IPINFO_TOKEN", "")
     if not token:
         pytest.skip("token required for batch tests")
     handler = Handler(token)
-    ips = ["1.1.1.1", "8.8.8.8", "9.9.9.9"]
-    details = handler.getBatchDetails(ips)
+    return handler, token, _batch_ip_addrs
 
+
+def _check_batch_details(ips, details, token):
+    """Helper for batch tests."""
     for ip in ips:
         assert ip in details
         d = details[ip]
         assert d["ip"] == ip
-        assert d["country"] == "US"
-        assert d["country_name"] == "United States"
+        assert "country" in d
+        assert "country_name" in d
         if token:
             assert "asn" in d
             assert "company" in d
             assert "privacy" in d
             assert "abuse" in d
             assert "domains" in d
+
+
+@pytest.mark.parametrize("batch_size", [None, 2, 3])
+def test_get_batch_details(batch_size):
+    handler, token, ips = _prepare_batch_test()
+    details = handler.getBatchDetails(ips, batch_size=batch_size)
+    _check_batch_details(ips, details, token)

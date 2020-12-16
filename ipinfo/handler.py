@@ -83,15 +83,28 @@ class Handler:
 
         return Details(details)
 
-    def getBatchDetails(self, ip_addresses):
-        """Get details for a batch of IP addresses at once."""
+    def getBatchDetails(self, ip_addresses, batch_size=None):
+        """
+        Get details for a batch of IP addresses at once.
+
+        There is no specified limit to the number of IPs this function can
+        accept; it can handle as much as the user can fit in RAM (along with
+        all of the response data, which is at least a magnitude larger than the
+        input list).
+
+        The batch size can be adjusted with `batch_size` but is clipped to (and
+        also defaults to) `handler_utils.BATCH_MAX_SIZE`.
+        """
+        if batch_size == None:
+            batch_size = handler_utils.BATCH_MAX_SIZE
+
         result = {}
 
-        # Pre-populate with anything we've got in the cache, and keep around
+        # pre-populate with anything we've got in the cache, and keep around
         # the IPs not in the cache.
         lookup_addresses = []
         for ip_address in ip_addresses:
-            # If the supplied IP address uses the objects defined in the
+            # if the supplied IP address uses the objects defined in the
             # built-in module ipaddress extract the appropriate string notation
             # before formatting the URL.
             if isinstance(ip_address, IPv4Address) or isinstance(
@@ -104,28 +117,35 @@ class Handler:
             else:
                 lookup_addresses.append(ip_address)
 
-        # Do the lookup
-        url = handler_utils.API_URL + "/batch"
-        headers = handler_utils.get_headers(self.access_token)
-        headers["content-type"] = "application/json"
-        response = requests.post(
-            url, json=lookup_addresses, headers=headers, **self.request_options
-        )
-        if response.status_code == 429:
-            raise RequestQuotaExceededError()
-        response.raise_for_status()
+        # loop over batch chunks and do lookup for each.
+        for i in range(0, len(ip_addresses), batch_size):
+            chunk = ip_addresses[i : i + batch_size]
 
-        # Fill up cache
-        json_response = response.json()
-        for ip_address, details in json_response.items():
-            self.cache[ip_address] = details
+            # lookup
+            url = handler_utils.API_URL + "/batch"
+            headers = handler_utils.get_headers(self.access_token)
+            headers["content-type"] = "application/json"
+            response = requests.post(
+                url,
+                json=lookup_addresses,
+                headers=headers,
+                **self.request_options
+            )
+            if response.status_code == 429:
+                raise RequestQuotaExceededError()
+            response.raise_for_status()
 
-        # Merge cached results with new lookup
-        result.update(json_response)
+            # fill cache
+            json_response = response.json()
+            for ip_address, details in json_response.items():
+                self.cache[ip_address] = details
 
-        # Format every result
-        for detail in result.values():
-            if isinstance(detail, dict):
-                handler_utils.format_details(detail, self.countries)
+            # merge cached results with new lookup
+            result.update(json_response)
+
+            # format all
+            for detail in result.values():
+                if isinstance(detail, dict):
+                    handler_utils.format_details(detail, self.countries)
 
         return result

@@ -3,6 +3,7 @@ Main API client asynchronous handler for fetching data from the IPinfo service.
 """
 
 from ipaddress import IPv4Address, IPv6Address
+import asyncio
 import json
 import os
 import sys
@@ -112,9 +113,25 @@ class AsyncHandler:
 
         return Details(details)
 
-    async def getBatchDetails(self, ip_addresses):
-        """Get details for a batch of IP addresses at once."""
+    async def getBatchDetails(self, ip_addresses, batch_size=None):
+        """
+        Get details for a batch of IP addresses at once.
+
+        There is no specified limit to the number of IPs this function can
+        accept; it can handle as much as the user can fit in RAM (along with
+        all of the response data, which is at least a magnitude larger than the
+        input list).
+
+        The batch size can be adjusted with `batch_size` but is clipped to (and
+        also defaults to) `handler_utils.BATCH_MAX_SIZE`.
+
+        The concurrency level is currently unadjustable; coroutines will be
+        created and consumed for all batches at once.
+        """
         self._ensure_aiohttp_ready()
+
+        if batch_size == None:
+            batch_size = handler_utils.BATCH_MAX_SIZE
 
         result = {}
 
@@ -135,32 +152,41 @@ class AsyncHandler:
             else:
                 lookup_addresses.append(ip_address)
 
-        # all in cache - return early.
-        if len(lookup_addresses) == 0:
-            return result
+        # loop over batch chunks and prepare coroutines for each.
+        reqs = []
+        for i in range(0, len(ip_addresses), batch_size):
+            chunk = ip_addresses[i : i + batch_size]
 
-        # do http req
-        url = handler_utils.API_URL + "/batch"
-        headers = handler_utils.get_headers(self.access_token)
-        headers["content-type"] = "application/json"
-        async with self.httpsess.post(
-            url,
-            data=json.dumps(lookup_addresses),
-            headers=headers
-        ) as resp:
+            # all in cache - return early.
+            if len(lookup_addresses) == 0:
+                return result
+
+            # do http req
+            url = handler_utils.API_URL + "/batch"
+            headers = handler_utils.get_headers(self.access_token)
+            headers["content-type"] = "application/json"
+            reqs.append(
+                self.httpsess.post(
+                    url, data=json.dumps(lookup_addresses), headers=headers
+                )
+            )
+
+        resps = await asyncio.gather(*reqs)
+        for resp in resps:
+            # gather data
             if resp.status == 429:
                 raise RequestQuotaExceededError()
             resp.raise_for_status()
             json_resp = await resp.json()
 
-        # format & fill up cache
-        for ip_address, details in json_resp.items():
-            if isinstance(details, dict):
-                handler_utils.format_details(details, self.countries)
-                self.cache[ip_address] = details
+            # format & fill up cache
+            for ip_address, details in json_resp.items():
+                if isinstance(details, dict):
+                    handler_utils.format_details(details, self.countries)
+                    self.cache[ip_address] = details
 
-        # merge cached results with new lookup
-        result.update(json_resp)
+            # merge cached results with new lookup
+            result.update(json_resp)
 
         return result
 
