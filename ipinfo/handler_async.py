@@ -86,7 +86,7 @@ class AsyncHandler:
             await self.httpsess.close()
             self.httpsess = None
 
-    async def getDetails(self, ip_address=None):
+    async def getDetails(self, ip_address=None, timeout=None):
         """Get details for specified IP address as a Details object."""
         self._ensure_aiohttp_ready()
 
@@ -106,7 +106,10 @@ class AsyncHandler:
         if ip_address:
             url += "/" + ip_address
         headers = handler_utils.get_headers(self.access_token)
-        async with self.httpsess.get(url, headers=headers) as resp:
+        req_opts = {}
+        if timeout is not None:
+            req_opts["timeout"] = timeout
+        async with self.httpsess.get(url, headers=headers, **req_opts) as resp:
             if resp.status == 429:
                 raise RequestQuotaExceededError()
             resp.raise_for_status()
@@ -135,8 +138,25 @@ class AsyncHandler:
         input list).
 
         The input list is broken up into batches to abide by API requirements.
-        The batch size can be adjusted with `batch_size` but is clipped to (and
-        also defaults to) `BATCH_MAX_SIZE`.
+        The batch size can be adjusted with `batch_size` but is clipped to
+        `BATCH_MAX_SIZE`.
+        Defaults to `BATCH_MAX_SIZE`.
+
+        For each batch, `timeout_per_batch` indicates the maximum seconds to
+        spend waiting for the HTTP request to complete. If any batch fails with
+        this timeout, the whole operation fails.
+        Defaults to `BATCH_REQ_TIMEOUT_DEFAULT` seconds.
+
+        `timeout_total` is a seconds-denominated hard-timeout for the time
+        spent in HTTP operations; regardless of whether all batches have
+        succeeded so far, if `timeout_total` is reached, the whole operation
+        will fail by raising `TimeoutExceededError`.
+        Defaults to being turned off.
+
+        `raise_on_fail`, if turned off, will return any result retrieved so far
+        rather than raise an exception when errors occur, including timeout and
+        quota errors.
+        Defaults to on.
 
         The concurrency level is currently unadjustable; coroutines will be
         created and consumed for all batches at once.
