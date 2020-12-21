@@ -116,8 +116,9 @@ class Handler:
         input list).
 
         The input list is broken up into batches to abide by API requirements.
-        The batch size can be adjusted with `batch_size` but is clipped to (and
-        also defaults to) `BATCH_MAX_SIZE`.
+        The batch size can be adjusted with `batch_size` but is clipped to 
+        `BATCH_MAX_SIZE`.
+        Defaults to `BATCH_MAX_SIZE`.
 
         For each batch, `timeout_per_batch` indicates the maximum seconds to
         spend waiting for the HTTP request to complete. If any batch fails with
@@ -127,11 +128,13 @@ class Handler:
         `timeout_total` is a seconds-denominated hard-timeout for the time
         spent in HTTP operations; regardless of whether all batches have
         succeeded so far, if `timeout_total` is reached, the whole operation
-        will fail. Defaults to being turned off.
+        will fail by raising `TimeoutExceededError`.
+        Defaults to being turned off.
 
         `raise_on_fail`, if turned off, will return any result retrieved so far
         rather than raise an exception when errors occur, including timeout and
-        quota errors. Defaults to on.
+        quota errors.
+        Defaults to on.
         """
         if batch_size == None:
             batch_size = BATCH_MAX_SIZE

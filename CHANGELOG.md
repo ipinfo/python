@@ -2,10 +2,14 @@
 
 ## 4.1.0
 
+- The SDK version is available via `ipinfo.version` as `SDK_VERSION`.
 - Most private functions on all handlers (i.e. those that start with `_`) are
   now moved to `ipinfo.handler_utils`.
 - All constants that existed on handlers (i.e. `REQUEST_TIMEOUT_DEFAULT`) are
   now moved to `ipinfo.handler_utils`.
+- Cache behavior for the synchronous handler is a bit different now; the item
+  actually cached is the item _after_ formatting is complete, rather than
+  before.
 - Both the sync and async handlers have the following improvements:
     - `timeout` can be specified as a keyword-arg to getDetails to optionally
       override the client-level timeout.
