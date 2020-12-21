@@ -3,6 +3,8 @@ import os
 from ipinfo.cache.default import DefaultCache
 from ipinfo.details import Details
 from ipinfo.handler_async import AsyncHandler
+from ipinfo import handler_utils
+import ipinfo
 import pytest
 
 
@@ -20,7 +22,7 @@ async def test_init():
 async def test_headers():
     token = "mytesttoken"
     handler = AsyncHandler(token)
-    headers = handler._get_headers()
+    headers = handler_utils.get_headers(token)
     await handler.deinit()
 
     assert "user-agent" in headers
@@ -28,9 +30,8 @@ async def test_headers():
     assert "authorization" in headers
 
 
-@pytest.mark.parametrize("n", range(5))
 @pytest.mark.asyncio
-async def test_get_details(n):
+async def test_get_details():
     token = os.environ.get("IPINFO_TOKEN", "")
     handler = AsyncHandler(token)
     details = await handler.getDetails("8.8.8.8")
@@ -78,28 +79,37 @@ async def test_get_details(n):
 
         domains = details.domains
         assert domains["ip"] == "8.8.8.8"
-        assert domains["total"] == 12988
+        # NOTE: actual number changes too much
+        assert "total" in domains
         assert len(domains["domains"]) == 5
 
     await handler.deinit()
 
 
-@pytest.mark.parametrize("n", range(5))
-@pytest.mark.asyncio
-async def test_get_batch_details(n):
+#############
+# BATCH TESTS
+#############
+
+_batch_ip_addrs = ["1.1.1.1", "8.8.8.8", "9.9.9.9"]
+
+
+def _prepare_batch_test():
+    """Helper for preparing batch test cases."""
     token = os.environ.get("IPINFO_TOKEN", "")
     if not token:
         pytest.skip("token required for batch tests")
     handler = AsyncHandler(token)
-    ips = ["1.1.1.1", "8.8.8.8", "9.9.9.9"]
-    details = await handler.getBatchDetails(ips)
+    return handler, token, _batch_ip_addrs
 
+
+def _check_batch_details(ips, details, token):
+    """Helper for batch tests."""
     for ip in ips:
         assert ip in details
         d = details[ip]
         assert d["ip"] == ip
-        assert d["country"] == "US"
-        assert d["country_name"] == "United States"
+        assert "country" in d
+        assert "country_name" in d
         if token:
             assert "asn" in d
             assert "company" in d
@@ -107,4 +117,22 @@ async def test_get_batch_details(n):
             assert "abuse" in d
             assert "domains" in d
 
+
+@pytest.mark.parametrize("batch_size", [None, 1, 2, 3])
+@pytest.mark.asyncio
+async def test_get_batch_details(batch_size):
+    handler, token, ips = _prepare_batch_test()
+    details = await handler.getBatchDetails(ips, batch_size=batch_size)
+    _check_batch_details(ips, details, token)
+    await handler.deinit()
+
+
+@pytest.mark.parametrize("batch_size", [None, 1, 2, 3])
+@pytest.mark.asyncio
+async def test_get_batch_details_total_timeout(batch_size):
+    handler, token, ips = _prepare_batch_test()
+    with pytest.raises(ipinfo.exceptions.TimeoutExceededError):
+        await handler.getBatchDetails(
+            ips, batch_size=batch_size, timeout_total=0.001
+        )
     await handler.deinit()

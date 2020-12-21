@@ -1,12 +1,34 @@
 # IPInfo Changelog
 
+## 4.1.0
+
+- The SDK version is available via `ipinfo.version` as `SDK_VERSION`.
+- Most private functions on all handlers (i.e. those that start with `_`) are
+  now moved to `ipinfo.handler_utils`.
+- All constants that existed on handlers (i.e. `REQUEST_TIMEOUT_DEFAULT`) are
+  now moved to `ipinfo.handler_utils`.
+- Cache behavior for the synchronous handler is a bit different now; the item
+  actually cached is the item _after_ formatting is complete, rather than
+  before.
+- Both the sync and async handlers have the following improvements:
+    - `timeout` can be specified as a keyword-arg to getDetails to optionally
+      override the client-level timeout.
+    - getBatchDetails now has no limit to the size of the `ip_addresses` input
+      list. It will chunk the list internally and make requests against the
+      batch endpoint in a way that doesn't exceed the API's own limits.
+    - getBatchDetails now accepts the new options `batch_size`,
+      `timeout_per_batch`, `timeout_total` and `raise_on_fail`. Please see the
+      documentation for details on what each of these do.
+
 ## 4.0.0
 
 #### Breaking Changes
 
 - [PR #32](https://github.com/ipinfo/python/pull/32)
-  All EOL Python versions are no longer supported; currently, Python 3.6 or greater is now **required**.
-  An asynchronous handler is available from `getHandlerAsync` which returns an `AsyncHandler` which uses **aiohttp**.
+  All EOL Python versions are no longer supported; currently, Python 3.6 or
+  greater is now **required**.
+  An asynchronous handler is available from `getHandlerAsync` which returns an
+  `AsyncHandler` which uses **aiohttp**.
 
 ## 3.0.0
 

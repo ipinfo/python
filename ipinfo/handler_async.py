@@ -3,15 +3,27 @@ Main API client asynchronous handler for fetching data from the IPinfo service.
 """
 
 from ipaddress import IPv4Address, IPv6Address
+import asyncio
 import json
 import os
 import sys
+import time
 
 import aiohttp
 
 from .cache.default import DefaultCache
 from .details import Details
-from .exceptions import RequestQuotaExceededError
+from .exceptions import RequestQuotaExceededError, TimeoutExceededError
+from .handler_utils import (
+    API_URL,
+    COUNTRY_FILE_DEFAULT,
+    BATCH_MAX_SIZE,
+    CACHE_MAXSIZE,
+    CACHE_TTL,
+    REQUEST_TIMEOUT_DEFAULT,
+    BATCH_REQ_TIMEOUT_DEFAULT,
+)
+from . import handler_utils
 
 
 class AsyncHandler:
@@ -19,12 +31,6 @@ class AsyncHandler:
     Allows client to request data for specified IP address asynchronously.
     Instantiates and maintains access to cache.
     """
-
-    API_URL = "https://ipinfo.io"
-    CACHE_MAXSIZE = 4096
-    CACHE_TTL = 60 * 60 * 24
-    COUNTRY_FILE_DEFAULT = "countries.json"
-    REQUEST_TIMEOUT_DEFAULT = 2
 
     def __init__(self, access_token=None, **kwargs):
         """
@@ -34,12 +40,14 @@ class AsyncHandler:
         self.access_token = access_token
 
         # load countries file
-        self.countries = self._read_country_names(kwargs.get("countries_file"))
+        self.countries = handler_utils.read_country_names(
+            kwargs.get("countries_file")
+        )
 
         # setup req opts
         self.request_options = kwargs.get("request_options", {})
         if "timeout" not in self.request_options:
-            self.request_options["timeout"] = self.REQUEST_TIMEOUT_DEFAULT
+            self.request_options["timeout"] = REQUEST_TIMEOUT_DEFAULT
 
         # setup aiohttp
         self.httpsess = None
@@ -50,9 +58,9 @@ class AsyncHandler:
         else:
             cache_options = kwargs.get("cache_options", {})
             if "maxsize" not in cache_options:
-                cache_options["maxsize"] = self.CACHE_MAXSIZE
+                cache_options["maxsize"] = CACHE_MAXSIZE
             if "ttl" not in cache_options:
-                cache_options["ttl"] = self.CACHE_TTL
+                cache_options["ttl"] = CACHE_TTL
             self.cache = DefaultCache(**cache_options)
 
     async def init(self):
@@ -79,7 +87,7 @@ class AsyncHandler:
             await self.httpsess.close()
             self.httpsess = None
 
-    async def getDetails(self, ip_address=None):
+    async def getDetails(self, ip_address=None, timeout=None):
         """Get details for specified IP address as a Details object."""
         self._ensure_aiohttp_ready()
 
@@ -95,25 +103,69 @@ class AsyncHandler:
             return Details(self.cache[ip_address])
 
         # not in cache; do http req
-        url = self.API_URL
+        url = API_URL
         if ip_address:
             url += "/" + ip_address
-        headers = self._get_headers()
-        async with self.httpsess.get(url, headers=headers) as resp:
+        headers = handler_utils.get_headers(self.access_token)
+        req_opts = {}
+        if timeout is not None:
+            req_opts["timeout"] = timeout
+        async with self.httpsess.get(url, headers=headers, **req_opts) as resp:
             if resp.status == 429:
                 raise RequestQuotaExceededError()
             resp.raise_for_status()
-            raw_details = await resp.json()
+            details = await resp.json()
 
         # format & cache
-        self._format_details(raw_details)
-        self.cache[ip_address] = raw_details
+        handler_utils.format_details(details, self.countries)
+        self.cache[ip_address] = details
 
-        return Details(raw_details)
+        return Details(details)
 
-    async def getBatchDetails(self, ip_addresses):
-        """Get details for a batch of IP addresses at once."""
+    async def getBatchDetails(
+        self,
+        ip_addresses,
+        batch_size=None,
+        timeout_per_batch=BATCH_REQ_TIMEOUT_DEFAULT,
+        timeout_total=None,
+        raise_on_fail=True,
+    ):
+        """
+        Get details for a batch of IP addresses at once.
+
+        There is no specified limit to the number of IPs this function can
+        accept; it can handle as much as the user can fit in RAM (along with
+        all of the response data, which is at least a magnitude larger than the
+        input list).
+
+        The input list is broken up into batches to abide by API requirements.
+        The batch size can be adjusted with `batch_size` but is clipped to
+        `BATCH_MAX_SIZE`.
+        Defaults to `BATCH_MAX_SIZE`.
+
+        For each batch, `timeout_per_batch` indicates the maximum seconds to
+        spend waiting for the HTTP request to complete. If any batch fails with
+        this timeout, the whole operation fails.
+        Defaults to `BATCH_REQ_TIMEOUT_DEFAULT` seconds.
+
+        `timeout_total` is a seconds-denominated hard-timeout for the time
+        spent in HTTP operations; regardless of whether all batches have
+        succeeded so far, if `timeout_total` is reached, the whole operation
+        will fail by raising `TimeoutExceededError`.
+        Defaults to being turned off.
+
+        `raise_on_fail`, if turned off, will return any result retrieved so far
+        rather than raise an exception when errors occur, including timeout and
+        quota errors.
+        Defaults to on.
+
+        The concurrency level is currently unadjustable; coroutines will be
+        created and consumed for all batches at once.
+        """
         self._ensure_aiohttp_ready()
+
+        if batch_size == None:
+            batch_size = BATCH_MAX_SIZE
 
         result = {}
 
@@ -138,28 +190,87 @@ class AsyncHandler:
         if len(lookup_addresses) == 0:
             return result
 
-        # do http req
-        url = self.API_URL + "/batch"
-        headers = self._get_headers()
+        # do start timer if necessary
+        if timeout_total is not None:
+            start_time = time.time()
+
+        # loop over batch chunks and prepare coroutines for each.
+        url = API_URL + "/batch"
+        headers = handler_utils.get_headers(self.access_token)
         headers["content-type"] = "application/json"
-        async with self.httpsess.post(
-            url, data=json.dumps(lookup_addresses), headers=headers
-        ) as resp:
+
+        # prepare coroutines that will make reqs and update results.
+        reqs = [
+            self._do_batch_req(
+                lookup_addresses[i : i + batch_size],
+                url,
+                headers,
+                timeout_per_batch,
+                raise_on_fail,
+                result,
+            )
+            for i in range(0, len(lookup_addresses), batch_size)
+        ]
+
+        try:
+            _, pending = await asyncio.wait(
+                {*reqs},
+                timeout=timeout_total,
+                return_when=asyncio.FIRST_EXCEPTION,
+            )
+
+            # if all done, return result.
+            if len(pending) == 0:
+                return result
+
+            # if some had a timeout, first cancel timed out stuff and wait for
+            # cleanup. then exit with return_or_fail.
+            for co in pending:
+                try:
+                    co.cancel()
+                    await co
+                except asyncio.CancelledError:
+                    pass
+
+            return handler_utils.return_or_fail(
+                raise_on_fail, TimeoutExceededError(), result
+            )
+        except Exception as e:
+            return handler_utils.return_or_fail(raise_on_fail, e, result)
+
+        return result
+
+    async def _do_batch_req(
+        self, chunk, url, headers, timeout_per_batch, raise_on_fail, result
+    ):
+        """
+        Coroutine which will do the actual POST request for getBatchDetails.
+        """
+        resp = await self.httpsess.post(
+            url,
+            data=json.dumps(chunk),
+            headers=headers,
+            timeout=timeout_per_batch,
+        )
+
+        # gather data
+        try:
             if resp.status == 429:
                 raise RequestQuotaExceededError()
             resp.raise_for_status()
-            json_resp = await resp.json()
+        except Exception as e:
+            return handler_utils.return_or_fail(raise_on_fail, e, None)
+
+        json_resp = await resp.json()
 
         # format & fill up cache
         for ip_address, details in json_resp.items():
             if isinstance(details, dict):
-                self._format_details(details)
+                handler_utils.format_details(details, self.countries)
                 self.cache[ip_address] = details
 
         # merge cached results with new lookup
         result.update(json_resp)
-
-        return result
 
     def _ensure_aiohttp_ready(self):
         """Ensures aiohttp internal state is initialized."""
@@ -168,44 +279,3 @@ class AsyncHandler:
 
         timeout = aiohttp.ClientTimeout(total=self.request_options["timeout"])
         self.httpsess = aiohttp.ClientSession(timeout=timeout)
-
-    def _get_headers(self):
-        """Built headers for request to IPinfo API."""
-        headers = {
-            "user-agent": "IPinfoClient/Python{version}/4.0.0".format(
-                version=sys.version_info[0]
-            ),
-            "accept": "application/json",
-        }
-
-        if self.access_token:
-            headers["authorization"] = "Bearer {}".format(self.access_token)
-
-        return headers
-
-    def _format_details(self, details):
-        details["country_name"] = self.countries.get(details.get("country"))
-        details["latitude"], details["longitude"] = self._read_coords(
-            details.get("loc")
-        )
-
-    def _read_coords(self, location):
-        lat, lon = None, None
-        coords = tuple(location.split(",")) if location else ""
-        if len(coords) == 2 and coords[0] and coords[1]:
-            lat, lon = coords[0], coords[1]
-        return lat, lon
-
-    def _read_country_names(self, countries_file=None):
-        """
-        Read list of countries from specified country file or
-        default file.
-        """
-        if not countries_file:
-            countries_file = os.path.join(
-                os.path.dirname(__file__), self.COUNTRY_FILE_DEFAULT
-            )
-        with open(countries_file) as f:
-            countries_json = f.read()
-
-        return json.loads(countries_json)

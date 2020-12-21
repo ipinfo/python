@@ -218,9 +218,10 @@ The file must be a `.json` file with the following structure:
 
 ### Batch Operations
 
-Looking up a single IP at a time can be slow. It could be done concurrently from
-the client side, but IPinfo supports a batch endpoint to allow you to group
-together IPs and let us handle retrieving details for them in bulk for you.
+Looking up a single IP at a time can be slow. It could be done concurrently
+from the client side, but IPinfo supports a batch endpoint to allow you to
+group together IPs and let us handle retrieving details for them in bulk for
+you.
 
 ```python
 >>> import ipinfo, pprint
@@ -255,6 +256,9 @@ together IPs and let us handle retrieving details for them in bulk for you.
              'region': 'California',
              'timezone': 'America/Los_Angeles'}}
 ```
+
+The input size is not limited, as the interface will chunk operations for you
+behind the scenes.
 
 Please see [the official documentation](https://ipinfo.io/developers/batch) for
 more information and limitations.
