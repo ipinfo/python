@@ -4,6 +4,7 @@ from ipinfo.cache.default import DefaultCache
 from ipinfo.details import Details
 from ipinfo.handler_async import AsyncHandler
 from ipinfo import handler_utils
+import ipinfo
 import pytest
 
 
@@ -117,10 +118,21 @@ def _check_batch_details(ips, details, token):
             assert "domains" in d
 
 
-@pytest.mark.parametrize("batch_size", [None, 2, 3])
+@pytest.mark.parametrize("batch_size", [None, 1, 2, 3])
 @pytest.mark.asyncio
 async def test_get_batch_details(batch_size):
     handler, token, ips = _prepare_batch_test()
     details = await handler.getBatchDetails(ips, batch_size=batch_size)
     _check_batch_details(ips, details, token)
+    await handler.deinit()
+
+
+@pytest.mark.parametrize("batch_size", [None, 1, 2, 3])
+@pytest.mark.asyncio
+async def test_get_batch_details_total_timeout(batch_size):
+    handler, token, ips = _prepare_batch_test()
+    with pytest.raises(ipinfo.exceptions.TimeoutExceededError):
+        await handler.getBatchDetails(
+            ips, batch_size=batch_size, timeout_total=0.001
+        )
     await handler.deinit()

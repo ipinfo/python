@@ -179,10 +179,9 @@ class Handler:
                 timeout_total is not None
                 and time.time() - start_time > timeout_total
             ):
-                if raise_on_fail:
-                    raise TimeoutExceededError()
-                else:
-                    return result
+                return handler_utils.return_or_fail(
+                    raise_on_fail, TimeoutExceededError(), result
+                )
 
             chunk = lookup_addresses[i : i + batch_size]
 
@@ -197,10 +196,7 @@ class Handler:
                     raise RequestQuotaExceededError()
                 response.raise_for_status()
             except Exception as e:
-                if raise_on_fail:
-                    raise e
-                else:
-                    return result
+                return handler_utils.return_or_fail(raise_on_fail, e, result)
 
             # fill cache
             json_response = response.json()

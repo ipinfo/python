@@ -83,3 +83,13 @@ def read_country_names(countries_file=None):
         countries_json = f.read()
 
     return json.loads(countries_json)
+
+
+def return_or_fail(raise_on_fail, e, v):
+    """
+    Either throws `e` if `raise_on_fail` or else returns `v`.
+    """
+    if raise_on_fail:
+        raise e
+    else:
+        return v

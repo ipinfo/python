@@ -7,12 +7,13 @@ import asyncio
 import json
 import os
 import sys
+import time
 
 import aiohttp
 
 from .cache.default import DefaultCache
 from .details import Details
-from .exceptions import RequestQuotaExceededError
+from .exceptions import RequestQuotaExceededError, TimeoutExceededError
 from .handler_utils import (
     API_URL,
     COUNTRY_FILE_DEFAULT,
@@ -197,48 +198,79 @@ class AsyncHandler:
         url = API_URL + "/batch"
         headers = handler_utils.get_headers(self.access_token)
         headers["content-type"] = "application/json"
-        reqs = []
-        for i in range(0, len(lookup_addresses), batch_size):
-            chunk = lookup_addresses[i : i + batch_size]
 
-            # do http req
-            reqs.append(
-                self.httpsess.post(
-                    url,
-                    data=json.dumps(chunk),
-                    headers=headers,
-                    timeout=timeout_per_batch,
-                )
+        # prepare coroutines that will make reqs and update results.
+        reqs = [
+            self._do_batch_req(
+                lookup_addresses[i : i + batch_size],
+                url,
+                headers,
+                timeout_per_batch,
+                raise_on_fail,
+                result,
+            )
+            for i in range(0, len(lookup_addresses), batch_size)
+        ]
+
+        try:
+            _, pending = await asyncio.wait(
+                {*reqs},
+                timeout=timeout_total,
+                return_when=asyncio.FIRST_EXCEPTION,
             )
 
-        resps = await asyncio.wait_for(
-            asyncio.gather(*reqs, return_exceptions=raise_on_fail),
-            timeout_total
-        )
-        for resp in resps:
-            # gather data
-            try:
-                if resp.status == 429:
-                    raise RequestQuotaExceededError()
-                resp.raise_for_status()
-            except Exception as e:
-                if raise_on_fail:
-                    raise e
-                else:
-                    return result
+            # if all done, return result.
+            if len(pending) == 0:
+                return result
 
-            json_resp = await resp.json()
+            # if some had a timeout, first cancel timed out stuff and wait for
+            # cleanup. then exit with return_or_fail.
+            for co in pending:
+                try:
+                    co.cancel()
+                    await co
+                except asyncio.CancelledError:
+                    pass
 
-            # format & fill up cache
-            for ip_address, details in json_resp.items():
-                if isinstance(details, dict):
-                    handler_utils.format_details(details, self.countries)
-                    self.cache[ip_address] = details
-
-            # merge cached results with new lookup
-            result.update(json_resp)
+            return handler_utils.return_or_fail(
+                raise_on_fail, TimeoutExceededError(), result
+            )
+        except Exception as e:
+            return handler_utils.return_or_fail(raise_on_fail, e, result)
 
         return result
+
+    async def _do_batch_req(
+        self, chunk, url, headers, timeout_per_batch, raise_on_fail, result
+    ):
+        """
+        Coroutine which will do the actual POST request for getBatchDetails.
+        """
+        resp = await self.httpsess.post(
+            url,
+            data=json.dumps(chunk),
+            headers=headers,
+            timeout=timeout_per_batch,
+        )
+
+        # gather data
+        try:
+            if resp.status == 429:
+                raise RequestQuotaExceededError()
+            resp.raise_for_status()
+        except Exception as e:
+            return handler_utils.return_or_fail(raise_on_fail, e, None)
+
+        json_resp = await resp.json()
+
+        # format & fill up cache
+        for ip_address, details in json_resp.items():
+            if isinstance(details, dict):
+                handler_utils.format_details(details, self.countries)
+                self.cache[ip_address] = details
+
+        # merge cached results with new lookup
+        result.update(json_resp)
 
     def _ensure_aiohttp_ready(self):
         """Ensures aiohttp internal state is initialized."""
