@@ -1,9 +1,20 @@
 # IPInfo Changelog
 
-## 4.1.0 (WIP)
+## 4.1.0
 
 - Most private functions on all handlers (i.e. those that start with `_`) are
   now moved to `ipinfo.handler_utils`.
+- All constants that existed on handlers (i.e. `REQUEST_TIMEOUT_DEFAULT`) are
+  now moved to `ipinfo.handler_utils`.
+- Both the sync and async handlers have the following improvements:
+    - `timeout` can be specified as a keyword-arg to getDetails to optionally
+      override the client-level timeout.
+    - getBatchDetails now has no limit to the size of the `ip_addresses` input
+      list. It will chunk the list internally and make requests against the
+      batch endpoint in a way that doesn't exceed the API's own limits.
+    - getBatchDetails now accepts the new options `batch_size`,
+      `timeout_per_batch`, `timeout_total` and `raise_on_fail`. Please see the
+      documentation for details on what each of these do.
 
 ## 4.0.0
 
