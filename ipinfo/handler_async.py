@@ -13,6 +13,15 @@ import aiohttp
 from .cache.default import DefaultCache
 from .details import Details
 from .exceptions import RequestQuotaExceededError
+from .handler_utils import (
+    API_URL,
+    COUNTRY_FILE_DEFAULT,
+    BATCH_MAX_SIZE,
+    CACHE_MAXSIZE,
+    CACHE_TTL,
+    REQUEST_TIMEOUT_DEFAULT,
+    BATCH_REQ_TIMEOUT_DEFAULT,
+)
 from . import handler_utils
 
 
@@ -21,10 +30,6 @@ class AsyncHandler:
     Allows client to request data for specified IP address asynchronously.
     Instantiates and maintains access to cache.
     """
-
-    CACHE_MAXSIZE = 4096
-    CACHE_TTL = 60 * 60 * 24
-    REQUEST_TIMEOUT_DEFAULT = 2
 
     def __init__(self, access_token=None, **kwargs):
         """
@@ -41,7 +46,7 @@ class AsyncHandler:
         # setup req opts
         self.request_options = kwargs.get("request_options", {})
         if "timeout" not in self.request_options:
-            self.request_options["timeout"] = self.REQUEST_TIMEOUT_DEFAULT
+            self.request_options["timeout"] = REQUEST_TIMEOUT_DEFAULT
 
         # setup aiohttp
         self.httpsess = None
@@ -52,9 +57,9 @@ class AsyncHandler:
         else:
             cache_options = kwargs.get("cache_options", {})
             if "maxsize" not in cache_options:
-                cache_options["maxsize"] = self.CACHE_MAXSIZE
+                cache_options["maxsize"] = CACHE_MAXSIZE
             if "ttl" not in cache_options:
-                cache_options["ttl"] = self.CACHE_TTL
+                cache_options["ttl"] = CACHE_TTL
             self.cache = DefaultCache(**cache_options)
 
     async def init(self):
@@ -97,7 +102,7 @@ class AsyncHandler:
             return Details(self.cache[ip_address])
 
         # not in cache; do http req
-        url = handler_utils.API_URL
+        url = API_URL
         if ip_address:
             url += "/" + ip_address
         headers = handler_utils.get_headers(self.access_token)
@@ -122,8 +127,9 @@ class AsyncHandler:
         all of the response data, which is at least a magnitude larger than the
         input list).
 
+        The input list is broken up into batches to abide by API requirements.
         The batch size can be adjusted with `batch_size` but is clipped to (and
-        also defaults to) `handler_utils.BATCH_MAX_SIZE`.
+        also defaults to) `BATCH_MAX_SIZE`.
 
         The concurrency level is currently unadjustable; coroutines will be
         created and consumed for all batches at once.
@@ -131,7 +137,7 @@ class AsyncHandler:
         self._ensure_aiohttp_ready()
 
         if batch_size == None:
-            batch_size = handler_utils.BATCH_MAX_SIZE
+            batch_size = BATCH_MAX_SIZE
 
         result = {}
 
@@ -162,7 +168,7 @@ class AsyncHandler:
                 return result
 
             # do http req
-            url = handler_utils.API_URL + "/batch"
+            url = API_URL + "/batch"
             headers = handler_utils.get_headers(self.access_token)
             headers["content-type"] = "application/json"
             reqs.append(

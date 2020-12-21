@@ -18,6 +18,18 @@ COUNTRY_FILE_DEFAULT = "countries.json"
 # The max amount of IPs allowed by the API per batch request.
 BATCH_MAX_SIZE = 1000
 
+# The default max size of the cache in terms of number of items.
+CACHE_MAXSIZE = 4096
+
+# The default TTL of the cache in seconds
+CACHE_TTL = 60 * 60 * 24
+
+# The default request timeout for per-IP requests.
+REQUEST_TIMEOUT_DEFAULT = 2
+
+# The default request timeout for batch requests.
+BATCH_REQ_TIMEOUT_DEFAULT = 5
+
 
 def get_headers(access_token):
     """Build headers for request to IPinfo API."""
