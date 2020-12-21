@@ -118,7 +118,14 @@ class AsyncHandler:
 
         return Details(details)
 
-    async def getBatchDetails(self, ip_addresses, batch_size=None):
+    async def getBatchDetails(
+        self,
+        ip_addresses,
+        batch_size=None,
+        timeout_per_batch=BATCH_REQ_TIMEOUT_DEFAULT,
+        timeout_total=None,
+        raise_on_fail=True,
+    ):
         """
         Get details for a batch of IP addresses at once.
 
@@ -158,31 +165,48 @@ class AsyncHandler:
             else:
                 lookup_addresses.append(ip_address)
 
-        # loop over batch chunks and prepare coroutines for each.
-        reqs = []
-        for i in range(0, len(ip_addresses), batch_size):
-            chunk = ip_addresses[i : i + batch_size]
+        # all in cache - return early.
+        if len(lookup_addresses) == 0:
+            return result
 
-            # all in cache - return early.
-            if len(lookup_addresses) == 0:
-                return result
+        # do start timer if necessary
+        if timeout_total is not None:
+            start_time = time.time()
+
+        # loop over batch chunks and prepare coroutines for each.
+        url = API_URL + "/batch"
+        headers = handler_utils.get_headers(self.access_token)
+        headers["content-type"] = "application/json"
+        reqs = []
+        for i in range(0, len(lookup_addresses), batch_size):
+            chunk = lookup_addresses[i : i + batch_size]
 
             # do http req
-            url = API_URL + "/batch"
-            headers = handler_utils.get_headers(self.access_token)
-            headers["content-type"] = "application/json"
             reqs.append(
                 self.httpsess.post(
-                    url, data=json.dumps(lookup_addresses), headers=headers
+                    url,
+                    data=json.dumps(chunk),
+                    headers=headers,
+                    timeout=timeout_per_batch,
                 )
             )
 
-        resps = await asyncio.gather(*reqs)
+        resps = await asyncio.wait_for(
+            asyncio.gather(*reqs, return_exceptions=raise_on_fail),
+            timeout_total
+        )
         for resp in resps:
             # gather data
-            if resp.status == 429:
-                raise RequestQuotaExceededError()
-            resp.raise_for_status()
+            try:
+                if resp.status == 429:
+                    raise RequestQuotaExceededError()
+                resp.raise_for_status()
+            except Exception as e:
+                if raise_on_fail:
+                    raise e
+                else:
+                    return result
+
             json_resp = await resp.json()
 
             # format & fill up cache

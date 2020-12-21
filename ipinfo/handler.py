@@ -116,7 +116,7 @@ class Handler:
         input list).
 
         The input list is broken up into batches to abide by API requirements.
-        The batch size can be adjusted with `batch_size` but is clipped to 
+        The batch size can be adjusted with `batch_size` but is clipped to
         `BATCH_MAX_SIZE`.
         Defaults to `BATCH_MAX_SIZE`.
 
@@ -158,14 +158,22 @@ class Handler:
             else:
                 lookup_addresses.append(ip_address)
 
-        # prepare req http options
-        req_opts = {**self.request_options, "timeout": timeout_per_batch}
+        # all in cache - return early.
+        if len(lookup_addresses) == 0:
+            return result
 
+        # do start timer if necessary
         if timeout_total is not None:
             start_time = time.time()
 
+        # prepare req http options
+        req_opts = {**self.request_options, "timeout": timeout_per_batch}
+
         # loop over batch chunks and do lookup for each.
-        for i in range(0, len(ip_addresses), batch_size):
+        url = API_URL + "/batch"
+        headers = handler_utils.get_headers(self.access_token)
+        headers["content-type"] = "application/json"
+        for i in range(0, len(lookup_addresses), batch_size):
             # quit if total timeout is reached.
             if (
                 timeout_total is not None
@@ -176,14 +184,11 @@ class Handler:
                 else:
                     return result
 
-            chunk = ip_addresses[i : i + batch_size]
+            chunk = lookup_addresses[i : i + batch_size]
 
             # lookup
-            url = API_URL + "/batch"
-            headers = handler_utils.get_headers(self.access_token)
-            headers["content-type"] = "application/json"
             response = requests.post(
-                url, json=lookup_addresses, headers=headers, **req_opts
+                url, json=chunk, headers=headers, **req_opts
             )
 
             # fail on bad status codes
