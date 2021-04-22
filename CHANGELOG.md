@@ -6,6 +6,8 @@
   This allows more reliable changes to cached data in the future without
   causing confusing incompatibilities. This should be transparent to the user.
   This is primarily useful for users with persistent cache implementations.
+- Add Map integration.
+  See https://ipinfo.io/map for details.
 
 ## 4.1.0
 

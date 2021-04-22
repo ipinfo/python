@@ -127,3 +127,14 @@ def test_get_batch_details_total_timeout(batch_size):
         handler.getBatchDetails(
             ips, batch_size=batch_size, timeout_total=0.001
         )
+
+
+#############
+# MAP TESTS
+#############
+
+
+def test_get_map():
+    handler = Handler()
+    mapUrl = handler.getMap(open("tests/map-ips.txt").read().splitlines())
+    print(f"got URL={mapUrl}")
