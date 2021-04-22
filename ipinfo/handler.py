@@ -21,6 +21,7 @@ from .handler_utils import (
     CACHE_TTL,
     REQUEST_TIMEOUT_DEFAULT,
     BATCH_REQ_TIMEOUT_DEFAULT,
+    cache_key,
 )
 from . import handler_utils
 
@@ -74,8 +75,12 @@ class Handler:
         ):
             ip_address = ip_address.exploded
 
-        if ip_address in self.cache:
-            return Details(self.cache[ip_address])
+        # check cache first.
+        try:
+            cached_ipaddr = self.cache[cache_key(ip_address)]
+            return Details(cached_ipaddr)
+        except KeyError:
+            pass
 
         # prepare req http opts
         req_opts = {**self.request_options}
@@ -95,7 +100,7 @@ class Handler:
 
         # format & cache
         handler_utils.format_details(details, self.countries)
-        self.cache[ip_address] = details
+        self.cache[cache_key(ip_address)] = details
 
         return Details(details)
 
@@ -153,9 +158,10 @@ class Handler:
             ):
                 ip_address = ip_address.exploded
 
-            if ip_address in self.cache:
-                result[ip_address] = self.cache[ip_address]
-            else:
+            try:
+                cached_ipaddr = self.cache[cache_key(ip_address)]
+                result[ip_address] = cached_ipaddr
+            except KeyError:
                 lookup_addresses.append(ip_address)
 
         # all in cache - return early.
@@ -201,7 +207,7 @@ class Handler:
             # fill cache
             json_response = response.json()
             for ip_address, details in json_response.items():
-                self.cache[ip_address] = details
+                self.cache[cache_key(ip_address)] = details
 
             # merge cached results with new lookup
             result.update(json_response)

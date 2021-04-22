@@ -1,5 +1,12 @@
 # IPInfo Changelog
 
+## 4.2.0
+
+- Cache keys are now versioned.
+  This allows more reliable changes to cached data in the future without
+  causing confusing incompatibilities. This should be transparent to the user.
+  This is primarily useful for users with persistent cache implementations.
+
 ## 4.1.0
 
 - The SDK version is available via `ipinfo.version` as `SDK_VERSION`.
