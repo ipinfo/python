@@ -218,3 +218,28 @@ class Handler:
                     handler_utils.format_details(detail, self.countries)
 
         return result
+
+    def getMap(self, ips):
+        """
+        Gets a URL to a map on https://ipinfo.io/map given a list of IPs (max
+        500,000).
+        """
+        ip_strs = []
+        for ip in ips:
+            # if the supplied IP address uses the objects defined in the
+            # built-in module ipaddress extract the appropriate string notation
+            # before formatting the URL.
+            if isinstance(ip, IPv4Address) or isinstance(ip, IPv6Address):
+                ip = ip.exploded
+
+            ip_strs.append(ip)
+
+        req_opts = {**self.request_options}
+        url = f"{API_URL}/map?cli=1"
+        headers = handler_utils.get_headers(None)
+        headers["content-type"] = "application/json"
+        response = requests.post(
+            url, json=ip_strs, headers=headers, **req_opts
+        )
+        response.raise_for_status()
+        return response.json()["reportUrl"]
