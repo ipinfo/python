@@ -24,6 +24,10 @@ CACHE_MAXSIZE = 4096
 # The default TTL of the cache in seconds
 CACHE_TTL = 60 * 60 * 24
 
+# The current version of the cached data.
+# Update this if the data being cached has changed in shape for the same key.
+CACHE_KEY_VSN = "1"
+
 # The default request timeout for per-IP requests.
 REQUEST_TIMEOUT_DEFAULT = 2
 
@@ -93,3 +97,10 @@ def return_or_fail(raise_on_fail, e, v):
         raise e
     else:
         return v
+
+
+def cache_key(k):
+    """
+    Transforms a user-input key into a versioned cache key.
+    """
+    return f"{k}:{CACHE_KEY_VSN}"
