@@ -161,6 +161,13 @@ The IPinfo library can be authenticated with your IPinfo API token, which is pas
 
 In-memory caching of `details` data is provided by default via the [cachetools](https://cachetools.readthedocs.io/en/latest/) library. This uses an LRU (least recently used) cache with a TTL (time to live) by default. This means that values will be cached for the specified duration; if the cache's max size is reached, cache values will be invalidated as necessary, starting with the oldest cached value.
 
+You can access the cached property to see if the response was cached.
+```python
+>>> details = handler.getDetails(ip_address)
+>>> details.cached
+True
+```
+
 #### Modifying cache options
 
 Cache behavior can be modified by setting the `cache_options` keyword argument. `cache_options` is a dictionary in which the keys are keyword arguments specified in the `cachetools` library. The nesting of keyword arguments is to prevent name collisions between this library and its dependencies.
