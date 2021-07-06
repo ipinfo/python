@@ -24,7 +24,6 @@ from .handler_utils import (
     cache_key,
 )
 from . import handler_utils
-from ipinfo import details
 
 
 class Handler:
