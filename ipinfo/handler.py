@@ -24,6 +24,7 @@ from .handler_utils import (
     cache_key,
 )
 from . import handler_utils
+from ipinfo import details
 
 
 class Handler:
@@ -78,6 +79,7 @@ class Handler:
         # check cache first.
         try:
             cached_ipaddr = self.cache[cache_key(ip_address)]
+            cached_ipaddr["cached"] = True
             return Details(cached_ipaddr)
         except KeyError:
             pass
@@ -101,7 +103,7 @@ class Handler:
         # format & cache
         handler_utils.format_details(details, self.countries)
         self.cache[cache_key(ip_address)] = details
-
+        details["cached"] = False
         return Details(details)
 
     def getBatchDetails(
@@ -160,6 +162,7 @@ class Handler:
 
             try:
                 cached_ipaddr = self.cache[cache_key(ip_address)]
+                cached_ipaddr["cached"] = True
                 result[ip_address] = cached_ipaddr
             except KeyError:
                 lookup_addresses.append(ip_address)
@@ -208,6 +211,7 @@ class Handler:
             json_response = response.json()
             for ip_address, details in json_response.items():
                 self.cache[cache_key(ip_address)] = details
+                details["cached"] = False
 
             # merge cached results with new lookup
             result.update(json_response)
