@@ -103,6 +103,7 @@ class AsyncHandler:
         # check cache first.
         try:
             cached_ipaddr = self.cache[cache_key(ip_address)]
+            cached_ipaddr["cached"] = True
             return Details(cached_ipaddr)
         except KeyError:
             pass
@@ -125,9 +126,10 @@ class AsyncHandler:
         handler_utils.format_details(details, self.countries)
         self.cache[cache_key(ip_address)] = details
 
+        details["cached"] = False
         return Details(details)
 
-    async def getBatchDetails(
+    async def getBatchDetails( # THIS HASN'T BEEN TESTED
         self,
         ip_addresses,
         batch_size=None,
@@ -188,6 +190,7 @@ class AsyncHandler:
 
             try:
                 cached_ipaddr = self.cache[cache_key(ip_address)]
+                cached_ipaddr["cached"] = True
                 result[ip_address] = cached_ipaddr
             except KeyError:
                 lookup_addresses.append(ip_address)
@@ -276,6 +279,7 @@ class AsyncHandler:
                 self.cache[cache_key(ip_address)] = details
 
         # merge cached results with new lookup
+        json_resp["cached"] = False
         result.update(json_resp)
 
     def _ensure_aiohttp_ready(self):
