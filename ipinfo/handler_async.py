@@ -129,7 +129,7 @@ class AsyncHandler:
         details["cached"] = False
         return Details(details)
 
-    async def getBatchDetails( # THIS HASN'T BEEN TESTED
+    async def getBatchDetails(
         self,
         ip_addresses,
         batch_size=None,
