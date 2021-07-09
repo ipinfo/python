@@ -19,3 +19,7 @@ class CacheInterface(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def __getitem__(self, key):
         pass
+
+    @abc.abstractmethod
+    def __delitem__(self, key):
+        pass

@@ -21,3 +21,6 @@ class DefaultCache(CacheInterface):
 
     def __getitem__(self, key):
         return self.cache.__getitem__(key)
+
+    def __delitem__(self, key):
+        return self.cache.__delitem__(key)

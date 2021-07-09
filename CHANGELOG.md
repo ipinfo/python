@@ -1,5 +1,10 @@
 # IPInfo Changelog
 
+## 4.2.1
+
+- Allow deleting from the cache via the `del` keyword, e.g.
+  `del handler.cache[ip_key]`.
+
 ## 4.2.0
 
 - Cache keys are now versioned.
