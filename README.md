@@ -15,6 +15,9 @@ The free plan is limited to 50,000 requests per month, and doesn't include some 
 
 ### Installation
 
+This package works with Python 3.5 or greater. However, we only officially
+support non-EOL Python versions.
+
 ```bash
 pip install ipinfo
 ```
