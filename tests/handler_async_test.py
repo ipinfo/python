@@ -64,9 +64,9 @@ async def test_get_details():
         assert privacy["vpn"] == False
         assert privacy["proxy"] == False
         assert privacy["tor"] == False
-        assert privacy["hosting"] == False
         assert privacy["relay"] == False
-        assert "service" not in privacy
+        assert privacy["hosting"] == False
+        assert privacy["service"] == ""
 
         abuse = details.abuse
         assert (
