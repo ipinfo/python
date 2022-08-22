@@ -43,11 +43,15 @@ class Handler:
         # load countries file
         self.countries = handler_utils.read_country_names(
             kwargs.get("countries_file")
+            if kwargs.get("countries_file")
+            else COUNTRY_FILE_DEFAULT
         )
 
         # load eu countries file
-        self.eu_countries = handler_utils.read_eu_country_names(
+        self.eu_countries = handler_utils.read_country_names(
             kwargs.get("eu_countries_file")
+            if kwargs.get("eu_countries_file")
+            else COUNTRY_EU_FILE_DEFAULT
         )
 
         # setup req opts
@@ -105,7 +109,9 @@ class Handler:
         details = response.json()
 
         # format & cache
-        handler_utils.format_details(details, self.countries,self.eu_countries)
+        handler_utils.format_details(
+            details, self.countries, self.eu_countries
+        )
         self.cache[cache_key(ip_address)] = details
 
         return Details(details)
@@ -221,7 +227,9 @@ class Handler:
             # format all
             for detail in result.values():
                 if isinstance(detail, dict):
-                    handler_utils.format_details(detail, self.countries,self.eu_countries)
+                    handler_utils.format_details(
+                        detail, self.countries, self.eu_countries
+                    )
 
         return result
 

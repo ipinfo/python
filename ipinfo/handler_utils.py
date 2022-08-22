@@ -52,7 +52,7 @@ def get_headers(access_token):
     return headers
 
 
-def format_details(details, countries,eu_countries):
+def format_details(details, countries, eu_countries):
     """
     Format details given a countries object.
 
@@ -77,33 +77,16 @@ def read_coords(location):
     return lat, lon
 
 
-def read_country_names(countries_file=None):
+def read_country_names(countries_file):
     """
     Read list of countries from specified country file or
     default file.
     """
-    if not countries_file:
-        countries_file = os.path.join(
-            os.path.dirname(__file__), COUNTRY_FILE_DEFAULT
-        )
+    countries_file = os.path.join(os.path.dirname(__file__), countries_file)
     with open(countries_file) as f:
         countries_json = f.read()
 
     return json.loads(countries_json)
-
-def read_eu_country_names(eu_countries_file=None):
-    """
-    Read list of EU countries from specified country file or
-    default file.
-    """
-    if not eu_countries_file:
-        eu_countries_file = os.path.join(
-            os.path.dirname(__file__), COUNTRY_EU_FILE_DEFAULT
-        )
-    with open(eu_countries_file) as f:
-        eu_countries_json = f.read()
-
-    return json.loads(eu_countries_json)
 
 
 def return_or_fail(raise_on_fail, e, v):
