@@ -1,5 +1,10 @@
 # IPInfo Changelog
 
+## 4.3.0
+
+- Add `isEU` to the details object to check whether the IP geolocates to a
+  European Union (EU) country.
+
 ## 4.2.1
 
 - Allow deleting from the cache via the `del` keyword, e.g.
