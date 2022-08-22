@@ -59,7 +59,7 @@ def format_details(details, countries, eu_countries):
     The countries object can be retrieved from read_country_names.
     """
     details["country_name"] = countries.get(details.get("country"))
-    details["isEU"] = details.get("country") in eu_countries if True else False
+    details["isEU"] = details.get("country") in eu_countries
     details["latitude"], details["longitude"] = read_coords(details.get("loc"))
 
 
