@@ -45,6 +45,11 @@ class AsyncHandler:
             kwargs.get("countries_file")
         )
 
+        # load eu countries file
+        self.eu_countries = handler_utils.read_eu_country_names(
+            kwargs.get("eu_countries_file")
+        )
+
         # setup req opts
         self.request_options = kwargs.get("request_options", {})
         if "timeout" not in self.request_options:
@@ -122,7 +127,7 @@ class AsyncHandler:
             details = await resp.json()
 
         # format & cache
-        handler_utils.format_details(details, self.countries)
+        handler_utils.format_details(details, self.countries,self.eu_countries)
         self.cache[cache_key(ip_address)] = details
 
         return Details(details)
@@ -272,7 +277,7 @@ class AsyncHandler:
         # format & fill up cache
         for ip_address, details in json_resp.items():
             if isinstance(details, dict):
-                handler_utils.format_details(details, self.countries)
+                handler_utils.format_details(details, self.countries,self.eu_countries)
                 self.cache[cache_key(ip_address)] = details
 
         # merge cached results with new lookup

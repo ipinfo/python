@@ -15,6 +15,8 @@ API_URL = "https://ipinfo.io"
 # expanded country name, e.g. "PK" -> "Pakistan".
 COUNTRY_FILE_DEFAULT = "countries.json"
 
+COUNTRY_EU_FILE_DEFAULT = "eu.json"
+
 # The max amount of IPs allowed by the API per batch request.
 BATCH_MAX_SIZE = 1000
 
@@ -50,15 +52,14 @@ def get_headers(access_token):
     return headers
 
 
-def format_details(details, countries):
+def format_details(details, countries,eu_countries):
     """
     Format details given a countries object.
 
     The countries object can be retrieved from read_country_names.
     """
-    json_details = countries.get(details.get("country"))
-    details["country_name"] = json_details["name"] if json_details else None
-    details["isEU"] = json_details["isEU"] if json_details else False
+    details["country_name"] = countries.get(details.get("country"))
+    details["isEU"] = details.get("country") in eu_countries if True else False
     details["latitude"], details["longitude"] = read_coords(details.get("loc"))
 
 
@@ -89,6 +90,20 @@ def read_country_names(countries_file=None):
         countries_json = f.read()
 
     return json.loads(countries_json)
+
+def read_eu_country_names(eu_countries_file=None):
+    """
+    Read list of EU countries from specified country file or
+    default file.
+    """
+    if not eu_countries_file:
+        eu_countries_file = os.path.join(
+            os.path.dirname(__file__), COUNTRY_EU_FILE_DEFAULT
+        )
+    with open(eu_countries_file) as f:
+        eu_countries_json = f.read()
+
+    return json.loads(eu_countries_json)
 
 
 def return_or_fail(raise_on_fail, e, v):
