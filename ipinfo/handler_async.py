@@ -16,6 +16,7 @@ from .details import Details
 from .exceptions import RequestQuotaExceededError, TimeoutExceededError
 from .handler_utils import (
     API_URL,
+    COUNTRY_EU_FILE_DEFAULT,
     COUNTRY_FILE_DEFAULT,
     BATCH_MAX_SIZE,
     CACHE_MAXSIZE,
@@ -43,6 +44,15 @@ class AsyncHandler:
         # load countries file
         self.countries = handler_utils.read_country_names(
             kwargs.get("countries_file")
+            if kwargs.get("countries_file")
+            else COUNTRY_FILE_DEFAULT
+        )
+
+        # load eu countries file
+        self.eu_countries = handler_utils.read_country_names(
+            kwargs.get("eu_countries_file")
+            if kwargs.get("eu_countries_file")
+            else COUNTRY_EU_FILE_DEFAULT
         )
 
         # setup req opts
@@ -122,7 +132,9 @@ class AsyncHandler:
             details = await resp.json()
 
         # format & cache
-        handler_utils.format_details(details, self.countries)
+        handler_utils.format_details(
+            details, self.countries, self.eu_countries
+        )
         self.cache[cache_key(ip_address)] = details
 
         return Details(details)
@@ -272,7 +284,9 @@ class AsyncHandler:
         # format & fill up cache
         for ip_address, details in json_resp.items():
             if isinstance(details, dict):
-                handler_utils.format_details(details, self.countries)
+                handler_utils.format_details(
+                    details, self.countries, self.eu_countries
+                )
                 self.cache[cache_key(ip_address)] = details
 
         # merge cached results with new lookup

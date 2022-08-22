@@ -39,6 +39,7 @@ def test_get_details():
     assert details.region == "California"
     assert details.country == "US"
     assert details.country_name == "United States"
+    assert details.isEU == False
     assert details.loc == "37.4056,-122.0775"
     assert details.latitude == "37.4056"
     assert details.longitude == "-122.0775"
