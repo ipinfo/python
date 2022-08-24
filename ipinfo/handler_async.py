@@ -42,14 +42,14 @@ class AsyncHandler:
         self.access_token = access_token
 
         # load countries file
-        self.countries = handler_utils.read_country_names(
+        self.countries = handler_utils.read_json_file(
             kwargs.get("countries_file")
             if kwargs.get("countries_file")
             else COUNTRY_FILE_DEFAULT
         )
 
         # load eu countries file
-        self.eu_countries = handler_utils.read_country_names(
+        self.eu_countries = handler_utils.read_json_file(
             kwargs.get("eu_countries_file")
             if kwargs.get("eu_countries_file")
             else COUNTRY_EU_FILE_DEFAULT
