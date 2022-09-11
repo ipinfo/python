@@ -9,7 +9,7 @@ import sys
 from .version import SDK_VERSION
 
 # Base URL to make requests against.
-API_URL = "https://ipinfo.io"
+API_URL = os.environ.get("IPINFO_API_URL", "https://ipinfo.io")
 
 # Used to transform incoming responses with country abbreviations into the full
 # expanded country name, e.g. "PK" -> "Pakistan".
