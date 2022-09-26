@@ -204,9 +204,12 @@ class Handler:
             chunk = lookup_addresses[i : i + batch_size]
 
             # lookup
-            response = requests.post(
-                url, json=chunk, headers=headers, **req_opts
-            )
+            try:
+                response = requests.post(
+                    url, json=chunk, headers=headers, **req_opts
+                )
+            except Exception as e:
+                return handler_utils.return_or_fail(raise_on_fail, e, result)
 
             # fail on bad status codes
             try:

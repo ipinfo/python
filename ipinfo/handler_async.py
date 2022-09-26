@@ -264,12 +264,15 @@ class AsyncHandler:
         """
         Coroutine which will do the actual POST request for getBatchDetails.
         """
-        resp = await self.httpsess.post(
-            url,
-            data=json.dumps(chunk),
-            headers=headers,
-            timeout=timeout_per_batch,
-        )
+        try:
+            resp = await self.httpsess.post(
+                url,
+                data=json.dumps(chunk),
+                headers=headers,
+                timeout=timeout_per_batch,
+            )
+        except Exception as e:
+            return handler_utils.return_or_fail(raise_on_fail, e, None)
 
         # gather data
         try:
