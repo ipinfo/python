@@ -2,7 +2,7 @@
 
 This is the official Python client library for the IPinfo.io IP address API, allowing you to lookup your own IP address, or get any of the following details for an IP:
 
- - [IP geolocation / geoIP data](https://ipinfo.io/ip-geolocation-api) (city, region, country, postal code, latitude and longitude)
+ - [IP geolocation](https://ipinfo.io/ip-geolocation-api) (city, region, country, postal code, latitude and longitude)
  - [ASN details](https://ipinfo.io/asn-api) (ISP or network operator, associated domain name, and type, such as business, hosting or company)
  - [Firmographics data](https://ipinfo.io/ip-company-api) (the name and domain of the business that uses the IP address)
  - [Carrier information](https://ipinfo.io/ip-carrier-api) (the name of the mobile carrier and MNC and MCC for that carrier if the IP is used exclusively for mobile traffic)
