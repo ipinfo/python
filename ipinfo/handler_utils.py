@@ -5,6 +5,7 @@ Utilities used in handlers.
 import json
 import os
 import sys
+import copy
 
 from .version import SDK_VERSION
 
@@ -60,7 +61,7 @@ def format_details(details, countries, eu_countries, countries_flags):
     """
     details["country_name"] = countries.get(details.get("country"))
     details["isEU"] = details.get("country") in eu_countries
-    details["country_flag"] = countries_flags.get(details.get("country"))
+    details["country_flag"] = copy.deepcopy(countries_flags.get(details.get("country")))
     details["latitude"], details["longitude"] = read_coords(details.get("loc"))
 
 
