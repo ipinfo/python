@@ -40,6 +40,9 @@ def test_get_details():
     assert details.country == "US"
     assert details.country_name == "United States"
     assert details.isEU == False
+    country_flag = details.country_flag
+    assert country_flag["emoji"] == "🇺🇸"
+    assert country_flag["unicode"] == "U+1F1FA U+1F1F8"
     assert details.loc == "37.4056,-122.0775"
     assert details.latitude == "37.4056"
     assert details.longitude == "-122.0775"
@@ -51,19 +54,19 @@ def test_get_details():
         assert asn["name"] == "Google LLC"
         assert asn["domain"] == "google.com"
         assert asn["route"] == "8.8.8.0/24"
-        assert asn["type"] == "business"
+        assert asn["type"] == "hosting"
 
         company = details.company
         assert company["name"] == "Google LLC"
         assert company["domain"] == "google.com"
-        assert company["type"] == "business"
+        assert company["type"] == "hosting"
 
         privacy = details.privacy
         assert privacy["vpn"] == False
         assert privacy["proxy"] == False
         assert privacy["tor"] == False
         assert privacy["relay"] == False
-        assert privacy["hosting"] == False
+        assert privacy["hosting"] == True
         assert privacy["service"] == ""
 
         abuse = details.abuse

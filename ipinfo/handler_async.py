@@ -18,6 +18,7 @@ from .handler_utils import (
     API_URL,
     COUNTRY_EU_FILE_DEFAULT,
     COUNTRY_FILE_DEFAULT,
+    COUNTRY_FLAG_FILE_DEFAULT,
     BATCH_MAX_SIZE,
     CACHE_MAXSIZE,
     CACHE_TTL,
@@ -53,6 +54,13 @@ class AsyncHandler:
             kwargs.get("eu_countries_file")
             if kwargs.get("eu_countries_file")
             else COUNTRY_EU_FILE_DEFAULT
+        )
+
+        # load countries flags file
+        self.countries_flags = handler_utils.read_json_file(
+            kwargs.get("countries_flags_file")
+            if kwargs.get("countries_flags_file")
+            else COUNTRY_FLAG_FILE_DEFAULT
         )
 
         # setup req opts
@@ -133,7 +141,7 @@ class AsyncHandler:
 
         # format & cache
         handler_utils.format_details(
-            details, self.countries, self.eu_countries
+            details, self.countries, self.eu_countries, self.countries_flags
         )
         self.cache[cache_key(ip_address)] = details
 
@@ -288,7 +296,7 @@ class AsyncHandler:
         for ip_address, details in json_resp.items():
             if isinstance(details, dict):
                 handler_utils.format_details(
-                    details, self.countries, self.eu_countries
+                    details, self.countries, self.eu_countries, self.countries_flags
                 )
                 self.cache[cache_key(ip_address)] = details
 
