@@ -20,6 +20,8 @@ COUNTRY_EU_FILE_DEFAULT = "eu.json"
 
 COUNTRY_FLAG_FILE_DEFAULT = "flags.json"
 
+COUNTRY_CURRENCY_FILE_DEFAULT = "currency.json"
+
 # The max amount of IPs allowed by the API per batch request.
 BATCH_MAX_SIZE = 1000
 
@@ -55,13 +57,20 @@ def get_headers(access_token):
     return headers
 
 
-def format_details(details, countries, eu_countries, countries_flags):
+def format_details(
+    details, countries, eu_countries, countries_flags, countries_currencies
+):
     """
     Format details given a countries object.
     """
     details["country_name"] = countries.get(details.get("country"))
     details["isEU"] = details.get("country") in eu_countries
-    details["country_flag"] = copy.deepcopy(countries_flags.get(details.get("country")))
+    details["country_flag"] = copy.deepcopy(
+        countries_flags.get(details.get("country"))
+    )
+    details["country_currency"] = copy.deepcopy(
+        countries_currencies.get(details.get("country"))
+    )
     details["latitude"], details["longitude"] = read_coords(details.get("loc"))
 
 

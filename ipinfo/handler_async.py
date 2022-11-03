@@ -19,6 +19,7 @@ from .handler_utils import (
     COUNTRY_EU_FILE_DEFAULT,
     COUNTRY_FILE_DEFAULT,
     COUNTRY_FLAG_FILE_DEFAULT,
+    COUNTRY_CURRENCY_FILE_DEFAULT,
     BATCH_MAX_SIZE,
     CACHE_MAXSIZE,
     CACHE_TTL,
@@ -61,6 +62,13 @@ class AsyncHandler:
             kwargs.get("countries_flags_file")
             if kwargs.get("countries_flags_file")
             else COUNTRY_FLAG_FILE_DEFAULT
+        )
+
+        # load countries currency file
+        self.countries_currencies = handler_utils.read_json_file(
+            kwargs.get("countries_currencies_file")
+            if kwargs.get("countries_currencies_file")
+            else COUNTRY_CURRENCY_FILE_DEFAULT
         )
 
         # setup req opts
@@ -141,7 +149,11 @@ class AsyncHandler:
 
         # format & cache
         handler_utils.format_details(
-            details, self.countries, self.eu_countries, self.countries_flags
+            details,
+            self.countries,
+            self.eu_countries,
+            self.countries_flags,
+            self.countries_currencies,
         )
         self.cache[cache_key(ip_address)] = details
 
@@ -296,7 +308,11 @@ class AsyncHandler:
         for ip_address, details in json_resp.items():
             if isinstance(details, dict):
                 handler_utils.format_details(
-                    details, self.countries, self.eu_countries, self.countries_flags
+                    details,
+                    self.countries,
+                    self.eu_countries,
+                    self.countries_flags,
+                    self.countries_currencies,
                 )
                 self.cache[cache_key(ip_address)] = details
 
