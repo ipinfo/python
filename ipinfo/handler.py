@@ -18,6 +18,7 @@ from .handler_utils import (
     COUNTRY_FILE_DEFAULT,
     COUNTRY_EU_FILE_DEFAULT,
     COUNTRY_FLAG_FILE_DEFAULT,
+    COUNTRY_CURRENCY_FILE_DEFAULT,
     BATCH_MAX_SIZE,
     CACHE_MAXSIZE,
     CACHE_TTL,
@@ -60,6 +61,13 @@ class Handler:
             kwargs.get("countries_flags_file")
             if kwargs.get("countries_flags_file")
             else COUNTRY_FLAG_FILE_DEFAULT
+        )
+
+        # load countries currency file
+        self.countries_currencies = handler_utils.read_json_file(
+            kwargs.get("countries_currencies_file")
+            if kwargs.get("countries_currencies_file")
+            else COUNTRY_CURRENCY_FILE_DEFAULT
         )
 
         # setup req opts
@@ -118,7 +126,11 @@ class Handler:
 
         # format & cache
         handler_utils.format_details(
-            details, self.countries, self.eu_countries, self.countries_flags
+            details,
+            self.countries,
+            self.eu_countries,
+            self.countries_flags,
+            self.countries_currencies,
         )
         self.cache[cache_key(ip_address)] = details
 
@@ -239,7 +251,11 @@ class Handler:
             for detail in result.values():
                 if isinstance(detail, dict):
                     handler_utils.format_details(
-                        detail, self.countries, self.eu_countries, self.countries_flags
+                        detail,
+                        self.countries,
+                        self.eu_countries,
+                        self.countries_flags,
+                        self.countries_currencies,
                     )
 
         return result

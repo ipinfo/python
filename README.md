@@ -232,7 +232,7 @@ Request behavior can be modified by setting the `request_options` keyword argume
 
 ### Internationalization
 
-When looking up an IP address, the response object includes a `details.country_name`, `details.isEU` and `details.country_flag` attributes which includes the country based on American English. It is possible to return the country name in other languages by setting the `countries_file`, remove or add EU countries by setting the keyword argument `eu_countries_file` or change the country flag emoji or unicode by setting the keyword argument `countries_flags_file` when creating the `IPinfo` object.
+When looking up an IP address, the response object includes a `details.country_name`, `details.isEU`, `details.country_flag` and `details.country_currency` attributes which includes the country based on American English. It is possible to return the country name in other languages by setting the `countries_file`, remove or add EU countries by setting the keyword argument `eu_countries_file`, change the country flag emoji or unicode by setting the keyword argument `countries_flags_file` or change country's currency code or currency symbol by setting the `countries_currencies` when creating the `IPinfo` object.
 
 The file must be a `.json` file with the following structure:
 
