@@ -1,2 +1,5 @@
 include ipinfo/countries.json
 include ipinfo/eu.json
+include ipinfo/flags.json
+include ipinfo/currency.json
+include ipinfo/continent.json
