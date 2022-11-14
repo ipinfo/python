@@ -46,6 +46,9 @@ def test_get_details():
     country_currency = details.country_currency
     assert country_currency["code"] == "USD"
     assert country_currency["symbol"] == "$"
+    continent = details.continent
+    assert continent["code"] == "NA"
+    assert continent["name"] == "North America"
     assert details.loc == "37.4056,-122.0775"
     assert details.latitude == "37.4056"
     assert details.longitude == "-122.0775"

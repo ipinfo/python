@@ -19,6 +19,7 @@ from .handler_utils import (
     COUNTRY_EU_FILE_DEFAULT,
     COUNTRY_FLAG_FILE_DEFAULT,
     COUNTRY_CURRENCY_FILE_DEFAULT,
+    CONTINENT_FILE_DEFAULT,
     BATCH_MAX_SIZE,
     CACHE_MAXSIZE,
     CACHE_TTL,
@@ -68,6 +69,13 @@ class Handler:
             kwargs.get("countries_currencies_file")
             if kwargs.get("countries_currencies_file")
             else COUNTRY_CURRENCY_FILE_DEFAULT
+        )
+
+        # load continent file
+        self.continents = handler_utils.read_json_file(
+            kwargs.get("continent_file")
+            if kwargs.get("continent_file")
+            else CONTINENT_FILE_DEFAULT
         )
 
         # setup req opts
@@ -131,6 +139,7 @@ class Handler:
             self.eu_countries,
             self.countries_flags,
             self.countries_currencies,
+            self.continents
         )
         self.cache[cache_key(ip_address)] = details
 
@@ -256,6 +265,7 @@ class Handler:
                         self.eu_countries,
                         self.countries_flags,
                         self.countries_currencies,
+                        self.continents
                     )
 
         return result
