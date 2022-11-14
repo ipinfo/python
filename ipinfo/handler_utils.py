@@ -60,7 +60,12 @@ def get_headers(access_token):
 
 
 def format_details(
-    details, countries, eu_countries, countries_flags, countries_currencies, continents
+    details,
+    countries,
+    eu_countries,
+    countries_flags,
+    countries_currencies,
+    continents,
 ):
     """
     Format details given a countries object.

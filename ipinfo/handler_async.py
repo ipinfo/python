@@ -162,7 +162,7 @@ class AsyncHandler:
             self.eu_countries,
             self.countries_flags,
             self.countries_currencies,
-            self.continents
+            self.continents,
         )
         self.cache[cache_key(ip_address)] = details
 
@@ -322,7 +322,7 @@ class AsyncHandler:
                     self.eu_countries,
                     self.countries_flags,
                     self.countries_currencies,
-                    self.continents
+                    self.continents,
                 )
                 self.cache[cache_key(ip_address)] = details
 
