@@ -1,12 +1,19 @@
 # IPInfo Changelog
 
+## 4.4.0
+
+- Added `CountryFlag` to the details object.
+- Added `CountryCurrency` to the details object.
+- Added `Continent` to the details object.
+- Handled timeour error properly.
+
 ## 4.3.1
 
 - Patch fix to include `eu.json` in manifest for release.
 
 ## 4.3.0
 
-- Add `isEU` to the details object to check whether the IP geolocates to a
+- Added `isEU` to the details object to check whether the IP geolocates to a
   European Union (EU) country.
 
 ## 4.2.1
