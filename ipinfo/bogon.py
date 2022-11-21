@@ -2,13 +2,13 @@ from ipaddress import ip_network, ip_address as IP
 
 
 def is_bogon(ip_address):
-    for network in BOGON:
+    for network in BOGON_NETWORKS:
         if IP(ip_address) in ip_network(network):
             return True
     return False
 
 
-BOGON = [
+BOGON_NETWORKS = [
     "0.0.0.0/8",
     "10.0.0.0/8",
     "100.64.0.0/10",
