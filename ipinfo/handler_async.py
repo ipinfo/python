@@ -29,6 +29,7 @@ from .handler_utils import (
     cache_key,
 )
 from . import handler_utils
+from .bogon import is_bogon
 
 
 class AsyncHandler:
@@ -133,6 +134,13 @@ class AsyncHandler:
             ip_address, IPv6Address
         ):
             ip_address = ip_address.exploded
+
+        # check if bogon.
+        if is_bogon(ip_address):
+            details = {}
+            details["ip"] = ip_address
+            details["bogon"] = True
+            return Details(details)
 
         # check cache first.
         try:
