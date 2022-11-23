@@ -150,3 +150,16 @@ def test_get_map():
     handler = Handler()
     mapUrl = handler.getMap(open("tests/map-ips.txt").read().splitlines())
     print(f"got URL={mapUrl}")
+
+
+#############
+# BOGON TESTS
+#############
+
+
+def test_bogon_details():
+    token = os.environ.get("IPINFO_TOKEN", "")
+    handler = Handler(token)
+    details = handler.getDetails("127.0.0.1")
+    assert isinstance(details, Details)
+    assert details.all == {'bogon': True, 'ip': '127.0.0.1'}
