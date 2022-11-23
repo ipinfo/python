@@ -1,5 +1,9 @@
 # IPInfo Changelog
 
+## 4.4.1
+
+- Patch fix for handler crashing in windows environment.
+
 ## 4.4.0
 
 - Added `CountryFlag` to the details object.
