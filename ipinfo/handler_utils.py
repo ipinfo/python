@@ -99,14 +99,11 @@ def read_coords(location):
 
 
 def read_json_file(json_file):
-    """
-    Read a list of countries from specified country file or default file.
-    """
     json_file = os.path.join(os.path.dirname(__file__), json_file)
-    with open(json_file) as f:
-        countries_json = f.read()
+    with open(json_file, encoding="utf8") as f:
+        json_data = f.read()
 
-    return json.loads(countries_json)
+    return json.loads(json_data)
 
 
 def return_or_fail(raise_on_fail, e, v):
