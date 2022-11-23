@@ -148,3 +148,15 @@ async def test_get_batch_details_total_timeout(batch_size):
             ips, batch_size=batch_size, timeout_total=0.001
         )
     await handler.deinit()
+
+
+#############
+# BOGON TESTS
+#############
+
+
+async def test_bogon_details():
+    token = os.environ.get("IPINFO_TOKEN", "")
+    handler = AsyncHandler(token)
+    details = await handler.getDetails("127.0.0.1")
+    assert details.all == {'bogon': True, 'ip': '127.0.0.1'}
