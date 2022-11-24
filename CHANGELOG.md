@@ -1,8 +1,12 @@
 # IPInfo Changelog
 
+## 4.4.2
+
+- Patch fix for empty `ip_address` crash.
 ## 4.4.1
 
 - Patch fix for handler crashing in windows environment.
+- Added bogon check locally.
 
 ## 4.4.0
 
