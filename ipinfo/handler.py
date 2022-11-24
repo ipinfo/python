@@ -111,7 +111,7 @@ class Handler:
             ip_address = ip_address.exploded
 
         # check if bogon.
-        if is_bogon(ip_address):
+        if ip_address and is_bogon(ip_address):
             details = {}
             details["ip"] = ip_address
             details["bogon"] = True
