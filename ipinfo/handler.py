@@ -95,6 +95,9 @@ class Handler:
                 cache_options["ttl"] = CACHE_TTL
             self.cache = DefaultCache(**cache_options)
 
+        # setup custom headers
+        self.headers = kwargs.get("headers", None)
+
     def getDetails(self, ip_address=None, timeout=None):
         """
         Get details for specified IP address as a Details object.
@@ -133,7 +136,7 @@ class Handler:
         url = API_URL
         if ip_address:
             url += "/" + ip_address
-        headers = handler_utils.get_headers(self.access_token)
+        headers = handler_utils.get_headers(self.access_token, self.headers)
         response = requests.get(url, headers=headers, **req_opts)
         if response.status_code == 429:
             raise RequestQuotaExceededError()
@@ -226,7 +229,7 @@ class Handler:
 
         # loop over batch chunks and do lookup for each.
         url = API_URL + "/batch"
-        headers = handler_utils.get_headers(self.access_token)
+        headers = handler_utils.get_headers(self.access_token, self.headers)
         headers["content-type"] = "application/json"
         for i in range(0, len(lookup_addresses), batch_size):
             # quit if total timeout is reached.
@@ -295,7 +298,7 @@ class Handler:
 
         req_opts = {**self.request_options}
         url = f"{API_URL}/map?cli=1"
-        headers = handler_utils.get_headers(None)
+        headers = handler_utils.get_headers(None, self.headers)
         headers["content-type"] = "application/json"
         response = requests.post(
             url, json=ip_strs, headers=headers, **req_opts

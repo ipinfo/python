@@ -20,12 +20,13 @@ def test_init():
 
 def test_headers():
     token = "mytesttoken"
-    handler = Handler(token)
-    headers = handler_utils.get_headers(token)
+    handler = Handler(token, headers={"user-agent": "test-agent", "accept": "application/json", "custom_field": "yes"})
+    headers = handler_utils.get_headers(token, handler.headers)
 
     assert "user-agent" in headers
     assert "accept" in headers
     assert "authorization" in headers
+    assert "custom_field" in headers
 
 
 def test_get_details():

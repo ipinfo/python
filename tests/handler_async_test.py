@@ -21,13 +21,14 @@ async def test_init():
 @pytest.mark.asyncio
 async def test_headers():
     token = "mytesttoken"
-    handler = AsyncHandler(token)
-    headers = handler_utils.get_headers(token)
+    handler = AsyncHandler(token, headers={"user-agent": "test-agent", "accept": "application/json", "custom_field": "yes"})
+    headers = handler_utils.get_headers(token, handler.headers)
     await handler.deinit()
 
     assert "user-agent" in headers
     assert "accept" in headers
     assert "authorization" in headers
+    assert "custom_field" in headers
 
 
 @pytest.mark.asyncio
