@@ -99,7 +99,7 @@ class AsyncHandler:
                 cache_options["ttl"] = CACHE_TTL
             self.cache = DefaultCache(**cache_options)
         
-                # setup custom headers
+        # setup custom headers
         self.headers = kwargs.get("headers", None)
         
     async def init(self):

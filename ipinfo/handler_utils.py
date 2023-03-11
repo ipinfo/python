@@ -45,22 +45,21 @@ BATCH_REQ_TIMEOUT_DEFAULT = 5
 
 
 def get_headers(access_token, custom_headers):
-    headers = {}
-
-    if custom_headers:
-        headers = custom_headers
-    else:
-        """Build headers for request to IPinfo API."""
-        headers = {
-        "user-agent": "IPinfoClient/Python{version}/{sdk_version}".format(
-            version=sys.version_info[0], sdk_version=SDK_VERSION
+    """Build headers for request to IPinfo API."""
+    headers = {
+       "user-agent": "IPinfoClient/Python{version}/{sdk_version}".format(
+        version=sys.version_info[0], sdk_version=SDK_VERSION
         ),
         "accept": "application/json",
-        }
+    }
+
+    if custom_headers:
+        headers = {** headers, ** custom_headers}
 
     if access_token:
         headers["authorization"] = "Bearer {}".format(access_token)
 
+    print(headers)
     return headers
 
 
