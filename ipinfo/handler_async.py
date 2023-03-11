@@ -98,7 +98,10 @@ class AsyncHandler:
             if "ttl" not in cache_options:
                 cache_options["ttl"] = CACHE_TTL
             self.cache = DefaultCache(**cache_options)
-
+        
+        # setup custom headers
+        self.headers = kwargs.get("headers", None)
+        
     async def init(self):
         """
         Initializes internal aiohttp connection pool.
@@ -153,7 +156,7 @@ class AsyncHandler:
         url = API_URL
         if ip_address:
             url += "/" + ip_address
-        headers = handler_utils.get_headers(self.access_token)
+        headers = handler_utils.get_headers(self.access_token, self.headers)
         req_opts = {}
         if timeout is not None:
             req_opts["timeout"] = timeout
@@ -251,7 +254,7 @@ class AsyncHandler:
 
         # loop over batch chunks and prepare coroutines for each.
         url = API_URL + "/batch"
-        headers = handler_utils.get_headers(self.access_token)
+        headers = handler_utils.get_headers(self.access_token, self.headers)
         headers["content-type"] = "application/json"
 
         # prepare coroutines that will make reqs and update results.

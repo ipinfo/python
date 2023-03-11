@@ -230,6 +230,14 @@ Request behavior can be modified by setting the `request_options` keyword argume
 >>> handler = ipinfo.getHandler(request_options={'timeout': 4})
 ```
 
+### Custom Headers
+
+You can add custom headers or modify default headers by setting the `headers` keyword argument when initializing the handler. `headers` is a dictionary of `{'header': 'value'}` format.
+
+```python
+>>> handler = ipinfo.getHandler(headers={'user-agent': 'My Custom User-agent', 'custom_header': 'yes'})
+```
+
 ### Internationalization
 
 When looking up an IP address, the response object includes a `details.country_name`, `details.isEU`, `details.country_flag` and `details.country_currency` attributes which includes the country based on American English. It is possible to return the country name in other languages by setting the `countries_file`, remove or add EU countries by setting the keyword argument `eu_countries_file`, change the country flag emoji or unicode by setting the keyword argument `countries_flags_file` or change country's currency code or currency symbol by setting the `countries_currencies` when creating the `IPinfo` object. Moreover the response object includes a `details.continent` which includes continent code and name of IP. The default file can be changed by setting the `continent_file` while creating the `IPinfo` object.
