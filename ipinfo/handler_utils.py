@@ -12,6 +12,10 @@ from .version import SDK_VERSION
 # Base URL to make requests against.
 API_URL = "https://ipinfo.io"
 
+# Base URL to get country flag image link.
+# "PK" -> "https://cdn.ipinfo.io/static/images/countries-flags/PK.svg"
+COUNTRY_FLAGS_URL = "https://cdn.ipinfo.io/static/images/countries-flags/"
+
 # Used to transform incoming responses with country abbreviations into the full
 # expanded country name, e.g. "PK" -> "Pakistan".
 COUNTRY_FILE_DEFAULT = "countries.json"
@@ -75,6 +79,7 @@ def format_details(
     """
     details["country_name"] = countries.get(details.get("country"))
     details["isEU"] = details.get("country") in eu_countries
+    details["country_flag_url"] = COUNTRY_FLAGS_URL + details.get("country") + ".svg"
     details["country_flag"] = copy.deepcopy(
         countries_flags.get(details.get("country"))
     )
