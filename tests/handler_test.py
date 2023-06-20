@@ -44,6 +44,8 @@ def test_get_details():
     country_flag = details.country_flag
     assert country_flag["emoji"] == "🇺🇸"
     assert country_flag["unicode"] == "U+1F1FA U+1F1F8"
+    country_flag_url = details.country_flag_url
+    assert country_flag_url == "https://cdn.ipinfo.io/static/images/countries-flags/US.svg"
     country_currency = details.country_currency
     assert country_currency["code"] == "USD"
     assert country_currency["symbol"] == "$"

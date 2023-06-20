@@ -1,5 +1,10 @@
 # IPInfo Changelog
 
+## 4.4.3
+
+- Added `CountryFlagURL` to the details object.
+- Allowed custom headers
+
 ## 4.4.2
 
 - Patch fix for empty `ip_address` crash.
