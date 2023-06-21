@@ -98,10 +98,10 @@ class AsyncHandler:
             if "ttl" not in cache_options:
                 cache_options["ttl"] = CACHE_TTL
             self.cache = DefaultCache(**cache_options)
-        
+
         # setup custom headers
         self.headers = kwargs.get("headers", None)
-        
+
     async def init(self):
         """
         Initializes internal aiohttp connection pool.

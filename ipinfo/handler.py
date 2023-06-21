@@ -305,3 +305,24 @@ class Handler:
         )
         response.raise_for_status()
         return response.json()["reportUrl"]
+
+    def getIterativeBatchDetails(self, ip_addresses, batch_size=None):
+        if batch_size == None:
+            batch_size = BATCH_MAX_SIZE
+
+        url = API_URL + "/batch"
+        headers = handler_utils.get_headers(self.access_token, self.headers)
+        headers["content-type"] = "application/json"
+
+        # Split the IP addresses into batches
+        batches = [
+            ip_addresses[i : i + batch_size]
+            for i in range(0, len(ip_addresses), batch_size)
+        ]
+
+        for batch in batches:
+            response = requests.post(url, json=batch, headers=headers)
+            json_response = response.json()
+
+            for ip_address, details in json_response.items():
+                yield ip_address, details
