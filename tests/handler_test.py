@@ -45,7 +45,10 @@ def test_get_details():
     assert country_flag["emoji"] == "🇺🇸"
     assert country_flag["unicode"] == "U+1F1FA U+1F1F8"
     country_flag_url = details.country_flag_url
-    assert country_flag_url == "https://cdn.ipinfo.io/static/images/countries-flags/US.svg"
+    assert (
+        country_flag_url
+        == "https://cdn.ipinfo.io/static/images/countries-flags/US.svg"
+    )
     country_currency = details.country_currency
     assert country_currency["code"] == "USD"
     assert country_currency["symbol"] == "$"
@@ -187,5 +190,13 @@ def test_bogon_details():
     token = os.environ.get("IPINFO_TOKEN", "")
     handler = Handler(token)
     details = handler.getDetails("127.0.0.1")
+    assert isinstance(details, Details)
+    assert details.all == {"bogon": True, "ip": "127.0.0.1"}
+
+
+def test_iterative_bogon_details():
+    token = os.environ.get("IPINFO_TOKEN", "")
+    handler = Handler(token)
+    details = next(handler.getIterativeBatchDetails(["127.0.0.1"]))
     assert isinstance(details, Details)
     assert details.all == {"bogon": True, "ip": "127.0.0.1"}
