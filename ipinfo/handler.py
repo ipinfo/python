@@ -312,73 +312,58 @@ class Handler:
         batch_size=None,
         raise_on_fail=True,
     ):
-        if batch_size == None:
+        if batch_size is None:
             batch_size = BATCH_MAX_SIZE
 
         results = {}
 
-        # pre-populate with anything we've got in the cache, and keep around
-        # the IPs not in the cache.
         lookup_addresses = []
         for ip_address in ip_addresses:
-            # if the supplied IP address uses the objects defined in the
-            # built-in module ipaddress extract the appropriate string notation
-            # before formatting the URL.
             if isinstance(ip_address, IPv4Address) or isinstance(
                 ip_address, IPv6Address
             ):
                 ip_address = ip_address.exploded
 
-            # check if bogon.
             if ip_address and is_bogon(ip_address):
                 details = {}
                 details["ip"] = ip_address
                 details["bogon"] = True
                 yield Details(details)
 
-            # check cache first.
             try:
                 cached_ipaddr = self.cache[cache_key(ip_address)]
                 results[ip_address] = cached_ipaddr
             except KeyError:
                 lookup_addresses.append(ip_address)
 
-        # all in cache - return early.
         if len(lookup_addresses) == 0:
-            for ip_address, details in results.items():
-                yield ip_address, details
+            yield from results.items()
 
-        # loop over batch chunks and do lookup for each.
         url = API_URL + "/batch"
         headers = handler_utils.get_headers(self.access_token, self.headers)
         headers["content-type"] = "application/json"
         for i in range(0, len(lookup_addresses), batch_size):
             batch = lookup_addresses[i : i + batch_size]
 
-            # lookup.
             try:
                 response = requests.post(url, json=batch, headers=headers)
             except Exception as e:
-                return handler_utils.return_or_fail(raise_on_fail, e, result)
+                return handler_utils.return_or_fail(raise_on_fail, e, results)
 
-            # fail on bad status codes
             try:
                 if response.status_code == 429:
                     raise RequestQuotaExceededError()
                 response.raise_for_status()
             except Exception as e:
-                return handler_utils.return_or_fail(raise_on_fail, e, result)
+                return handler_utils.return_or_fail(raise_on_fail, e, results)
 
-            # fill cache
             json_response = response.json()
             print(f"JSON: {json_response}")
             for ip_address, details in json_response.items():
                 self.cache[cache_key(ip_address)] = details
 
-            # merge cached results with new lookup
             results.update(json_response)
 
-            # format all
             for detail in results.values():
                 if isinstance(detail, dict):
                     handler_utils.format_details(
@@ -390,5 +375,4 @@ class Handler:
                         self.continents,
                     )
 
-            for ip_address, details in results.items():
-                yield ip_address, details
+            yield from results.items()
