@@ -108,7 +108,7 @@ _batch_ip_addrs = ["1.1.1.1", "8.8.8.8", "9.9.9.9"]
 
 def _prepare_batch_test():
     """Helper for preparing batch test cases."""
-    token = os.environ.get("IPINFO_TOKEN", "")
+    token =  os.environ.get("IPINFO_TOKEN", "")
     if not token:
         pytest.skip("token required for batch tests")
     handler = Handler(token)
@@ -131,17 +131,17 @@ def _check_batch_details(ips, details, token):
             assert "domains" in d
 
 
-def _check_iterative_batch_details(ip, details, token):
+def _check_iterative_batch_details(details, token):
     """Helper for iterative batch tests."""
-    assert ip == details.get("ip")
-    assert "country" in details
-    assert "city" in details
+    assert "ip" in details, "Key 'ip' not found in details"
+    assert "country" in details, "Key 'country' not found in details"
+    assert "city" in details, "Key 'city' not found in details"
     if token:
-        assert "asn" in details
-        assert "company" in details
-        assert "privacy" in details
-        assert "abuse" in details
-        assert "domains" in details
+        assert "asn" in details, "Key 'asn' not found in details"
+        assert "company" in details, "Key 'company' not found in details"
+        assert "privacy" in details, "Key 'privacy' not found in details"
+        assert "abuse" in details, "Key 'abuse' not found in details"
+        assert "domains" in details, "Key 'domains' not found in details"
 
 
 @pytest.mark.parametrize("batch_size", [None, 1, 2, 3])
@@ -166,8 +166,8 @@ def test_get_iterative_batch_details(batch_size):
     details_iterator = handler.getIterativeBatchDetails(
         ips, batch_size=batch_size
     )
-    for ip, details in details_iterator:
-        _check_iterative_batch_details(ip, details, token)
+    for details in details_iterator:
+        _check_iterative_batch_details(details, token)
 
 
 #############

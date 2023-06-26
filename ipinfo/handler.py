@@ -315,8 +315,6 @@ class Handler:
         if batch_size is None:
             batch_size = BATCH_MAX_SIZE
 
-        results = {}
-
         lookup_addresses = []
         for ip_address in ip_addresses:
             if isinstance(ip_address, IPv4Address) or isinstance(
@@ -329,15 +327,8 @@ class Handler:
                 details["ip"] = ip_address
                 details["bogon"] = True
                 yield Details(details)
-
-            try:
-                cached_ipaddr = self.cache[cache_key(ip_address)]
-                results[ip_address] = cached_ipaddr
-            except KeyError:
+            else:
                 lookup_addresses.append(ip_address)
-
-        if len(lookup_addresses) == 0:
-            yield from results.items()
 
         url = API_URL + "/batch"
         headers = handler_utils.get_headers(self.access_token, self.headers)
@@ -348,30 +339,28 @@ class Handler:
             try:
                 response = requests.post(url, json=batch, headers=headers)
             except Exception as e:
-                return handler_utils.return_or_fail(raise_on_fail, e, results)
+                return handler_utils.return_or_fail(raise_on_fail, e)
 
             try:
                 if response.status_code == 429:
                     raise RequestQuotaExceededError()
                 response.raise_for_status()
             except Exception as e:
-                return handler_utils.return_or_fail(raise_on_fail, e, results)
+                return handler_utils.return_or_fail(raise_on_fail, e)
 
-            json_response = response.json()
-            for ip_address, details in json_response.items():
-                self.cache[cache_key(ip_address)] = details
+            details = response.json()
 
-            results.update(json_response)
-
-            for detail in results.values():
-                if isinstance(detail, dict):
-                    handler_utils.format_details(
-                        detail,
-                        self.countries,
-                        self.eu_countries,
-                        self.countries_flags,
-                        self.countries_currencies,
-                        self.continents,
-                    )
-
-            yield from results.items()
+            # format & cache
+            handler_utils.format_details(
+                details,
+                self.countries,
+                self.eu_countries,
+                self.countries_flags,
+                self.countries_currencies,
+                self.continents,
+            )
+            for ip in batch:
+                detail = details.get(ip)
+                if detail is not None:
+                    self.cache[cache_key(ip)] = detail
+                    yield detail

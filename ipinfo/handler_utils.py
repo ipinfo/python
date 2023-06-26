@@ -80,7 +80,7 @@ def format_details(
     details["country_name"] = countries.get(details.get("country"))
     details["isEU"] = details.get("country") in eu_countries
     details["country_flag_url"] = (
-        COUNTRY_FLAGS_URL + details.get("country") + ".svg"
+        COUNTRY_FLAGS_URL + (details.get("country") or "") + ".svg"
     )
     details["country_flag"] = copy.deepcopy(
         countries_flags.get(details.get("country"))
