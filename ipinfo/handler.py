@@ -358,7 +358,6 @@ class Handler:
                 return handler_utils.return_or_fail(raise_on_fail, e, results)
 
             json_response = response.json()
-            print(f"JSON: {json_response}")
             for ip_address, details in json_response.items():
                 self.cache[cache_key(ip_address)] = details
 

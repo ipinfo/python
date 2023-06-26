@@ -113,8 +113,7 @@ _batch_ip_addrs = ["1.1.1.1", "8.8.8.8", "9.9.9.9"]
 
 def _prepare_batch_test():
     """Helper for preparing batch test cases."""
-    token = "godmode666"
-    # os.environ.get("IPINFO_TOKEN", "")
+    token = os.environ.get("IPINFO_TOKEN", "")
     if not token:
         pytest.skip("token required for batch tests")
     handler = AsyncHandler(token)
