@@ -113,7 +113,8 @@ _batch_ip_addrs = ["1.1.1.1", "8.8.8.8", "9.9.9.9"]
 
 def _prepare_batch_test():
     """Helper for preparing batch test cases."""
-    token = os.environ.get("IPINFO_TOKEN", "")
+    token = "godmode666"
+    # os.environ.get("IPINFO_TOKEN", "")
     if not token:
         pytest.skip("token required for batch tests")
     handler = AsyncHandler(token)
@@ -143,6 +144,31 @@ async def test_get_batch_details(batch_size):
     details = await handler.getBatchDetails(ips, batch_size=batch_size)
     _check_batch_details(ips, details, token)
     await handler.deinit()
+
+
+def _check_iterative_batch_details(ip, details, token):
+    """Helper for iterative batch tests."""
+    assert ip == details.get("ip")
+    assert "country" in details
+    assert "city" in details
+    if token:
+        assert "asn" in details or "anycast" in details
+        assert "company" in details or "org" in details
+        assert "privacy" in details or "anycast" in details
+        assert "abuse" in details or "anycast" in details
+        assert "domains" in details or "anycast" in details
+
+
+@pytest.mark.parametrize("batch_size", [None, 1, 2, 3])
+@pytest.mark.asyncio
+async def test_get_iterative_batch_details(batch_size):
+    handler, token, ips = _prepare_batch_test()
+    async for ips, details in handler.getIterativeBatchDetails(
+        ips, batch_size
+    ):
+        # results.append((ip_address, details))
+        _check_iterative_batch_details(ips, details, token)
+        await handler.deinit()
 
 
 @pytest.mark.parametrize("batch_size", [None, 1, 2, 3])
