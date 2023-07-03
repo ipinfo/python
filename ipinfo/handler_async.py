@@ -395,7 +395,7 @@ class AsyncHandler:
                         self.cache[cache_key(ip_address)] = details
                         results[ip_address] = details
             except Exception as e:
-                return handler_utils.return_or_fail(raise_on_fail, e, results)
+                raise e
 
         for i in range(0, len(lookup_addresses), batch_size):
             batch = lookup_addresses[i : i + batch_size]

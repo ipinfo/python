@@ -376,7 +376,7 @@ class Handler:
             try:
                 response = requests.post(url, json=batch, headers=headers)
             except Exception as e:
-                return handler_utils.return_or_fail(raise_on_fail, e)
+                raise e
 
             try:
                 if response.status_code == 429:
