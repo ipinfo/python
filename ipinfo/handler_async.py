@@ -394,7 +394,6 @@ class AsyncHandler:
                     for ip_address, details in json_response.items():
                         self.cache[cache_key(ip_address)] = details
                         results[ip_address] = details
-
             except Exception as e:
                 return handler_utils.return_or_fail(raise_on_fail, e, results)
 
