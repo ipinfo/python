@@ -162,9 +162,7 @@ def _check_iterative_batch_details(ip, details, token):
 @pytest.mark.asyncio
 async def test_get_iterative_batch_details(batch_size):
     handler, token, ips = _prepare_batch_test()
-    async for ips, details in handler.getBatchDetailsIter(
-        ips, batch_size
-    ):
+    async for ips, details in handler.getBatchDetailsIter(ips, batch_size):
         _check_iterative_batch_details(ips, details, token)
 
 

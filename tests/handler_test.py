@@ -163,9 +163,7 @@ def test_get_batch_details_total_timeout(batch_size):
 @pytest.mark.parametrize("batch_size", [None, 1, 2, 3])
 def test_get_iterative_batch_details(batch_size):
     handler, token, ips = _prepare_batch_test()
-    details_iterator = handler.getBatchDetailsIter(
-        ips, batch_size=batch_size
-    )
+    details_iterator = handler.getBatchDetailsIter(ips, batch_size=batch_size)
     for details in details_iterator:
         _check_iterative_batch_details(details, token)
 
