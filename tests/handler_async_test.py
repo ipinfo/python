@@ -166,7 +166,6 @@ async def test_get_iterative_batch_details(batch_size):
         ips, batch_size
     ):
         _check_iterative_batch_details(ips, details, token)
-        await handler.deinit()
 
 
 @pytest.mark.parametrize("batch_size", [None, 1, 2, 3])
