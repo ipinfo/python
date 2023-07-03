@@ -165,7 +165,6 @@ async def test_get_iterative_batch_details(batch_size):
     async for ips, details in handler.getBatchDetailsIter(
         ips, batch_size
     ):
-        # results.append((ip_address, details))
         _check_iterative_batch_details(ips, details, token)
         await handler.deinit()
 
