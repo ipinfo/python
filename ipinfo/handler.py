@@ -197,10 +197,25 @@ class Handler:
             batch_size = BATCH_MAX_SIZE
 
         result = {}
+        lookup_addresses = []
+
+        # check if bogon.
+        for ip_address in ip_addresses:
+            if isinstance(ip_address, IPv4Address) or isinstance(
+                ip_address, IPv6Address
+            ):
+                ip_address = ip_address.exploded
+
+            if ip_address and is_bogon(ip_address):
+                details = {}
+                details["ip"] = ip_address
+                details["bogon"] = True
+                return Details(details)
+            else:
+                lookup_addresses.append(ip_address)
 
         # pre-populate with anything we've got in the cache, and keep around
         # the IPs not in the cache.
-        lookup_addresses = []
         for ip_address in ip_addresses:
             # if the supplied IP address uses the objects defined in the
             # built-in module ipaddress extract the appropriate string notation
