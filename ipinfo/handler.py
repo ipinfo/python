@@ -346,17 +346,6 @@ class Handler:
             else:
                 lookup_addresses.append(ip_address)
 
-        # pre-populate with anything we've got in the cache, and keep around
-        # the IPs not in the cache.
-        for ip_address in ip_addresses:
-            # if the supplied IP address uses the objects defined in the
-            # built-in module ipaddress extract the appropriate string notation
-            # before formatting the URL.
-            if isinstance(ip_address, IPv4Address) or isinstance(
-                ip_address, IPv6Address
-            ):
-                ip_address = ip_address.exploded
-
             try:
                 cached_ipaddr = self.cache[cache_key(ip_address)]
                 result[ip_address] = cached_ipaddr
@@ -365,7 +354,7 @@ class Handler:
 
         # all in cache - exit early.
         if len(lookup_addresses) == 0:
-            yield result
+            yield result.items()
 
         url = API_URL + "/batch"
         headers = handler_utils.get_headers(self.access_token, self.headers)

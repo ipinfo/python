@@ -358,7 +358,6 @@ class AsyncHandler:
             batch_size = BATCH_MAX_SIZE
 
         results = {}
-
         lookup_addresses = []
         for ip_address in ip_addresses:
             if isinstance(ip_address, IPv4Address) or isinstance(
@@ -371,6 +370,8 @@ class AsyncHandler:
                 details["ip"] = ip_address
                 details["bogon"] = True
                 yield Details(details)
+            else:
+                lookup_addresses.append(ip_address)
 
             try:
                 cached_ipaddr = self.cache[cache_key(ip_address)]
