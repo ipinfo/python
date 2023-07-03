@@ -306,7 +306,7 @@ class Handler:
         response.raise_for_status()
         return response.json()["reportUrl"]
 
-    def getIterativeBatchDetails(
+    def getBatchDetailsIter(
         self,
         ip_addresses,
         batch_size=None,

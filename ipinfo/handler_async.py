@@ -348,7 +348,7 @@ class AsyncHandler:
         timeout = aiohttp.ClientTimeout(total=self.request_options["timeout"])
         self.httpsess = aiohttp.ClientSession(timeout=timeout)
 
-    async def getIterativeBatchDetails(
+    async def getBatchDetailsIter(
         self,
         ip_addresses,
         batch_size=None,
