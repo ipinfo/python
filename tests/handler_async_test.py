@@ -145,6 +145,27 @@ async def test_get_batch_details(batch_size):
     await handler.deinit()
 
 
+def _check_iterative_batch_details(ip, details, token):
+    """Helper for iterative batch tests."""
+    assert ip == details.get("ip")
+    assert "country" in details
+    assert "city" in details
+    if token:
+        assert "asn" in details or "anycast" in details
+        assert "company" in details or "org" in details
+        assert "privacy" in details or "anycast" in details
+        assert "abuse" in details or "anycast" in details
+        assert "domains" in details or "anycast" in details
+
+
+@pytest.mark.parametrize("batch_size", [None, 1, 2, 3])
+@pytest.mark.asyncio
+async def test_get_iterative_batch_details(batch_size):
+    handler, token, ips = _prepare_batch_test()
+    async for ips, details in handler.getBatchDetailsIter(ips, batch_size):
+        _check_iterative_batch_details(ips, details, token)
+
+
 @pytest.mark.parametrize("batch_size", [None, 1, 2, 3])
 @pytest.mark.asyncio
 async def test_get_batch_details_total_timeout(batch_size):

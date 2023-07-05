@@ -131,6 +131,19 @@ def _check_batch_details(ips, details, token):
             assert "domains" in d
 
 
+def _check_iterative_batch_details(details, token):
+    """Helper for iterative batch tests."""
+    assert "ip" in details, "Key 'ip' not found in details"
+    assert "country" in details, "Key 'country' not found in details"
+    assert "city" in details, "Key 'city' not found in details"
+    if token:
+        assert "asn" in details, "Key 'asn' not found in details"
+        assert "company" in details, "Key 'company' not found in details"
+        assert "privacy" in details, "Key 'privacy' not found in details"
+        assert "abuse" in details, "Key 'abuse' not found in details"
+        assert "domains" in details, "Key 'domains' not found in details"
+
+
 @pytest.mark.parametrize("batch_size", [None, 1, 2, 3])
 def test_get_batch_details(batch_size):
     handler, token, ips = _prepare_batch_test()
@@ -145,6 +158,14 @@ def test_get_batch_details_total_timeout(batch_size):
         handler.getBatchDetails(
             ips, batch_size=batch_size, timeout_total=0.001
         )
+
+
+@pytest.mark.parametrize("batch_size", [None, 1, 2, 3])
+def test_get_iterative_batch_details(batch_size):
+    handler, token, ips = _prepare_batch_test()
+    details_iterator = handler.getBatchDetailsIter(ips, batch_size=batch_size)
+    for details in details_iterator:
+        _check_iterative_batch_details(details, token)
 
 
 #############
@@ -168,4 +189,11 @@ def test_bogon_details():
     handler = Handler(token)
     details = handler.getDetails("127.0.0.1")
     assert isinstance(details, Details)
+    assert details.all == {"bogon": True, "ip": "127.0.0.1"}
+
+
+def test_iterative_bogon_details():
+    token = os.environ.get("IPINFO_TOKEN", "")
+    handler = Handler(token)
+    details = next(handler.getBatchDetailsIter(["127.0.0.1"]))
     assert details.all == {"bogon": True, "ip": "127.0.0.1"}

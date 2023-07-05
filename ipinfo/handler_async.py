@@ -351,3 +351,69 @@ class AsyncHandler:
 
         timeout = aiohttp.ClientTimeout(total=self.request_options["timeout"])
         self.httpsess = aiohttp.ClientSession(timeout=timeout)
+
+    async def getBatchDetailsIter(
+        self,
+        ip_addresses,
+        batch_size=None,
+        raise_on_fail=True,
+    ):
+        if batch_size is None:
+            batch_size = BATCH_MAX_SIZE
+
+        results = {}
+        lookup_addresses = []
+        for ip_address in ip_addresses:
+            if isinstance(ip_address, IPv4Address) or isinstance(
+                ip_address, IPv6Address
+            ):
+                ip_address = ip_address.exploded
+
+            if ip_address and is_bogon(ip_address):
+                details = {}
+                details["ip"] = ip_address
+                details["bogon"] = True
+                yield Details(details)
+            else:
+                lookup_addresses.append(ip_address)
+
+            try:
+                cached_ipaddr = self.cache[cache_key(ip_address)]
+                results[ip_address] = cached_ipaddr
+            except KeyError:
+                lookup_addresses.append(ip_address)
+
+        if len(lookup_addresses) == 0:
+            yield results.items()
+
+        url = API_URL + "/batch"
+        headers = handler_utils.get_headers(self.access_token, self.headers)
+        headers["content-type"] = "application/json"
+
+        async def process_batch(batch):
+            try:
+                async with aiohttp.ClientSession(headers=headers) as session:
+                    response = await session.post(url, json=batch)
+                    response.raise_for_status()
+                    json_response = await response.json()
+                    for ip_address, details in json_response.items():
+                        self.cache[cache_key(ip_address)] = details
+                        results[ip_address] = details
+            except Exception as e:
+                raise e
+
+        for i in range(0, len(lookup_addresses), batch_size):
+            batch = lookup_addresses[i : i + batch_size]
+            await process_batch(batch)
+
+            for ip_address, details in results.items():
+                if isinstance(details, dict):
+                    handler_utils.format_details(
+                        details,
+                        self.countries,
+                        self.eu_countries,
+                        self.countries_flags,
+                        self.countries_currencies,
+                        self.continents,
+                    )
+                yield ip_address, details
