@@ -10,6 +10,7 @@ import time
 
 import requests
 
+from .error import APIError
 from .cache.default import DefaultCache
 from .details import Details
 from .exceptions import RequestQuotaExceededError, TimeoutExceededError
@@ -140,7 +141,10 @@ class Handler:
         response = requests.get(url, headers=headers, **req_opts)
         if response.status_code == 429:
             raise RequestQuotaExceededError()
-        response.raise_for_status()
+        if response.status_code >= 400:
+            error_response = response.json()
+            error_code = response.status_code
+            raise APIError(error_code, error_response)
         details = response.json()
 
         # format & cache
