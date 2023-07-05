@@ -218,7 +218,7 @@ class Handler:
                 details = {}
                 details["ip"] = ip_address
                 details["bogon"] = True
-                result[ip_address] = details
+                result[ip_address] = Details(details)
             else:
                 lookup_addresses.append(ip_address)
 
@@ -339,7 +339,7 @@ class Handler:
                 details = {}
                 details["ip"] = ip_address
                 details["bogon"] = True
-                result[ip_address] = details
+                yield Details(details)
             else:
                 lookup_addresses.append(ip_address)
 
