@@ -196,5 +196,4 @@ def test_iterative_bogon_details():
     token = os.environ.get("IPINFO_TOKEN", "")
     handler = Handler(token)
     details = next(handler.getBatchDetailsIter(["127.0.0.1"]))
-    assert isinstance(details, Details)
-    assert details.all == {"bogon": True, "ip": "127.0.0.1"}
+    assert details == {"bogon": True, "ip": "127.0.0.1"}

@@ -218,7 +218,7 @@ class Handler:
                 details = {}
                 details["ip"] = ip_address
                 details["bogon"] = True
-                return Details(details)
+                result[ip_address] = details
             else:
                 lookup_addresses.append(ip_address)
 
@@ -339,7 +339,7 @@ class Handler:
                 details = {}
                 details["ip"] = ip_address
                 details["bogon"] = True
-                yield Details(details)
+                result[ip_address] = details
             else:
                 lookup_addresses.append(ip_address)
 
@@ -351,7 +351,7 @@ class Handler:
 
         # all in cache - exit early.
         if len(lookup_addresses) == 0:
-            yield result.items()
+            raise StopIteration(result.items())
 
         url = API_URL + "/batch"
         headers = handler_utils.get_headers(self.access_token, self.headers)
