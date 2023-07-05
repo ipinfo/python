@@ -11,6 +11,7 @@ import time
 
 import aiohttp
 
+from .error import APIError
 from .cache.default import DefaultCache
 from .details import Details
 from .exceptions import RequestQuotaExceededError, TimeoutExceededError
@@ -98,10 +99,10 @@ class AsyncHandler:
             if "ttl" not in cache_options:
                 cache_options["ttl"] = CACHE_TTL
             self.cache = DefaultCache(**cache_options)
-        
+
         # setup custom headers
         self.headers = kwargs.get("headers", None)
-        
+
     async def init(self):
         """
         Initializes internal aiohttp connection pool.
@@ -163,7 +164,10 @@ class AsyncHandler:
         async with self.httpsess.get(url, headers=headers, **req_opts) as resp:
             if resp.status == 429:
                 raise RequestQuotaExceededError()
-            resp.raise_for_status()
+            if resp.status >= 400:
+                error_response = await resp.json()
+                error_code = resp.status
+                raise APIError(error_code, error_response)
             details = await resp.json()
 
         # format & cache

@@ -51,14 +51,14 @@ BATCH_REQ_TIMEOUT_DEFAULT = 5
 def get_headers(access_token, custom_headers):
     """Build headers for request to IPinfo API."""
     headers = {
-       "user-agent": "IPinfoClient/Python{version}/{sdk_version}".format(
-        version=sys.version_info[0], sdk_version=SDK_VERSION
+        "user-agent": "IPinfoClient/Python{version}/{sdk_version}".format(
+            version=sys.version_info[0], sdk_version=SDK_VERSION
         ),
         "accept": "application/json",
     }
 
     if custom_headers:
-        headers = {** headers, ** custom_headers}
+        headers = {**headers, **custom_headers}
 
     if access_token:
         headers["authorization"] = "Bearer {}".format(access_token)
@@ -79,7 +79,9 @@ def format_details(
     """
     details["country_name"] = countries.get(details.get("country"))
     details["isEU"] = details.get("country") in eu_countries
-    details["country_flag_url"] = COUNTRY_FLAGS_URL + details.get("country") + ".svg"
+    details["country_flag_url"] = (
+        COUNTRY_FLAGS_URL + details.get("country") + ".svg"
+    )
     details["country_flag"] = copy.deepcopy(
         countries_flags.get(details.get("country"))
     )
