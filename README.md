@@ -1,15 +1,15 @@
 # [<img src="https://ipinfo.io/static/ipinfo-small.svg" alt="IPinfo" width="24"/>](https://ipinfo.io/) IPinfo Python Client Library
 
-This is the official Python client library for the IPinfo.io IP address API, allowing you to lookup your own IP address, or get any of the following details for an IP:
+This is the official Python client library for the IPinfo.io IP address API, allowing you to look up your own IP address, or get any of the following details for an IP:
 
- - [IP geolocation](https://ipinfo.io/ip-geolocation-api) (city, region, country, postal code, latitude and longitude)
- - [ASN details](https://ipinfo.io/asn-api) (ISP or network operator, associated domain name, and type, such as business, hosting or company)
+ - [IP geolocation](https://ipinfo.io/ip-geolocation-api) (city, region, country, postal code, latitude, and longitude)
+ - [ASN details](https://ipinfo.io/asn-api) (ISP or network operator, associated domain name, and type, such as business, hosting, or company)
  - [Firmographics data](https://ipinfo.io/ip-company-api) (the name and domain of the business that uses the IP address)
  - [Carrier information](https://ipinfo.io/ip-carrier-api) (the name of the mobile carrier and MNC and MCC for that carrier if the IP is used exclusively for mobile traffic)
 
 ## Getting Started
 
-You'll need an IPinfo API access token, which you can get by singing up for a free account at [https://ipinfo.io/signup](https://ipinfo.io/signup).
+You'll need an IPinfo API access token, which you can get by signing up for a free account at [https://ipinfo.io/signup](https://ipinfo.io/signup).
 
 The free plan is limited to 50,000 requests per month, and doesn't include some of the data fields such as IP type and company data. To enable all the data fields and additional request volumes see [https://ipinfo.io/pricing](https://ipinfo.io/pricing)
 
@@ -102,7 +102,7 @@ The IPinfo library can be authenticated with your IPinfo API token, which is pas
 
 #### Country Name
 
-`details.country_name` will return the country name, as supplied by the `countries.json` file. See below for instructions on changing that file for use with non-English languages. `details.country` will still return country code.
+`details.country_name` will return the country name, as supplied by the `countries.json` file. See below for instructions on changing that file for use with non-English languages. `details.country` will still return a country code.
 
 ```python
 >>> details.country
@@ -240,7 +240,7 @@ You can add custom headers or modify default headers by setting the `headers` ke
 
 ### Internationalization
 
-When looking up an IP address, the response object includes a `details.country_name`, `details.isEU`, `details.country_flag`, `details.country_flag_url` and `details.country_currency` attributes which includes the country based on American English. It is possible to return the country name in other languages by setting the `countries_file`, remove or add EU countries by setting the keyword argument `eu_countries_file`, change the country flag emoji or unicode by setting the keyword argument `countries_flags_file` or change country's currency code or currency symbol by setting the `countries_currencies` when creating the `IPinfo` object. Moreover the response object includes a `details.continent` which includes continent code and name of IP. The default file can be changed by setting the `continent_file` while creating the `IPinfo` object.
+When looking up an IP address, the response object includes `details.country_name`, `details.isEU`, `details.country_flag`, `details.country_flag_url` and `details.country_currency` attributes which includes the country based on American English. It is possible to return the country name in other languages by setting the `countries_file`, remove or add EU countries by setting the keyword argument `eu_countries_file`, change the country flag emoji or unicode by setting the keyword argument `countries_flags_file` or change country's currency code or currency symbol by setting the `countries_currencies` when creating the `IPinfo` object. Moreover, the response object includes a `details.continent` which includes continent code and name of IP. The default file can be changed by setting the `continent_file` while creating the `IPinfo` object.
 
 The file must be a `.json` file with the following structure:
 
@@ -303,7 +303,7 @@ more information and limitations.
 
 ## Other Libraries
 
-There are official [IPinfo client libraries](https://ipinfo.io/developers/libraries) available for many languages including PHP, Go, Java, Ruby, and many popular frameworks such as Django, Rails and Laravel. There are also many third party libraries and integrations available for our API.
+There are official [IPinfo client libraries](https://ipinfo.io/developers/libraries) available for many languages including PHP, Go, Java, Ruby, and many popular frameworks such as Django, Rails, and Laravel. There are also many third-party libraries and integrations available for our API.
 
 ## About IPinfo
 
