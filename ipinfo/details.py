@@ -14,10 +14,10 @@ class Details:
         """Return attribute if it exists in details array, else return error."""
         if attr in self.details:
             return self.details[attr]
-        else:
-            raise AttributeError(
-                "{} is not a valid attribute of Details".format(attr)
-            )
+        
+        raise AttributeError(
+            f"{attr} is not a valid attribute of Details"
+        )
 
     @property
     def all(self):
