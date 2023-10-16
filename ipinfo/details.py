@@ -12,12 +12,12 @@ class Details:
 
     def __getattr__(self, attr):
         """Return attribute if it exists in details array, else return error."""
-        if attr in self.details:
-            return self.details[attr]
-        
-        raise AttributeError(
-            f"{attr} is not a valid attribute of Details"
-        )
+        if attr not in self.details:
+            raise AttributeError(
+                f"{attr} is not a valid attribute of Details"
+            )
+
+        return self.details[attr]
 
     @property
     def all(self):
