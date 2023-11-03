@@ -141,9 +141,7 @@ class AsyncHandler:
 
         # check if bogon.
         if ip_address and is_bogon(ip_address):
-            details = {}
-            details["ip"] = ip_address
-            details["bogon"] = True
+            details = {"ip": ip_address, "bogon": True}
             return Details(details)
 
         # check cache first.
@@ -225,7 +223,7 @@ class AsyncHandler:
         """
         self._ensure_aiohttp_ready()
 
-        if batch_size == None:
+        if batch_size is None:
             batch_size = BATCH_MAX_SIZE
 
         result = {}
@@ -249,7 +247,7 @@ class AsyncHandler:
                 lookup_addresses.append(ip_address)
 
         # all in cache - return early.
-        if len(lookup_addresses) == 0:
+        if not lookup_addresses:
             return result
 
         # do start timer if necessary
@@ -282,7 +280,7 @@ class AsyncHandler:
             )
 
             # if all done, return result.
-            if len(pending) == 0:
+            if not pending:
                 return result
 
             # if some had a timeout, first cancel timed out stuff and wait for
@@ -370,9 +368,7 @@ class AsyncHandler:
                 ip_address = ip_address.exploded
 
             if ip_address and is_bogon(ip_address):
-                details = {}
-                details["ip"] = ip_address
-                details["bogon"] = True
+                details = {"ip": ip_address, "bogon": True}
                 yield Details(details)
             else:
                 lookup_addresses.append(ip_address)
@@ -383,7 +379,7 @@ class AsyncHandler:
             except KeyError:
                 lookup_addresses.append(ip_address)
 
-        if len(lookup_addresses) == 0:
+        if not lookup_addresses:
             yield results.items()
 
         url = API_URL + "/batch"
@@ -391,16 +387,13 @@ class AsyncHandler:
         headers["content-type"] = "application/json"
 
         async def process_batch(batch):
-            try:
-                async with aiohttp.ClientSession(headers=headers) as session:
-                    response = await session.post(url, json=batch)
-                    response.raise_for_status()
-                    json_response = await response.json()
-                    for ip_address, details in json_response.items():
-                        self.cache[cache_key(ip_address)] = details
-                        results[ip_address] = details
-            except Exception as e:
-                raise e
+            async with aiohttp.ClientSession(headers=headers) as session:
+                response = await session.post(url, json=batch)
+                response.raise_for_status()
+                json_response = await response.json()
+                for ip_address, details in json_response.items():
+                    self.cache[cache_key(ip_address)] = details
+                    results[ip_address] = details
 
         for i in range(0, len(lookup_addresses), batch_size):
             batch = lookup_addresses[i : i + batch_size]
