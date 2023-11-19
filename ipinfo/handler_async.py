@@ -17,11 +17,6 @@ from .details import Details
 from .exceptions import RequestQuotaExceededError, TimeoutExceededError
 from .handler_utils import (
     API_URL,
-    COUNTRY_EU_FILE_DEFAULT,
-    COUNTRY_FILE_DEFAULT,
-    COUNTRY_FLAG_FILE_DEFAULT,
-    COUNTRY_CURRENCY_FILE_DEFAULT,
-    CONTINENT_FILE_DEFAULT,
     BATCH_MAX_SIZE,
     CACHE_MAXSIZE,
     CACHE_TTL,
@@ -31,6 +26,11 @@ from .handler_utils import (
 )
 from . import handler_utils
 from .bogon import is_bogon
+from .continent import continents
+from .countries import countries
+from .currency import countries_currencies
+from .eu import eu_countries
+from .flags import countries_flags
 
 
 class AsyncHandler:
@@ -47,39 +47,19 @@ class AsyncHandler:
         self.access_token = access_token
 
         # load countries file
-        self.countries = handler_utils.read_json_file(
-            kwargs.get("countries_file")
-            if kwargs.get("countries_file")
-            else COUNTRY_FILE_DEFAULT
-        )
+        self.countries = countries
 
         # load eu countries file
-        self.eu_countries = handler_utils.read_json_file(
-            kwargs.get("eu_countries_file")
-            if kwargs.get("eu_countries_file")
-            else COUNTRY_EU_FILE_DEFAULT
-        )
+        self.eu_countries = eu_countries
 
         # load countries flags file
-        self.countries_flags = handler_utils.read_json_file(
-            kwargs.get("countries_flags_file")
-            if kwargs.get("countries_flags_file")
-            else COUNTRY_FLAG_FILE_DEFAULT
-        )
+        self.countries_flags = countries_flags
 
         # load countries currency file
-        self.countries_currencies = handler_utils.read_json_file(
-            kwargs.get("countries_currencies_file")
-            if kwargs.get("countries_currencies_file")
-            else COUNTRY_CURRENCY_FILE_DEFAULT
-        )
+        self.countries_currencies = countries_currencies
 
         # load continent file
-        self.continents = handler_utils.read_json_file(
-            kwargs.get("continent_file")
-            if kwargs.get("continent_file")
-            else CONTINENT_FILE_DEFAULT
-        )
+        self.continents = continents
 
         # setup req opts
         self.request_options = kwargs.get("request_options", {})
