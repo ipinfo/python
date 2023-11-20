@@ -3,9 +3,6 @@ Main API client handler for fetching data from the IPinfo service.
 """
 
 from ipaddress import IPv4Address, IPv6Address
-import json
-import os
-import sys
 import time
 
 import requests
@@ -49,25 +46,31 @@ class Handler:
         self.access_token = access_token
 
         # load countries file
-        self.countries = read_json_file(kwargs.get("countries_file"), countries)
+        self.countries = (
+            read_json_file(kwargs.get("countries_file")) or countries
+        )
 
         # load eu countries file
-        self.eu_countries = read_json_file(
-            kwargs.get("eu_countries_file"), eu_countries
+        self.eu_countries = (
+            read_json_file(kwargs.get("eu_countries_file")) or eu_countries
         )
 
         # load countries flags file
-        self.countries_flags = read_json_file(
-            kwargs.get("countries_flags_file"), countries_flags
+        self.countries_flags = (
+            read_json_file(kwargs.get("countries_flags_file"))
+            or countries_flags
         )
 
         # load countries currency file
-        self.countries_currencies = read_json_file(
-            kwargs.get("countries_currencies_file"), countries_currencies
+        self.countries_currencies = (
+            read_json_file(kwargs.get("countries_currencies_file"))
+            or countries_currencies
         )
 
         # load continent file
-        self.continents = read_json_file(kwargs.get("continent_file"), continents)
+        self.continents = (
+            read_json_file(kwargs.get("continent_file")) or continents
+        )
 
         # setup req opts
         self.request_options = kwargs.get("request_options", {})
