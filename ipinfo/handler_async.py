@@ -50,25 +50,25 @@ class AsyncHandler:
         self.access_token = access_token
 
         # load countries file
-        self.countries = read_json_file("countries_file.json", countries)
+        self.countries = read_json_file(kwargs.get("countries_file"), countries)
 
         # load eu countries file
         self.eu_countries = read_json_file(
-            "eu_countries_file.json", eu_countries
+            kwargs.get("eu_countries_file"), eu_countries
         )
 
         # load countries flags file
         self.countries_flags = read_json_file(
-            "countries_flags_file.json", countries_flags
+            kwargs.get("countries_flags_file"), countries_flags
         )
 
         # load countries currency file
         self.countries_currencies = read_json_file(
-            "countries_currencies_file.json", countries_currencies
+            kwargs.get("countries_currencies_file"), countries_currencies
         )
 
         # load continent file
-        self.continents = read_json_file("continent_file.json", continents)
+        self.continents = read_json_file(kwargs.get("continent_file"), continents)
 
         # setup req opts
         self.request_options = kwargs.get("request_options", {})
