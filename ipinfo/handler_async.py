@@ -23,14 +23,17 @@ from .handler_utils import (
     REQUEST_TIMEOUT_DEFAULT,
     BATCH_REQ_TIMEOUT_DEFAULT,
     cache_key,
+    read_json_file,
 )
 from . import handler_utils
 from .bogon import is_bogon
-from .continent import continents
-from .countries import countries
-from .currency import countries_currencies
-from .eu import eu_countries
-from .flags import countries_flags
+from .data import (
+    continents,
+    countries,
+    countries_currencies,
+    eu_countries,
+    countries_flags,
+)
 
 
 class AsyncHandler:
@@ -47,19 +50,25 @@ class AsyncHandler:
         self.access_token = access_token
 
         # load countries file
-        self.countries = countries
+        self.countries = read_json_file("countries_file.json", countries)
 
         # load eu countries file
-        self.eu_countries = eu_countries
+        self.eu_countries = read_json_file(
+            "eu_countries_file.json", eu_countries
+        )
 
         # load countries flags file
-        self.countries_flags = countries_flags
+        self.countries_flags = read_json_file(
+            "countries_flags_file.json", countries_flags
+        )
 
         # load countries currency file
-        self.countries_currencies = countries_currencies
+        self.countries_currencies = read_json_file(
+            "countries_currencies_file.json", countries_currencies
+        )
 
         # load continent file
-        self.continents = continents
+        self.continents = read_json_file("continent_file.json", continents)
 
         # setup req opts
         self.request_options = kwargs.get("request_options", {})

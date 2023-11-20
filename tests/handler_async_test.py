@@ -181,6 +181,7 @@ async def test_get_batch_details_total_timeout(batch_size):
 # BOGON TESTS
 #############
 
+
 @pytest.mark.asyncio
 async def test_bogon_details():
     token = os.environ.get("IPINFO_TOKEN", "")

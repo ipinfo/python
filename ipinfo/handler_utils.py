@@ -96,12 +96,14 @@ def read_coords(location):
     return lat, lon
 
 
-def read_json_file(json_file):
-    json_file = os.path.join(os.path.dirname(__file__), json_file)
-    with open(json_file, encoding="utf8") as f:
-        json_data = f.read()
-
-    return json.loads(json_data)
+def read_json_file(json_file, default_value=None):
+    try:
+        json_file = os.path.join(os.path.dirname(__file__), json_file)
+        with open(json_file, encoding="utf8") as f:
+            json_data = f.read()
+            return json.loads(json_data)
+    except FileNotFoundError:
+        return default_value
 
 
 def return_or_fail(raise_on_fail, e, v):
