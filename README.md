@@ -246,40 +246,40 @@ When looking up an IP address, the response object includes `details.country_nam
 >>> import ipinfo
 ```
 ```python
-# Country Names (`countries`): In-memory map
-countries = {
+# Country Names: In-memory map
+>>> countries = {
     "BD": "Bangladesh",
     "BE": "Belgium",
     "BF": "Burkina Faso",
     # ...
 }
 
-# EU Countries (`eu_countries`): In-memory list
-eu_countries = [
+# EU Countries: In-memory list
+>>> eu_countries = [
     "IE",
     "AT",
     "LT",
     # ...
 ]
 
-# Country Flags (`countries_flags`): In-memory map
-countries_flags = {
+# Country Flags: In-memory map
+>>> countries_flags = {
     "AD": {"emoji": "🇦🇩", "unicode": "U+1F1E6 U+1F1E9"},
     "AE": {"emoji": "🇦🇪", "unicode": "U+1F1E6 U+1F1EA"},
     "AF": {"emoji": "🇦🇫", "unicode": "U+1F1E6 U+1F1EB"},
     # ...
 }
 
-# Country Currencies (`countries_currencies`): In-memory map
-countries_currencies = {
+# Country Currencies: In-memory map
+>>> countries_currencies = {
     "AD": {"code": "EUR", "symbol": "€"},
     "AE": {"code": "AED", "symbol": "د.إ"},
     "AF": {"code": "AFN", "symbol": "؋"},
     # ...
 }
 
-# Continents (`continents`): In-memory map
-continents = {
+# Continents: In-memory map
+>>> continents = {
     "BD": {"code": "AS", "name": "Asia"},
     "BE": {"code": "EU", "name": "Europe"},
     "BF": {"code": "AF", "name": "Africa"},
