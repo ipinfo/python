@@ -245,55 +245,45 @@ When looking up an IP address, the response object includes `details.country_nam
 ```python
 >>> import ipinfo
 ```
-
-* Country Names (`countries`):
-**In-memory list** to customize countries.
 ```python
->>> countries = {
+# Country Names (`countries`): In-memory map
+countries = {
     "BD": "Bangladesh",
     "BE": "Belgium",
     "BF": "Burkina Faso",
-    ...
+    # ...
 }
-```
-* EU Countries (`eu_countries`):
-**In-memory list** to customize EU countries.
-```python
->>> eu_countries = [
+
+# EU Countries (`eu_countries`): In-memory list
+eu_countries = [
     "IE",
     "AT",
     "LT",
-    ...
+    # ...
 ]
-```
-* Country Flags (`countries_flags`):
-**In-memory map** to customize country flags.
-```python
->>> countries_flags = {
+
+# Country Flags (`countries_flags`): In-memory map
+countries_flags = {
     "AD": {"emoji": "🇦🇩", "unicode": "U+1F1E6 U+1F1E9"},
     "AE": {"emoji": "🇦🇪", "unicode": "U+1F1E6 U+1F1EA"},
     "AF": {"emoji": "🇦🇫", "unicode": "U+1F1E6 U+1F1EB"},
-    ...
+    # ...
 }
-```
-* Country Currencies (`countries_currencies`):
-**In-memory map** to customize country currencies.
-```python
->>> countries_currencies = {
+
+# Country Currencies (`countries_currencies`): In-memory map
+countries_currencies = {
     "AD": {"code": "EUR", "symbol": "€"},
     "AE": {"code": "AED", "symbol": "د.إ"},
     "AF": {"code": "AFN", "symbol": "؋"},
-    ...
+    # ...
 }
-```
-* Continents (`continents`):
-**In-memory map** to customize continents.
-```python
->>> continents = {
+
+# Continents (`continents`): In-memory map
+continents = {
     "BD": {"code": "AS", "name": "Asia"},
     "BE": {"code": "EU", "name": "Europe"},
     "BF": {"code": "AF", "name": "Africa"},
-    ...
+    # ...
 }
 ```
 #### Usage:
