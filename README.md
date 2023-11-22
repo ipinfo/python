@@ -251,7 +251,7 @@ When looking up an IP address, the response object includes `details.country_nam
     "BD": "Bangladesh",
     "BE": "Belgium",
     "BF": "Burkina Faso",
-    # ...
+    ...
 }
 
 # EU Countries: In-memory list
@@ -259,7 +259,7 @@ When looking up an IP address, the response object includes `details.country_nam
     "IE",
     "AT",
     "LT",
-    # ...
+    ...
 ]
 
 # Country Flags: In-memory map
@@ -267,7 +267,7 @@ When looking up an IP address, the response object includes `details.country_nam
     "AD": {"emoji": "🇦🇩", "unicode": "U+1F1E6 U+1F1E9"},
     "AE": {"emoji": "🇦🇪", "unicode": "U+1F1E6 U+1F1EA"},
     "AF": {"emoji": "🇦🇫", "unicode": "U+1F1E6 U+1F1EB"},
-    # ...
+    ...
 }
 
 # Country Currencies: In-memory map
@@ -275,7 +275,7 @@ When looking up an IP address, the response object includes `details.country_nam
     "AD": {"code": "EUR", "symbol": "€"},
     "AE": {"code": "AED", "symbol": "د.إ"},
     "AF": {"code": "AFN", "symbol": "؋"},
-    # ...
+    ...
 }
 
 # Continents: In-memory map
@@ -283,7 +283,7 @@ When looking up an IP address, the response object includes `details.country_nam
     "BD": {"code": "AS", "name": "Asia"},
     "BE": {"code": "EU", "name": "Europe"},
     "BF": {"code": "AF", "name": "Africa"},
-    # ...
+    ...
 }
 ```
 #### Usage:
