@@ -46,31 +46,21 @@ class Handler:
         self.access_token = access_token
 
         # load countries file
-        self.countries = (
-            read_json_file(kwargs.get("countries_file")) or countries
-        )
+        self.countries = kwargs.get("countries") or countries
 
         # load eu countries file
-        self.eu_countries = (
-            read_json_file(kwargs.get("eu_countries_file")) or eu_countries
-        )
+        self.eu_countries = kwargs.get("eu_countries") or eu_countries
 
         # load countries flags file
-        self.countries_flags = (
-            read_json_file(kwargs.get("countries_flags_file"))
-            or countries_flags
-        )
+        self.countries_flags = kwargs.get("countries_flags") or countries_flags
 
         # load countries currency file
         self.countries_currencies = (
-            read_json_file(kwargs.get("countries_currencies_file"))
-            or countries_currencies
+            kwargs.get("countries_currencies") or countries_currencies
         )
 
         # load continent file
-        self.continents = (
-            read_json_file(kwargs.get("continent_file")) or continents
-        )
+        self.continents = kwargs.get("continent") or continents
 
         # setup req opts
         self.request_options = kwargs.get("request_options", {})
