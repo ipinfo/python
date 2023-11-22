@@ -240,20 +240,75 @@ You can add custom headers or modify default headers by setting the `headers` ke
 
 ### Internationalization
 
-When looking up an IP address, the response object includes `details.country_name`, `details.isEU`, `details.country_flag`, `details.country_flag_url` and `details.country_currency` attributes which includes the country based on American English. It is possible to return the country name in other languages by setting the `countries_file`, remove or add EU countries by setting the keyword argument `eu_countries_file`, change the country flag emoji or unicode by setting the keyword argument `countries_flags_file` or change country's currency code or currency symbol by setting the `countries_currencies` when creating the `IPinfo` object. Moreover, the response object includes a `details.continent` which includes continent code and name of IP. The default file can be changed by setting the `continent_file` while creating the `IPinfo` object.
+When looking up an IP address, the response object includes `details.country_name`, `details.isEU`, `details.country_flag`, `details.country_flag_url` and `details.country_currency` attributes which includes the country based on American English. It is possible to return the country name in other languages by setting the `countries`, remove or add EU countries by setting the keyword argument `eu_countries`, change the country flag emoji or unicode by setting the keyword argument `countries_flags` or change country's currency code or currency symbol by setting the `countries_currencies` when creating the `IPinfo` object. Moreover, the response object includes a `details.continent` which includes continent code and name of IP. The default file can be changed by setting the `continent` while creating the `IPinfo` object.
 
-The file must be a `.json` file with the following structure:
-
-```json
-{
-  "BD": {"name":"Bangladesh", "isEU":false},
-  "BE": {"name":"Belgium", "isEU":true},
-  "BF": {"name":"Burkina Faso", "isEU":false},
-  "BG": {"name":"Bulgaria", "isEU":true},
-  ...
-}
+```python
+>>> import ipinfo
 ```
 
+#### Country Names (`countries`):
+Set the countries keyword argument or provide an in-memory map to customize country names.
+```python
+>>> countries = {
+    "BD": "Bangladesh",
+    "BE": "Belgium",
+    "BF": "Burkina Faso",
+    ...
+}
+```
+#### EU Countries (`eu_countries`):
+Set the eu_countries keyword argument or provide an in-memory list to customize EU countries.
+
+```python
+>>> eu_countries = [
+    "IE",
+    "AT",
+    "LT",
+    ...
+]
+```
+#### Country Flags (`countries_flags`):
+Set the countries_flags keyword argument or provide an in-memory map to customize country flags.
+```python
+>>> countries_flags = {
+    "AD": {"emoji": "🇦🇩", "unicode": "U+1F1E6 U+1F1E9"},
+    "AE": {"emoji": "🇦🇪", "unicode": "U+1F1E6 U+1F1EA"},
+    "AF": {"emoji": "🇦🇫", "unicode": "U+1F1E6 U+1F1EB"},
+    ...
+}
+```
+#### Country Currencies (`countries_currencies`):
+Set the countries_currencies keyword argument or provide an in-memory map to customize country currencies.
+```python
+>>> countries_currencies = {
+    "AD": {"code": "EUR", "symbol": "€"},
+    "AE": {"code": "AED", "symbol": "د.إ"},
+    "AF": {"code": "AFN", "symbol": "؋"},
+    ...
+}
+```
+#### Continents (`continents`):
+Set the continents keyword argument or provide an in-memory map to customize continent details.
+```python
+>>> continents = {
+    "BD": {"code": "AS", "name": "Asia"},
+    "BE": {"code": "EU", "name": "Europe"},
+    "BF": {"code": "AF", "name": "Africa"},
+    ...
+}
+```
+#### Usage:
+```python
+>>> access_token = '123456789abc'
+>>> handler = ipinfo.getHandler(
+    access_token,
+    countries=countries,
+    eu_countries=eu_countries,
+    countries_flags=countries_flags,
+    countries_currencies=countries_currencies,
+    continents=continents
+)
+```
 ### Batch Operations
 
 Looking up a single IP at a time can be slow. It could be done concurrently
