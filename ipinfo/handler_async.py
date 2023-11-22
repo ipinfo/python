@@ -23,7 +23,6 @@ from .handler_utils import (
     REQUEST_TIMEOUT_DEFAULT,
     BATCH_REQ_TIMEOUT_DEFAULT,
     cache_key,
-    read_json_file,
 )
 from . import handler_utils
 from .bogon import is_bogon
