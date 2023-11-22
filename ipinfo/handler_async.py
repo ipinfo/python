@@ -5,8 +5,6 @@ Main API client asynchronous handler for fetching data from the IPinfo service.
 from ipaddress import IPv4Address, IPv6Address
 import asyncio
 import json
-import os
-import sys
 import time
 
 import aiohttp
