@@ -246,8 +246,8 @@ When looking up an IP address, the response object includes `details.country_nam
 >>> import ipinfo
 ```
 
-#### Country Names (`countries`):
-Set the countries keyword argument or provide an in-memory map to customize country names.
+* Country Names (`countries`):
+**In-memory list** to customize countries.
 ```python
 >>> countries = {
     "BD": "Bangladesh",
@@ -256,9 +256,8 @@ Set the countries keyword argument or provide an in-memory map to customize coun
     ...
 }
 ```
-#### EU Countries (`eu_countries`):
-Set the eu_countries keyword argument or provide an in-memory list to customize EU countries.
-
+* EU Countries (`eu_countries`):
+**In-memory list** to customize EU countries.
 ```python
 >>> eu_countries = [
     "IE",
@@ -267,8 +266,8 @@ Set the eu_countries keyword argument or provide an in-memory list to customize 
     ...
 ]
 ```
-#### Country Flags (`countries_flags`):
-Set the countries_flags keyword argument or provide an in-memory map to customize country flags.
+* Country Flags (`countries_flags`):
+**In-memory map** to customize country flags.
 ```python
 >>> countries_flags = {
     "AD": {"emoji": "🇦🇩", "unicode": "U+1F1E6 U+1F1E9"},
@@ -277,8 +276,8 @@ Set the countries_flags keyword argument or provide an in-memory map to customiz
     ...
 }
 ```
-#### Country Currencies (`countries_currencies`):
-Set the countries_currencies keyword argument or provide an in-memory map to customize country currencies.
+* Country Currencies (`countries_currencies`):
+**In-memory map** to customize country currencies.
 ```python
 >>> countries_currencies = {
     "AD": {"code": "EUR", "symbol": "€"},
@@ -287,8 +286,8 @@ Set the countries_currencies keyword argument or provide an in-memory map to cus
     ...
 }
 ```
-#### Continents (`continents`):
-Set the continents keyword argument or provide an in-memory map to customize continent details.
+* Continents (`continents`):
+**In-memory map** to customize continents.
 ```python
 >>> continents = {
     "BD": {"code": "AS", "name": "Asia"},
