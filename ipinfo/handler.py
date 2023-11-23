@@ -3,9 +3,6 @@ Main API client handler for fetching data from the IPinfo service.
 """
 
 from ipaddress import IPv4Address, IPv6Address
-import json
-import os
-import sys
 import time
 
 import requests
@@ -16,11 +13,6 @@ from .details import Details
 from .exceptions import RequestQuotaExceededError, TimeoutExceededError
 from .handler_utils import (
     API_URL,
-    COUNTRY_FILE_DEFAULT,
-    COUNTRY_EU_FILE_DEFAULT,
-    COUNTRY_FLAG_FILE_DEFAULT,
-    COUNTRY_CURRENCY_FILE_DEFAULT,
-    CONTINENT_FILE_DEFAULT,
     BATCH_MAX_SIZE,
     CACHE_MAXSIZE,
     CACHE_TTL,
@@ -30,6 +22,13 @@ from .handler_utils import (
 )
 from . import handler_utils
 from .bogon import is_bogon
+from .data import (
+    continents,
+    countries,
+    countries_currencies,
+    eu_countries,
+    countries_flags,
+)
 
 
 class Handler:
@@ -46,39 +45,21 @@ class Handler:
         self.access_token = access_token
 
         # load countries file
-        self.countries = handler_utils.read_json_file(
-            kwargs.get("countries_file")
-            if kwargs.get("countries_file")
-            else COUNTRY_FILE_DEFAULT
-        )
+        self.countries = kwargs.get("countries") or countries
 
         # load eu countries file
-        self.eu_countries = handler_utils.read_json_file(
-            kwargs.get("eu_countries_file")
-            if kwargs.get("eu_countries_file")
-            else COUNTRY_EU_FILE_DEFAULT
-        )
+        self.eu_countries = kwargs.get("eu_countries") or eu_countries
 
         # load countries flags file
-        self.countries_flags = handler_utils.read_json_file(
-            kwargs.get("countries_flags_file")
-            if kwargs.get("countries_flags_file")
-            else COUNTRY_FLAG_FILE_DEFAULT
-        )
+        self.countries_flags = kwargs.get("countries_flags") or countries_flags
 
         # load countries currency file
-        self.countries_currencies = handler_utils.read_json_file(
-            kwargs.get("countries_currencies_file")
-            if kwargs.get("countries_currencies_file")
-            else COUNTRY_CURRENCY_FILE_DEFAULT
+        self.countries_currencies = (
+            kwargs.get("countries_currencies") or countries_currencies
         )
 
         # load continent file
-        self.continents = handler_utils.read_json_file(
-            kwargs.get("continent_file")
-            if kwargs.get("continent_file")
-            else CONTINENT_FILE_DEFAULT
-        )
+        self.continents = kwargs.get("continent") or continents
 
         # setup req opts
         self.request_options = kwargs.get("request_options", {})

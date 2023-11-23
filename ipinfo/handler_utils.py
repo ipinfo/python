@@ -16,18 +16,6 @@ API_URL = "https://ipinfo.io"
 # "PK" -> "https://cdn.ipinfo.io/static/images/countries-flags/PK.svg"
 COUNTRY_FLAGS_URL = "https://cdn.ipinfo.io/static/images/countries-flags/"
 
-# Used to transform incoming responses with country abbreviations into the full
-# expanded country name, e.g. "PK" -> "Pakistan".
-COUNTRY_FILE_DEFAULT = "countries.json"
-
-COUNTRY_EU_FILE_DEFAULT = "eu.json"
-
-COUNTRY_FLAG_FILE_DEFAULT = "flags.json"
-
-COUNTRY_CURRENCY_FILE_DEFAULT = "currency.json"
-
-CONTINENT_FILE_DEFAULT = "continent.json"
-
 # The max amount of IPs allowed by the API per batch request.
 BATCH_MAX_SIZE = 1000
 

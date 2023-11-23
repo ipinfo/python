@@ -13,9 +13,7 @@ class Details:
     def __getattr__(self, attr):
         """Return attribute if it exists in details array, else return error."""
         if attr not in self.details:
-            raise AttributeError(
-                f"{attr} is not a valid attribute of Details"
-            )
+            raise AttributeError(f"{attr} is not a valid attribute of Details")
 
         return self.details[attr]
 
