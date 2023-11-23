@@ -283,9 +283,8 @@ When looking up an IP address, the response object includes `details.country_nam
     "BF": {"code": "AF", "name": "Africa"},
     ...
 }
-```
-#### Usage:
-```python
+
+# create handler
 >>> access_token = '123456789abc'
 >>> handler = ipinfo.getHandler(
     access_token,
