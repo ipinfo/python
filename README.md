@@ -244,8 +244,6 @@ When looking up an IP address, the response object includes `details.country_nam
 
 ```python
 >>> import ipinfo
-```
-```python
 # Country Names: In-memory map
 >>> countries = {
     "BD": "Bangladesh",
