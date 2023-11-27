@@ -1,5 +1,13 @@
 # IPInfo Changelog
 
+## 5.0.0
+
+- BREAKING: No longer requiring a JSON file for changing the
+  country/currency/etc data that's returned. Will now accept an in-memory map.
+- Throwing general API error responses as proper `APIError` error types.
+- Added an iterator version of getting batch IPs. See `getBatchDetailsIter` in
+  the handler.
+
 ## 4.4.3
 
 - Added `CountryFlagURL` to the details object.
@@ -8,6 +16,7 @@
 ## 4.4.2
 
 - Patch fix for empty `ip_address` crash.
+
 ## 4.4.1
 
 - Patch fix for handler crashing in windows environment.
