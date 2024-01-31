@@ -1,5 +1,11 @@
 # IPInfo Changelog
 
+## 5.0.1
+
+- Fixed a bug where in the sync handler's batch functions and in the async
+  handler's batch iterator function, the same IP was getting added twice to the
+  lookup list if it wasn't in the cache.
+
 ## 5.0.0
 
 - BREAKING: No longer requiring a JSON file for changing the
