@@ -201,13 +201,11 @@ class Handler:
                 details["bogon"] = True
                 result[ip_address] = Details(details)
             else:
-                lookup_addresses.append(ip_address)
-
-            try:
-                cached_ipaddr = self.cache[cache_key(ip_address)]
-                result[ip_address] = cached_ipaddr
-            except KeyError:
-                lookup_addresses.append(ip_address)
+                try:
+                    cached_ipaddr = self.cache[cache_key(ip_address)]
+                    result[ip_address] = cached_ipaddr
+                except KeyError:
+                    lookup_addresses.append(ip_address)
 
         # all in cache - return early.
         if len(lookup_addresses) == 0:
@@ -322,13 +320,11 @@ class Handler:
                 details["bogon"] = True
                 yield Details(details)
             else:
-                lookup_addresses.append(ip_address)
-
-            try:
-                cached_ipaddr = self.cache[cache_key(ip_address)]
-                result[ip_address] = cached_ipaddr
-            except KeyError:
-                lookup_addresses.append(ip_address)
+                try:
+                    cached_ipaddr = self.cache[cache_key(ip_address)]
+                    result[ip_address] = cached_ipaddr
+                except KeyError:
+                    lookup_addresses.append(ip_address)
 
         # all in cache - exit early.
         if len(lookup_addresses) == 0:

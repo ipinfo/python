@@ -353,13 +353,11 @@ class AsyncHandler:
                 details = {"ip": ip_address, "bogon": True}
                 yield Details(details)
             else:
-                lookup_addresses.append(ip_address)
-
-            try:
-                cached_ipaddr = self.cache[cache_key(ip_address)]
-                results[ip_address] = cached_ipaddr
-            except KeyError:
-                lookup_addresses.append(ip_address)
+                try:
+                    cached_ipaddr = self.cache[cache_key(ip_address)]
+                    results[ip_address] = cached_ipaddr
+                except KeyError:
+                    lookup_addresses.append(ip_address)
 
         if not lookup_addresses:
             yield results.items()
