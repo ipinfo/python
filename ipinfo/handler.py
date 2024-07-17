@@ -123,8 +123,12 @@ class Handler:
         if response.status_code == 429:
             raise RequestQuotaExceededError()
         if response.status_code >= 400:
-            error_response = response.json()
             error_code = response.status_code
+            content_type = response.headers.get('Content-Type')
+            if content_type == 'application/json':
+                error_response = response.json()
+            else:
+                error_response = {'error': response.text}
             raise APIError(error_code, error_response)
         details = response.json()
 

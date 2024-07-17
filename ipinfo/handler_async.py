@@ -145,8 +145,12 @@ class AsyncHandler:
             if resp.status == 429:
                 raise RequestQuotaExceededError()
             if resp.status >= 400:
-                error_response = await resp.json()
                 error_code = resp.status
+                content_type = resp.headers.get('Content-Type')
+                if content_type == 'application/json':
+                    error_response = await resp.json()
+                else:
+                    error_response = {'error': resp.text()}
                 raise APIError(error_code, error_response)
             details = await resp.json()
 
