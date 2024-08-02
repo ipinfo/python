@@ -1,13 +1,14 @@
-from ipaddress import IPv4Address
-import json
 import os
 
 from ipinfo.cache.default import DefaultCache
 from ipinfo.details import Details
 from ipinfo.handler import Handler
 from ipinfo import handler_utils
+from ipinfo.error import APIError
+from ipinfo.exceptions import RequestQuotaExceededError
 import ipinfo
 import pytest
+import requests
 
 
 def test_init():
@@ -98,6 +99,43 @@ def test_get_details():
         assert "total" in domains
         assert len(domains["domains"]) == 5
 
+@pytest.mark.parametrize(
+    ("mock_resp_status_code", "mock_resp_headers", "mock_resp_error_msg", "expected_error_json"),
+    [
+        pytest.param(503, {"Content-Type": "text/plain"}, b"Service Unavailable", {"error": "Service Unavailable"}, id="5xx_not_json"),
+        pytest.param(403, {"Content-Type": "application/json"}, b'{"message": "missing token"}', {"message": "missing token"}, id="4xx_json"),
+        pytest.param(400, {"Content-Type": "application/json"}, b'{"message": "missing field"}', {"message": "missing field"}, id="400"),
+    ]
+)
+def test_get_details_error(monkeypatch, mock_resp_status_code, mock_resp_headers, mock_resp_error_msg, expected_error_json):
+    def mock_get(*args, **kwargs):
+        response = requests.Response()
+        response.status_code = mock_resp_status_code
+        response.headers = mock_resp_headers
+        response._content = mock_resp_error_msg
+        return response
+
+    monkeypatch.setattr(requests, 'get', mock_get)
+    token = os.environ.get("IPINFO_TOKEN", "")
+    handler = Handler(token)
+
+    with pytest.raises(APIError) as exc_info:
+        handler.getDetails("8.8.8.8")
+    assert exc_info.value.error_code == mock_resp_status_code
+    assert exc_info.value.error_json == expected_error_json
+
+def test_get_details_quota_error(monkeypatch):
+    def mock_get(*args, **kwargs):
+        response = requests.Response()
+        response.status_code = 429
+        return response
+
+    monkeypatch.setattr(requests, 'get', mock_get)
+    token = os.environ.get("IPINFO_TOKEN", "")
+    handler = Handler(token)
+
+    with pytest.raises(RequestQuotaExceededError):
+        handler.getDetails("8.8.8.8")
 
 #############
 # BATCH TESTS
