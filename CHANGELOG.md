@@ -1,5 +1,9 @@
 # IPInfo Changelog
 
+## 5.1.1
+
+- No-op release (testing Github Publishing)
+
 ## 5.1.0
 
 - fix getDetails JSON error on 5xx status code
