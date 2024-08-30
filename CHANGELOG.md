@@ -1,5 +1,9 @@
 # IPInfo Changelog
 
+## 5.1.0
+
+- fix getDetails JSON error on 5xx status code
+
 ## 5.0.1
 
 - Fixed a bug where in the sync handler's batch functions and in the async
@@ -69,14 +73,14 @@
   actually cached is the item _after_ formatting is complete, rather than
   before.
 - Both the sync and async handlers have the following improvements:
-    - `timeout` can be specified as a keyword-arg to getDetails to optionally
-      override the client-level timeout.
-    - getBatchDetails now has no limit to the size of the `ip_addresses` input
-      list. It will chunk the list internally and make requests against the
-      batch endpoint in a way that doesn't exceed the API's own limits.
-    - getBatchDetails now accepts the new options `batch_size`,
-      `timeout_per_batch`, `timeout_total` and `raise_on_fail`. Please see the
-      documentation for details on what each of these do.
+  - `timeout` can be specified as a keyword-arg to getDetails to optionally
+    override the client-level timeout.
+  - getBatchDetails now has no limit to the size of the `ip_addresses` input
+    list. It will chunk the list internally and make requests against the
+    batch endpoint in a way that doesn't exceed the API's own limits.
+  - getBatchDetails now accepts the new options `batch_size`,
+    `timeout_per_batch`, `timeout_total` and `raise_on_fail`. Please see the
+    documentation for details on what each of these do.
 
 ## 4.0.0
 
