@@ -76,8 +76,9 @@ tomli==2.0.1
     # via
     #   black
     #   build
+    #   pep517
     #   pytest
-urllib3==1.26.11
+urllib3==1.26.19
     # via requests
 wheel==0.37.1
     # via pip-tools
