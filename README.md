@@ -2,10 +2,10 @@
 
 This is the official Python client library for the IPinfo.io IP address API, allowing you to look up your own IP address, or get any of the following details for an IP:
 
- - [IP geolocation](https://ipinfo.io/ip-geolocation-api) (city, region, country, postal code, latitude, and longitude)
- - [ASN details](https://ipinfo.io/asn-api) (ISP or network operator, associated domain name, and type, such as business, hosting, or company)
- - [Firmographics data](https://ipinfo.io/ip-company-api) (the name and domain of the business that uses the IP address)
- - [Carrier information](https://ipinfo.io/ip-carrier-api) (the name of the mobile carrier and MNC and MCC for that carrier if the IP is used exclusively for mobile traffic)
+- [IP geolocation](https://ipinfo.io/ip-geolocation-api) (city, region, country, postal code, latitude, and longitude)
+- [ASN details](https://ipinfo.io/asn-api) (ISP or network operator, associated domain name, and type, such as business, hosting, or company)
+- [Firmographics data](https://ipinfo.io/ip-company-api) (the name and domain of the business that uses the IP address)
+- [Carrier information](https://ipinfo.io/ip-carrier-api) (the name of the mobile carrier and MNC and MCC for that carrier if the IP is used exclusively for mobile traffic)
 
 ## Getting Started
 
@@ -13,7 +13,7 @@ You'll need an IPinfo API access token, which you can get by signing up for a fr
 
 The free plan is limited to 50,000 requests per month, and doesn't include some of the data fields such as IP type and company data. To enable all the data fields and additional request volumes see [https://ipinfo.io/pricing](https://ipinfo.io/pricing)
 
-⚠️ Note: This library does not currently support our newest free API https://ipinfo.io/lite. If you’d like to use IPinfo Lite, you can call the [endpoint directly](https://ipinfo.io/developers/lite-api) using your preferred HTTP client. Developers are also welcome to contribute support for Lite by submitting a pull request.
+The library also supports the Lite API, see the [Lite API section](#lite-api) for more info.
 
 ### Installation
 
@@ -162,6 +162,22 @@ The IPinfo library can be authenticated with your IPinfo API token, which is pas
  'timezone': 'America/Los_Angeles'}
 ```
 
+### Lite API
+
+The library gives the possibility to use the [Lite API](https://ipinfo.io/developers/lite-api) too, authentication with your token is still required.
+
+The returned details are slightly different from the Core API.
+
+```python
+>>> import ipinfo
+>>> handler = ipinfo.getHandlerLite(access_token='123456789abc')
+>>> details = handler.getDetails("8.8.8.8")
+>>> details.country_code
+'US'
+>>> details.country
+'United States'
+```
+
 ### Caching
 
 In-memory caching of `details` data is provided by default via the [cachetools](https://cachetools.readthedocs.io/en/latest/) library. This uses an LRU (least recently used) cache with a TTL (time to live) by default. This means that values will be cached for the specified duration; if the cache's max size is reached, cache values will be invalidated as necessary, starting with the oldest cached value.
@@ -297,6 +313,7 @@ When looking up an IP address, the response object includes `details.country_nam
     continents=continents
 )
 ```
+
 ### Batch Operations
 
 Looking up a single IP at a time can be slow. It could be done concurrently
