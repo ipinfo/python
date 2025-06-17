@@ -12,6 +12,9 @@ from .version import SDK_VERSION
 # Base URL to make requests against.
 API_URL = "https://ipinfo.io"
 
+# Base URL for the IPinfo Lite API
+LITE_API_URL = "https://api.ipinfo.io/lite"
+
 # Base URL to get country flag image link.
 # "PK" -> "https://cdn.ipinfo.io/static/images/countries-flags/PK.svg"
 COUNTRY_FLAGS_URL = "https://cdn.ipinfo.io/static/images/countries-flags/"
