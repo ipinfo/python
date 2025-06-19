@@ -27,11 +27,11 @@ def test_headers():
 
 
 @pytest.mark.skipif(
-    "IPINFO_LITE_TOKEN" not in os.environ,
+    "IPINFO_TOKEN" not in os.environ,
     reason="Can't call Lite API without token",
 )
 def test_get_details():
-    token = os.environ.get("IPINFO_LITE_TOKEN", "")
+    token = os.environ.get("IPINFO_TOKEN", "")
     handler = HandlerLite(token)
     details = handler.getDetails("8.8.8.8")
     assert isinstance(details, Details)
@@ -61,11 +61,11 @@ def test_get_details():
 
 
 @pytest.mark.skipif(
-    "IPINFO_LITE_TOKEN" not in os.environ,
+    "IPINFO_TOKEN" not in os.environ,
     reason="Can't call Lite API without token",
 )
 def test_bogon_details():
-    token = os.environ.get("IPINFO_LITE_TOKEN", "")
+    token = os.environ.get("IPINFO_TOKEN", "")
     handler = HandlerLite(token)
     details = handler.getDetails("127.0.0.1")
     assert isinstance(details, Details)

@@ -57,12 +57,12 @@ async def test_headers():
 
 
 @pytest.mark.skipif(
-    "IPINFO_LITE_TOKEN" not in os.environ,
+    "IPINFO_TOKEN" not in os.environ,
     reason="Can't call Lite API without token",
 )
 @pytest.mark.asyncio
 async def test_get_details():
-    token = os.environ.get("IPINFO_LITE_TOKEN", "")
+    token = os.environ.get("IPINFO_TOKEN", "")
     handler = AsyncHandlerLite(token)
     details = await handler.getDetails("8.8.8.8")
     assert isinstance(details, Details)
@@ -89,7 +89,7 @@ async def test_get_details():
 
 
 @pytest.mark.skipif(
-    "IPINFO_LITE_TOKEN" not in os.environ,
+    "IPINFO_TOKEN" not in os.environ,
     reason="Can't call Lite API without token",
 )
 @pytest.mark.parametrize(
@@ -144,7 +144,7 @@ async def test_get_details_error(
         "get",
         lambda *args, **kwargs: aiohttp.client._RequestContextManager(mock_get()),
     )
-    token = os.environ.get("IPINFO_LITE_TOKEN", "")
+    token = os.environ.get("IPINFO_TOKEN", "")
     handler = AsyncHandlerLite(token)
     with pytest.raises(APIError) as exc_info:
         await handler.getDetails("8.8.8.8")
@@ -158,12 +158,12 @@ async def test_get_details_error(
 
 
 @pytest.mark.skipif(
-    "IPINFO_LITE_TOKEN" not in os.environ,
+    "IPINFO_TOKEN" not in os.environ,
     reason="Can't call Lite API without token",
 )
 @pytest.mark.asyncio
 async def test_bogon_details():
-    token = os.environ.get("IPINFO_LITE_TOKEN", "")
+    token = os.environ.get("IPINFO_TOKEN", "")
     handler = AsyncHandlerLite(token)
     details = await handler.getDetails("127.0.0.1")
     assert details.all == {"bogon": True, "ip": "127.0.0.1"}
