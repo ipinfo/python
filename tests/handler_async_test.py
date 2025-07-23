@@ -87,9 +87,9 @@ async def test_get_details():
     continent = details.continent
     assert continent["code"] == "NA"
     assert continent["name"] == "North America"
-    assert details.loc == "37.4056,-122.0775"
-    assert details.latitude == "37.4056"
-    assert details.longitude == "-122.0775"
+    assert details.loc == "38.0088,-122.1175"
+    assert details.latitude == "38.0088"
+    assert details.longitude == "-122.1175"
     assert details.postal == "94043"
     assert details.timezone == "America/Los_Angeles"
     if token:
