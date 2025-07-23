@@ -14,7 +14,7 @@ async-timeout==4.0.2
     # via aiohttp
 attrs==22.1.0
     # via aiohttp
-backports-asyncio-runner==1.2.0
+backports-asyncio-runner==1.2.0; python_version < "3.11"
     # via pytest-asyncio
 black==22.6.0
     # via -r requirements.in

@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 
 from ipinfo.cache.default import DefaultCache
 from ipinfo.details import Details
@@ -10,6 +11,8 @@ from ipinfo.exceptions import RequestQuotaExceededError
 import ipinfo
 import pytest
 import aiohttp
+
+skip_if_python_3_11_or_later = sys.version_info >= (3, 11)
 
 
 class MockResponse:
@@ -195,6 +198,7 @@ def _check_batch_details(ips, details, token):
             assert "domains" in d
 
 
+@pytest.mark.skipif(skip_if_python_3_11_or_later, reason="Requires Python 3.10 or earlier")
 @pytest.mark.parametrize("batch_size", [None, 1, 2, 3])
 @pytest.mark.asyncio
 async def test_get_batch_details(batch_size):
@@ -225,6 +229,7 @@ async def test_get_iterative_batch_details(batch_size):
         _check_iterative_batch_details(ips, details, token)
 
 
+@pytest.mark.skipif(skip_if_python_3_11_or_later, reason="Requires Python 3.10 or earlier")
 @pytest.mark.parametrize("batch_size", [None, 1, 2, 3])
 @pytest.mark.asyncio
 async def test_get_batch_details_total_timeout(batch_size):

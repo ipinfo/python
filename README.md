@@ -69,6 +69,8 @@ New York City
 Internally the library uses `aiohttp`, but as long as you provide an event
 loop (as in this example via `asyncio`), it shouldn't matter.
 
+NOTE: due to API changes in the `asyncio` library, the asynchronous implementation only supports Python version 3.9 and 3.10.
+
 ### Usage
 
 The `Handler.getDetails()` method accepts an IP address as an optional, positional argument. If no IP address is specified, the API will return data for the IP address from which it receives the request.
