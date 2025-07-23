@@ -1,12 +1,16 @@
 # IPInfo Changelog
 
+## 5.2.0
+
+- Add support for IPinfo Lite API
+
 ## 5.1.1
 
 - No-op release (testing Github Publishing)
 
 ## 5.1.0
 
-- fix getDetails JSON error on 5xx status code
+- Fix getDetails JSON error on 5xx status code
 
 ## 5.0.1
 
