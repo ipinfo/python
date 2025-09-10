@@ -1,13 +1,13 @@
 import json
 import os
 
+import aiohttp
+import pytest
+
+from ipinfo import handler_utils
 from ipinfo.cache.default import DefaultCache
 from ipinfo.details import Details
-from ipinfo import handler_utils
 from ipinfo.error import APIError
-import pytest
-import aiohttp
-
 from ipinfo.handler_lite_async import AsyncHandlerLite
 
 
@@ -73,17 +73,17 @@ async def test_get_details():
     assert details.country_code == "US"
     assert details.country == "United States"
     assert details.continent_code == "NA"
-    assert details.continent is None
-    assert details.country_name is None
+    assert details.continent == {"code": "NA", "name": "North America"}
+    assert details.country_name == "United States"
     assert not details.isEU
     assert (
         details.country_flag_url
-        == "https://cdn.ipinfo.io/static/images/countries-flags/United States.svg"
+        == "https://cdn.ipinfo.io/static/images/countries-flags/US.svg"
     )
-    assert details.country_flag is None
-    assert details.country_currency is None
-    assert details.latitude is None
-    assert details.longitude is None
+    assert details.country_flag == {"emoji": "🇺🇸", "unicode": "U+1F1FA U+1F1F8"}
+    assert details.country_currency == {"code": "USD", "symbol": "$"}
+    assert not hasattr(details, "latitude")
+    assert not hasattr(details, "longitude")
 
     await handler.deinit()
 
