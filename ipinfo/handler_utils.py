@@ -2,10 +2,10 @@
 Utilities used in handlers.
 """
 
+import copy
 import json
 import os
 import sys
-import copy
 
 from .version import SDK_VERSION
 
@@ -68,21 +68,26 @@ def format_details(
     """
     Format details given a countries object.
     """
-    details["country_name"] = countries.get(details.get("country"))
-    details["isEU"] = details.get("country") in eu_countries
-    details["country_flag_url"] = (
-        COUNTRY_FLAGS_URL + (details.get("country") or "") + ".svg"
-    )
-    details["country_flag"] = copy.deepcopy(
-        countries_flags.get(details.get("country"))
-    )
-    details["country_currency"] = copy.deepcopy(
-        countries_currencies.get(details.get("country"))
-    )
-    details["continent"] = copy.deepcopy(
-        continents.get(details.get("country"))
-    )
-    details["latitude"], details["longitude"] = read_coords(details.get("loc"))
+    country_code = ""
+    # Core and Lite API return the country_code in differently named fields
+    if "country_code" in details:
+        country_code = details.get("country_code")
+    elif "country" in details:
+        country_code = details.get("country")
+
+    # country_code = details.get("country")
+    if country_name := countries.get(country_code):
+        details["country_name"] = country_name
+    details["isEU"] = country_code in eu_countries
+    details["country_flag_url"] = COUNTRY_FLAGS_URL + country_code + ".svg"
+    if flag := countries_flags.get(country_code):
+        details["country_flag"] = copy.deepcopy(flag)
+    if currency := countries_currencies.get(country_code):
+        details["country_currency"] = copy.deepcopy(currency)
+    if continent := continents.get(country_code):
+        details["continent"] = copy.deepcopy(continent)
+    if location := details.get("loc"):
+        details["latitude"], details["longitude"] = read_coords(location)
 
 
 def read_coords(location):
