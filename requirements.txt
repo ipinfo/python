@@ -77,7 +77,7 @@ pytest==8.4.1
     #   pytest-asyncio
 pytest-asyncio==1.1.0
     # via -r requirements.in
-requests==2.28.1
+requests==2.32.0
     # via -r requirements.in
 tomli==2.0.1
     # via
