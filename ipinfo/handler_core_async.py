@@ -4,7 +4,6 @@ Core API client asynchronous handler for fetching data from the IPinfo Core serv
 
 import asyncio
 import json
-import time
 from ipaddress import IPv4Address, IPv6Address
 
 import aiohttp
