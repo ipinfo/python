@@ -122,9 +122,7 @@ class AsyncHandlerCore:
         # If the supplied IP address uses the objects defined in the built-in
         # module ipaddress, extract the appropriate string notation before
         # formatting the URL.
-        if isinstance(ip_address, IPv4Address) or isinstance(
-            ip_address, IPv6Address
-        ):
+        if isinstance(ip_address, IPv4Address) or isinstance(ip_address, IPv6Address):
             ip_address = ip_address.exploded
 
         # check if bogon.
@@ -179,9 +177,7 @@ class AsyncHandlerCore:
                 geo["country_name"] = self.countries.get(country_code)
                 geo["isEU"] = country_code in self.eu_countries
                 geo["country_flag"] = self.countries_flags.get(country_code)
-                geo["country_currency"] = self.countries_currencies.get(
-                    country_code
-                )
+                geo["country_currency"] = self.countries_currencies.get(country_code)
                 geo["continent"] = self.continents.get(country_code)
                 geo["country_flag_url"] = (
                     f"{handler_utils.COUNTRY_FLAGS_URL}{country_code}.svg"
@@ -193,9 +189,7 @@ class AsyncHandlerCore:
             details["country_name"] = self.countries.get(country_code)
             details["isEU"] = country_code in self.eu_countries
             details["country_flag"] = self.countries_flags.get(country_code)
-            details["country_currency"] = self.countries_currencies.get(
-                country_code
-            )
+            details["country_currency"] = self.countries_currencies.get(country_code)
             details["continent"] = self.continents.get(country_code)
             details["country_flag_url"] = (
                 f"{handler_utils.COUNTRY_FLAGS_URL}{country_code}.svg"
@@ -276,31 +270,29 @@ class AsyncHandlerCore:
         if not lookup_addresses:
             return result
 
-        # do start timer if necessary
-        if timeout_total is not None:
-            start_time = time.time()
-
         # loop over batch chunks and prepare coroutines for each.
         url = "https://api.ipinfo.io/batch"
         headers = handler_utils.get_headers(self.access_token, self.headers)
         headers["content-type"] = "application/json"
 
-        # prepare coroutines that will make reqs and update results.
-        reqs = [
-            self._do_batch_req(
-                lookup_addresses[i : i + batch_size],
-                url,
-                headers,
-                timeout_per_batch,
-                raise_on_fail,
-                result,
+        # prepare tasks that will make reqs and update results.
+        tasks = [
+            asyncio.create_task(
+                self._do_batch_req(
+                    lookup_addresses[i : i + batch_size],
+                    url,
+                    headers,
+                    timeout_per_batch,
+                    raise_on_fail,
+                    result,
+                )
             )
             for i in range(0, len(lookup_addresses), batch_size)
         ]
 
         try:
             _, pending = await asyncio.wait(
-                {*reqs},
+                tasks,
                 timeout=timeout_total,
                 return_when=asyncio.FIRST_EXCEPTION,
             )
