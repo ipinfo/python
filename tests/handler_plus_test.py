@@ -5,25 +5,21 @@ import pytest
 from ipinfo import handler_utils
 from ipinfo.cache.default import DefaultCache
 from ipinfo.details import Details
-from ipinfo.handler_core_async import AsyncHandlerCore
+from ipinfo.handler_plus import HandlerPlus
 
 
-@pytest.mark.asyncio
-async def test_init():
+def test_init():
     token = "mytesttoken"
-    handler = AsyncHandlerCore(token)
+    handler = HandlerPlus(token)
     assert handler.access_token == token
     assert isinstance(handler.cache, DefaultCache)
     assert "US" in handler.countries
-    await handler.deinit()
 
 
-@pytest.mark.asyncio
-async def test_headers():
+def test_headers():
     token = "mytesttoken"
-    handler = AsyncHandlerCore(token, headers={"custom_field": "yes"})
+    handler = HandlerPlus(token, headers={"custom_field": "yes"})
     headers = handler_utils.get_headers(token, handler.headers)
-    await handler.deinit()
 
     assert "user-agent" in headers
     assert "accept" in headers
@@ -33,14 +29,13 @@ async def test_headers():
 
 @pytest.mark.skipif(
     "IPINFO_TOKEN" not in os.environ,
-    reason="Can't call Core API without token",
+    reason="Can't call Plus API without token",
 )
-@pytest.mark.asyncio
-async def test_get_details():
-    """Test basic Core API lookup"""
+def test_get_details():
+    """Test basic Plus API lookup"""
     token = os.environ.get("IPINFO_TOKEN", "")
-    handler = AsyncHandlerCore(token)
-    details = await handler.getDetails("8.8.8.8")
+    handler = HandlerPlus(token)
+    details = handler.getDetails("8.8.8.8")
 
     # Should return Details object
     assert isinstance(details, Details)
@@ -97,8 +92,6 @@ async def test_get_details():
     assert "isEU" in details.geo
     assert "country_flag_url" in details.geo
 
-    await handler.deinit()
-
 
 #############
 # BOGON TESTS
@@ -107,16 +100,14 @@ async def test_get_details():
 
 @pytest.mark.skipif(
     "IPINFO_TOKEN" not in os.environ,
-    reason="Can't call Core API without token",
+    reason="Can't call Plus API without token",
 )
-@pytest.mark.asyncio
-async def test_bogon_details():
+def test_bogon_details():
     token = os.environ.get("IPINFO_TOKEN", "")
-    handler = AsyncHandlerCore(token)
-    details = await handler.getDetails("127.0.0.1")
+    handler = HandlerPlus(token)
+    details = handler.getDetails("127.0.0.1")
     assert isinstance(details, Details)
     assert details.all == {"bogon": True, "ip": "127.0.0.1"}
-    await handler.deinit()
 
 
 #####################
@@ -126,14 +117,13 @@ async def test_bogon_details():
 
 @pytest.mark.skipif(
     "IPINFO_TOKEN" not in os.environ,
-    reason="Can't call Core API without token",
+    reason="Can't call Plus API without token",
 )
-@pytest.mark.asyncio
-async def test_batch_ips():
+def test_batch_ips():
     """Test batch request with IPs"""
     token = os.environ.get("IPINFO_TOKEN", "")
-    handler = AsyncHandlerCore(token)
-    results = await handler.getBatchDetails(["8.8.8.8", "1.1.1.1"])
+    handler = HandlerPlus(token)
+    results = handler.getBatchDetails(["8.8.8.8", "1.1.1.1"])
 
     assert len(results) == 2
     assert "8.8.8.8" in results
@@ -143,23 +133,20 @@ async def test_batch_ips():
     assert isinstance(results["8.8.8.8"], Details)
     assert isinstance(results["1.1.1.1"], Details)
 
-    # Check structure - Core API returns nested geo and as objects
+    # Check structure - Plus API returns nested geo and as objects
     assert hasattr(results["8.8.8.8"], "geo")
     assert "as" in results["8.8.8.8"].all
-
-    await handler.deinit()
 
 
 @pytest.mark.skipif(
     "IPINFO_TOKEN" not in os.environ,
-    reason="Can't call Core API without token",
+    reason="Can't call Plus API without token",
 )
-@pytest.mark.asyncio
-async def test_batch_with_bogon():
+def test_batch_with_bogon():
     """Test batch including bogon IPs"""
     token = os.environ.get("IPINFO_TOKEN", "")
-    handler = AsyncHandlerCore(token)
-    results = await handler.getBatchDetails(
+    handler = HandlerPlus(token)
+    results = handler.getBatchDetails(
         [
             "8.8.8.8",
             "127.0.0.1",  # Bogon
@@ -177,8 +164,6 @@ async def test_batch_with_bogon():
     assert isinstance(results["127.0.0.1"], Details)
     assert results["127.0.0.1"].bogon == True
 
-    await handler.deinit()
-
 
 #####################
 # CACHING TESTS
@@ -187,20 +172,19 @@ async def test_batch_with_bogon():
 
 @pytest.mark.skipif(
     "IPINFO_TOKEN" not in os.environ,
-    reason="Can't call Core API without token",
+    reason="Can't call Plus API without token",
 )
-@pytest.mark.asyncio
-async def test_caching():
+def test_caching():
     """Test that results are properly cached"""
     token = os.environ.get("IPINFO_TOKEN", "")
-    handler = AsyncHandlerCore(token)
+    handler = HandlerPlus(token)
 
     # First request - should hit API
-    details1 = await handler.getDetails("8.8.8.8")
+    details1 = handler.getDetails("8.8.8.8")
     assert isinstance(details1, Details)
 
     # Second request - should come from cache
-    details2 = await handler.getDetails("8.8.8.8")
+    details2 = handler.getDetails("8.8.8.8")
     assert isinstance(details2, Details)
     assert details2.ip == details1.ip
 
@@ -208,26 +192,21 @@ async def test_caching():
     cache_key_val = handler_utils.cache_key("8.8.8.8")
     assert cache_key_val in handler.cache
 
-    await handler.deinit()
-
 
 @pytest.mark.skipif(
     "IPINFO_TOKEN" not in os.environ,
-    reason="Can't call Core API without token",
+    reason="Can't call Plus API without token",
 )
-@pytest.mark.asyncio
-async def test_batch_caching():
+def test_batch_caching():
     """Test that batch results are properly cached"""
     token = os.environ.get("IPINFO_TOKEN", "")
-    handler = AsyncHandlerCore(token)
+    handler = HandlerPlus(token)
 
     # First batch request
-    results1 = await handler.getBatchDetails(["8.8.8.8", "1.1.1.1"])
+    results1 = handler.getBatchDetails(["8.8.8.8", "1.1.1.1"])
     assert len(results1) == 2
 
     # Second batch with same IPs (should come from cache)
-    results2 = await handler.getBatchDetails(["8.8.8.8", "1.1.1.1"])
+    results2 = handler.getBatchDetails(["8.8.8.8", "1.1.1.1"])
     assert len(results2) == 2
     assert results2["8.8.8.8"].ip == results1["8.8.8.8"].ip
-
-    await handler.deinit()

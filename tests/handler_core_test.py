@@ -40,25 +40,52 @@ def test_get_details():
     # Should return Details object
     assert isinstance(details, Details)
     assert details.ip == "8.8.8.8"
+    assert hasattr(details, "hostname")
 
-    # Check nested geo object exists
+    # Check nested geo object with all fields
     assert hasattr(details, "geo")
     assert isinstance(details.geo, dict)
     assert "city" in details.geo
+    assert "region" in details.geo
+    assert "region_code" in details.geo
+    assert "country" in details.geo
     assert "country_code" in details.geo
+    assert "continent" in details.geo
+    assert "continent_code" in details.geo
     assert "latitude" in details.geo
     assert "longitude" in details.geo
+    assert "timezone" in details.geo
+    assert "postal_code" in details.geo
+    assert "dma_code" in details.geo
+    assert "geoname_id" in details.geo
+    assert "radius" in details.geo
 
-    # Check nested as object exists (use .all to access since 'as' is a keyword)
+    # Check nested as object with all fields
     assert "as" in details.all
     as_obj = details.all["as"]
     assert isinstance(as_obj, dict)
     assert "asn" in as_obj
     assert "name" in as_obj
+    assert "domain" in as_obj
+    assert "type" in as_obj
+    assert "last_changed" in as_obj
 
-    # Check network flags
-    assert hasattr(details, "is_hosting")
+    # Check mobile and anonymous objects
+    assert hasattr(details, "mobile")
+    assert isinstance(details.mobile, dict)
+    assert hasattr(details, "anonymous")
+    assert isinstance(details.anonymous, dict)
+    assert "is_proxy" in details.anonymous
+    assert "is_relay" in details.anonymous
+    assert "is_tor" in details.anonymous
+    assert "is_vpn" in details.anonymous
+
+    # Check all network/type flags
+    assert hasattr(details, "is_anonymous")
     assert hasattr(details, "is_anycast")
+    assert hasattr(details, "is_hosting")
+    assert hasattr(details, "is_mobile")
+    assert hasattr(details, "is_satellite")
 
     # Check geo formatting was applied
     assert "country_name" in details.geo

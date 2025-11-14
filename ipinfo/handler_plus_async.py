@@ -1,5 +1,5 @@
 """
-Core API client asynchronous handler for fetching data from the IPinfo Core service.
+Plus API client asynchronous handler for fetching data from the IPinfo Plus service.
 """
 
 import asyncio
@@ -26,22 +26,22 @@ from .handler_utils import (
     BATCH_REQ_TIMEOUT_DEFAULT,
     CACHE_MAXSIZE,
     CACHE_TTL,
-    CORE_API_URL,
+    PLUS_API_URL,
     REQUEST_TIMEOUT_DEFAULT,
     cache_key,
 )
 
 
-class AsyncHandlerCore:
+class AsyncHandlerPlus:
     """
-    Allows client to request data for specified IP address asynchronously using the Core API.
-    Core API provides city-level geolocation with nested geo and AS objects.
+    Allows client to request data for specified IP address asynchronously using the Plus API.
+    Plus API provides city-level geolocation with nested geo and AS objects.
     Instantiates and maintains access to cache.
     """
 
     def __init__(self, access_token=None, **kwargs):
         """
-        Initialize the AsyncHandlerCore object with country name list and the
+        Initialize the AsyncHandlerPlus object with country name list and the
         cache initialized.
         """
         self.access_token = access_token
@@ -111,7 +111,7 @@ class AsyncHandlerCore:
 
     async def getDetails(self, ip_address=None, timeout=None):
         """
-        Get Core details for specified IP address as a Details object.
+        Get Plus details for specified IP address as a Details object.
 
         If `timeout` is not `None`, it will override the client-level timeout
         just for this operation.
@@ -137,7 +137,7 @@ class AsyncHandlerCore:
             pass
 
         # not in cache; do http req
-        url = CORE_API_URL
+        url = PLUS_API_URL
         if ip_address:
             url += "/" + ip_address
         headers = handler_utils.get_headers(self.access_token, self.headers)
@@ -158,15 +158,15 @@ class AsyncHandlerCore:
             details = await resp.json()
 
         # format & cache
-        self._format_core_details(details)
+        self._format_plus_details(details)
         self.cache[cache_key(ip_address)] = details
 
         return Details(details)
 
-    def _format_core_details(self, details):
+    def _format_plus_details(self, details):
         """
-        Format Core response details.
-        Core has nested geo and as objects that need special formatting.
+        Format Plus response details.
+        Plus has nested geo and as objects that need special formatting.
         """
         # Format geo object if present
         if "geo" in details and details["geo"]:
@@ -203,7 +203,7 @@ class AsyncHandlerCore:
         raise_on_fail=True,
     ):
         """
-        Get Core details for a batch of IP addresses at once.
+        Get Plus details for a batch of IP addresses at once.
 
         There is no specified limit to the number of IPs this function can
         accept; it can handle as much as the user can fit in RAM (along with
@@ -346,7 +346,7 @@ class AsyncHandlerCore:
         # format & fill up cache
         for ip_address, data in json_resp.items():
             if isinstance(data, dict) and not data.get("bogon"):
-                self._format_core_details(data)
+                self._format_plus_details(data)
             self.cache[cache_key(ip_address)] = data
             result[ip_address] = Details(data)
 
