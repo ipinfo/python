@@ -1,5 +1,10 @@
 # IPInfo Changelog
 
+## 5.3.0
+
+- Add support for IPinfo Core API
+- Add support for IPinfo Plus API
+
 ## 5.2.1
 
 - Fix Lite API `Detail` object not setting certain fields correctly
