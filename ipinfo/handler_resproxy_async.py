@@ -138,7 +138,7 @@ class AsyncHandlerResProxy:
             details = await resp.json()
 
         self.cache[cache_key(ip_address)] = details
-        return Details
+        return Details(details)
 
     async def getBatchDetails(
             self,

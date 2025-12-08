@@ -22,7 +22,7 @@ CORE_API_URL = "https://api.ipinfo.io/lookup"
 PLUS_API_URL = "https://api.ipinfo.io/lookup"
 
 # Base URL for the IPinfo Residential Proxy API
-RESPROXY_API_URL = "https://api.ipinfo.io/resproxy"
+RESPROXY_API_URL = "https://ipinfo.io/resproxy"
 
 # Base URL to get country flag image link.
 # "PK" -> "https://cdn.ipinfo.io/static/images/countries-flags/PK.svg"
