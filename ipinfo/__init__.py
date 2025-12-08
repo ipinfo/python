@@ -6,6 +6,8 @@ from .handler_core import HandlerCore
 from .handler_core_async import AsyncHandlerCore
 from .handler_plus import HandlerPlus
 from .handler_plus_async import AsyncHandlerPlus
+from .handler_resproxy import HandlerResProxy
+from .handler_resproxy_async import AsyncHandlerResProxy
 
 
 def getHandler(access_token=None, **kwargs):
@@ -28,6 +30,11 @@ def getHandlerPlus(access_token=None, **kwargs):
     return HandlerPlus(access_token, **kwargs)
 
 
+def getHandlerResProxy(access_token=None, **kwargs):
+    """Create and return HandlerResProxy object."""
+    return HandlerResProxy(access_token, **kwargs)
+
+
 def getHandlerAsync(access_token=None, **kwargs):
     """Create an return an asynchronous Handler object."""
     return AsyncHandler(access_token, **kwargs)
@@ -46,3 +53,8 @@ def getHandlerAsyncCore(access_token=None, **kwargs):
 def getHandlerAsyncPlus(access_token=None, **kwargs):
     """Create and return asynchronous HandlerPlus object."""
     return AsyncHandlerPlus(access_token, **kwargs)
+
+
+def getHandlerAsyncResProxy(access_token=None, **kwargs):
+    """Create and return asynchronous HandlerResProxy object."""
+    return AsyncHandlerResProxy(access_token, **kwargs)
