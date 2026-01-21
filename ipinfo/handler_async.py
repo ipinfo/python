@@ -15,6 +15,7 @@ from .details import Details
 from .exceptions import RequestQuotaExceededError, TimeoutExceededError
 from .handler_utils import (
     API_URL,
+    RESPROXY_API_URL,
     BATCH_MAX_SIZE,
     CACHE_MAXSIZE,
     CACHE_TTL,
@@ -164,6 +165,56 @@ class AsyncHandler:
             self.continents,
         )
         self.cache[cache_key(ip_address)] = details
+
+        return Details(details)
+
+    async def getResproxy(self, ip_address, timeout=None):
+        """
+        Get residential proxy information for specified IP address.
+
+        Returns a Details object containing:
+        - ip: The IP address
+        - last_seen: The last recorded date when the proxy was active (YYYY-MM-DD)
+        - percent_days_seen: Percentage of days active in the last 7-day period
+        - service: Name of the residential proxy service
+
+        If `timeout` is not `None`, it will override the client-level timeout
+        just for this operation.
+        """
+        self._ensure_aiohttp_ready()
+
+        if isinstance(ip_address, IPv4Address) or isinstance(ip_address, IPv6Address):
+            ip_address = ip_address.exploded
+
+        # check cache first.
+        cache_key_str = f"resproxy:{ip_address}"
+        try:
+            cached_data = self.cache[cache_key(cache_key_str)]
+            return Details(cached_data)
+        except KeyError:
+            pass
+
+        # do http req
+        url = f"{RESPROXY_API_URL}/{ip_address}"
+        headers = handler_utils.get_headers(self.access_token, self.headers)
+        req_opts = {}
+        if timeout is not None:
+            req_opts["timeout"] = timeout
+        async with self.httpsess.get(url, headers=headers, **req_opts) as resp:
+            if resp.status == 429:
+                raise RequestQuotaExceededError()
+            if resp.status >= 400:
+                error_code = resp.status
+                content_type = resp.headers.get("Content-Type")
+                if content_type == "application/json":
+                    error_response = await resp.json()
+                else:
+                    error_response = {"error": resp.text()}
+                raise APIError(error_code, error_response)
+            details = await resp.json()
+
+        # cache result
+        self.cache[cache_key(cache_key_str)] = details
 
         return Details(details)
 

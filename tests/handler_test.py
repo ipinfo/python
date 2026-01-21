@@ -236,3 +236,34 @@ def test_iterative_bogon_details():
     handler = Handler(token)
     details = next(handler.getBatchDetailsIter(["127.0.0.1"]))
     assert details.all == {"bogon": True, "ip": "127.0.0.1"}
+
+
+#################
+# RESPROXY TESTS
+#################
+
+
+def test_get_resproxy():
+    token = os.environ.get("IPINFO_TOKEN", "")
+    if not token:
+        pytest.skip("token required for resproxy tests")
+    handler = Handler(token)
+    # Use an IP known to be a residential proxy (from API documentation)
+    details = handler.getResproxy("175.107.211.204")
+    assert isinstance(details, Details)
+    assert details.ip == "175.107.211.204"
+    assert details.last_seen is not None
+    assert details.percent_days_seen is not None
+    assert details.service is not None
+
+
+def test_get_resproxy_caching():
+    token = os.environ.get("IPINFO_TOKEN", "")
+    if not token:
+        pytest.skip("token required for resproxy tests")
+    handler = Handler(token)
+    # First call should hit the API
+    details1 = handler.getResproxy("175.107.211.204")
+    # Second call should hit the cache
+    details2 = handler.getResproxy("175.107.211.204")
+    assert details1.ip == details2.ip
