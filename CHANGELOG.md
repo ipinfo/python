@@ -1,5 +1,9 @@
 # IPInfo Changelog
 
+## 5.4.0
+
+- Add support for IPinfo Residential Proxy Detection API
+
 ## 5.3.0
 
 - Add support for IPinfo Core API
