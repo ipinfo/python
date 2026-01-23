@@ -2,15 +2,15 @@ import json
 import os
 import sys
 
-from ipinfo.cache.default import DefaultCache
-from ipinfo.details import Details
-from ipinfo.handler_async import AsyncHandler
-from ipinfo import handler_utils
-from ipinfo.error import APIError
-from ipinfo.exceptions import RequestQuotaExceededError
+import aiohttp
 import ipinfo
 import pytest
-import aiohttp
+from ipinfo import handler_utils
+from ipinfo.cache.default import DefaultCache
+from ipinfo.details import Details
+from ipinfo.error import APIError
+from ipinfo.exceptions import RequestQuotaExceededError
+from ipinfo.handler_async import AsyncHandler
 
 skip_if_python_3_11_or_later = sys.version_info >= (3, 11)
 
@@ -78,8 +78,7 @@ async def test_get_details():
     assert country_flag["unicode"] == "U+1F1FA U+1F1F8"
     country_flag_url = details.country_flag_url
     assert (
-        country_flag_url
-        == "https://cdn.ipinfo.io/static/images/countries-flags/US.svg"
+        country_flag_url == "https://cdn.ipinfo.io/static/images/countries-flags/US.svg"
     )
     country_currency = details.country_currency
     assert country_currency["code"] == "USD"
@@ -132,21 +131,59 @@ async def test_get_details():
 
     await handler.deinit()
 
+
 @pytest.mark.parametrize(
-    ("mock_resp_status_code", "mock_resp_headers", "mock_resp_error_msg", "expected_error_json"),
+    (
+        "mock_resp_status_code",
+        "mock_resp_headers",
+        "mock_resp_error_msg",
+        "expected_error_json",
+    ),
     [
-        pytest.param(503, {"Content-Type": "text/plain"}, "Service Unavailable", {"error": "Service Unavailable"}, id="5xx_not_json"),
-        pytest.param(403, {"Content-Type": "application/json"}, '{"message": "missing token"}', {"message": "missing token"}, id="4xx_json"),
-        pytest.param(400, {"Content-Type": "application/json"}, '{"message": "missing field"}', {"message": "missing field"}, id="400"),
-    ]
+        pytest.param(
+            503,
+            {"Content-Type": "text/plain"},
+            "Service Unavailable",
+            {"error": "Service Unavailable"},
+            id="5xx_not_json",
+        ),
+        pytest.param(
+            403,
+            {"Content-Type": "application/json"},
+            '{"message": "missing token"}',
+            {"message": "missing token"},
+            id="4xx_json",
+        ),
+        pytest.param(
+            400,
+            {"Content-Type": "application/json"},
+            '{"message": "missing field"}',
+            {"message": "missing field"},
+            id="400",
+        ),
+    ],
 )
 @pytest.mark.asyncio
-async def test_get_details_error(monkeypatch, mock_resp_status_code, mock_resp_headers, mock_resp_error_msg, expected_error_json):
+async def test_get_details_error(
+    monkeypatch,
+    mock_resp_status_code,
+    mock_resp_headers,
+    mock_resp_error_msg,
+    expected_error_json,
+):
     async def mock_get(*args, **kwargs):
-        response = MockResponse(status=mock_resp_status_code, text=mock_resp_error_msg, headers=mock_resp_headers)
+        response = MockResponse(
+            status=mock_resp_status_code,
+            text=mock_resp_error_msg,
+            headers=mock_resp_headers,
+        )
         return response
 
-    monkeypatch.setattr(aiohttp.ClientSession, 'get', lambda *args, **kwargs: aiohttp.client._RequestContextManager(mock_get()))
+    monkeypatch.setattr(
+        aiohttp.ClientSession,
+        "get",
+        lambda *args, **kwargs: aiohttp.client._RequestContextManager(mock_get()),
+    )
     token = os.environ.get("IPINFO_TOKEN", "")
     handler = AsyncHandler(token)
     with pytest.raises(APIError) as exc_info:
@@ -154,17 +191,23 @@ async def test_get_details_error(monkeypatch, mock_resp_status_code, mock_resp_h
     assert exc_info.value.error_code == mock_resp_status_code
     assert exc_info.value.error_json == expected_error_json
 
+
 @pytest.mark.asyncio
 async def test_get_details_quota_error(monkeypatch):
     async def mock_get(*args, **kwargs):
         response = MockResponse(status=429, text="Quota exceeded", headers={})
         return response
 
-    monkeypatch.setattr(aiohttp.ClientSession, 'get', lambda *args, **kwargs: aiohttp.client._RequestContextManager(mock_get()))
+    monkeypatch.setattr(
+        aiohttp.ClientSession,
+        "get",
+        lambda *args, **kwargs: aiohttp.client._RequestContextManager(mock_get()),
+    )
     token = os.environ.get("IPINFO_TOKEN", "")
     handler = AsyncHandler(token)
     with pytest.raises(RequestQuotaExceededError):
         await handler.getDetails("8.8.8.8")
+
 
 #############
 # BATCH TESTS
@@ -198,7 +241,9 @@ def _check_batch_details(ips, details, token):
             assert "domains" in d
 
 
-@pytest.mark.skipif(skip_if_python_3_11_or_later, reason="Requires Python 3.10 or earlier")
+@pytest.mark.skipif(
+    skip_if_python_3_11_or_later, reason="Requires Python 3.10 or earlier"
+)
 @pytest.mark.parametrize("batch_size", [None, 1, 2, 3])
 @pytest.mark.asyncio
 async def test_get_batch_details(batch_size):
@@ -229,15 +274,15 @@ async def test_get_iterative_batch_details(batch_size):
         _check_iterative_batch_details(ips, details, token)
 
 
-@pytest.mark.skipif(skip_if_python_3_11_or_later, reason="Requires Python 3.10 or earlier")
+@pytest.mark.skipif(
+    skip_if_python_3_11_or_later, reason="Requires Python 3.10 or earlier"
+)
 @pytest.mark.parametrize("batch_size", [None, 1, 2, 3])
 @pytest.mark.asyncio
 async def test_get_batch_details_total_timeout(batch_size):
     handler, token, ips = _prepare_batch_test()
     with pytest.raises(ipinfo.exceptions.TimeoutExceededError):
-        await handler.getBatchDetails(
-            ips, batch_size=batch_size, timeout_total=0.001
-        )
+        await handler.getBatchDetails(ips, batch_size=batch_size, timeout_total=0.001)
     await handler.deinit()
 
 
@@ -260,30 +305,65 @@ async def test_bogon_details():
 
 
 @pytest.mark.asyncio
-async def test_get_resproxy():
-    token = os.environ.get("IPINFO_TOKEN", "")
-    if not token:
-        pytest.skip("token required for resproxy tests")
-    handler = AsyncHandler(token)
-    # Use an IP known to be a residential proxy (from API documentation)
+async def test_get_resproxy(monkeypatch):
+    mock_response = MockResponse(
+        json.dumps(
+            {
+                "ip": "175.107.211.204",
+                "last_seen": "2025-01-20",
+                "percent_days_seen": 0.85,
+                "service": "example_service",
+            }
+        ),
+        200,
+        {"Content-Type": "application/json"},
+    )
+
+    def mock_get(*args, **kwargs):
+        return mock_response
+
+    handler = AsyncHandler("test_token")
+    handler._ensure_aiohttp_ready()
+    monkeypatch.setattr(handler.httpsess, "get", mock_get)
+
     details = await handler.getResproxy("175.107.211.204")
     assert isinstance(details, Details)
     assert details.ip == "175.107.211.204"
-    assert details.last_seen is not None
-    assert details.percent_days_seen is not None
-    assert details.service is not None
+    assert details.last_seen == "2025-01-20"
+    assert details.percent_days_seen == 0.85
+    assert details.service == "example_service"
     await handler.deinit()
 
 
 @pytest.mark.asyncio
-async def test_get_resproxy_caching():
-    token = os.environ.get("IPINFO_TOKEN", "")
-    if not token:
-        pytest.skip("token required for resproxy tests")
-    handler = AsyncHandler(token)
+async def test_get_resproxy_caching(monkeypatch):
+    call_count = 0
+
+    def mock_get(*args, **kwargs):
+        nonlocal call_count
+        call_count += 1
+        return MockResponse(
+            json.dumps(
+                {
+                    "ip": "175.107.211.204",
+                    "last_seen": "2025-01-20",
+                    "percent_days_seen": 0.85,
+                    "service": "example_service",
+                }
+            ),
+            200,
+            {"Content-Type": "application/json"},
+        )
+
+    handler = AsyncHandler("test_token")
+    handler._ensure_aiohttp_ready()
+    monkeypatch.setattr(handler.httpsess, "get", mock_get)
+
     # First call should hit the API
     details1 = await handler.getResproxy("175.107.211.204")
     # Second call should hit the cache
     details2 = await handler.getResproxy("175.107.211.204")
     assert details1.ip == details2.ip
+    # Verify only one API call was made (second was cached)
+    assert call_count == 1
     await handler.deinit()

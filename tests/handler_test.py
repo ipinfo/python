@@ -243,27 +243,60 @@ def test_iterative_bogon_details():
 #################
 
 
-def test_get_resproxy():
-    token = os.environ.get("IPINFO_TOKEN", "")
-    if not token:
-        pytest.skip("token required for resproxy tests")
+def test_get_resproxy(monkeypatch):
+    def mock_get(*args, **kwargs):
+        response = requests.Response()
+        response.status_code = 200
+        response.headers = {"Content-Type": "application/json"}
+        response._content = b'{"ip": "175.107.211.204", "last_seen": "2025-01-20", "percent_days_seen": 0.85, "service": "example_service"}'
+        return response
+
+    monkeypatch.setattr(requests, "get", mock_get)
+    token = "test_token"
     handler = Handler(token)
-    # Use an IP known to be a residential proxy (from API documentation)
     details = handler.getResproxy("175.107.211.204")
     assert isinstance(details, Details)
     assert details.ip == "175.107.211.204"
-    assert details.last_seen is not None
-    assert details.percent_days_seen is not None
-    assert details.service is not None
+    assert details.last_seen == "2025-01-20"
+    assert details.percent_days_seen == 0.85
+    assert details.service == "example_service"
 
 
-def test_get_resproxy_caching():
-    token = os.environ.get("IPINFO_TOKEN", "")
-    if not token:
-        pytest.skip("token required for resproxy tests")
+def test_get_resproxy_caching(monkeypatch):
+    call_count = 0
+
+    def mock_get(*args, **kwargs):
+        nonlocal call_count
+        call_count += 1
+        response = requests.Response()
+        response.status_code = 200
+        response.headers = {"Content-Type": "application/json"}
+        response._content = b'{"ip": "175.107.211.204", "last_seen": "2025-01-20", "percent_days_seen": 0.85, "service": "example_service"}'
+        return response
+
+    monkeypatch.setattr(requests, "get", mock_get)
+    token = "test_token"
     handler = Handler(token)
     # First call should hit the API
     details1 = handler.getResproxy("175.107.211.204")
     # Second call should hit the cache
     details2 = handler.getResproxy("175.107.211.204")
     assert details1.ip == details2.ip
+    # Verify only one API call was made (second was cached)
+    assert call_count == 1
+
+
+def test_get_resproxy_empty(monkeypatch):
+    def mock_get(*args, **kwargs):
+        response = requests.Response()
+        response.status_code = 200
+        response.headers = {"Content-Type": "application/json"}
+        response._content = b"{}"
+        return response
+
+    monkeypatch.setattr(requests, "get", mock_get)
+    token = "test_token"
+    handler = Handler(token)
+    details = handler.getResproxy("8.8.8.8")
+    assert isinstance(details, Details)
+    assert details.all == {}
