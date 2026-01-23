@@ -180,6 +180,79 @@ The returned details are slightly different from the Core API.
 'United States'
 ```
 
+### Core API
+
+The library also supports the [Core API](https://ipinfo.io/developers/data-types#core-data), which provides city-level geolocation with nested geo and AS objects. Authentication with your token is required.
+
+```python
+>>> import ipinfo
+>>> handler = ipinfo.getHandlerCore(access_token='123456789abc')
+>>> details = handler.getDetails("8.8.8.8")
+>>> details.ip
+'8.8.8.8'
+>>> details.geo
+{'city': 'Mountain View', 'region': 'California', 'region_code': 'CA', 'country': 'United States', 'country_code': 'US', ...}
+>>> details.all['as']
+{'asn': 'AS15169', 'name': 'Google LLC', 'domain': 'google.com', 'type': 'hosting', ...}
+```
+
+An asynchronous handler is also available:
+
+```python
+>>> handler = ipinfo.getHandlerAsyncCore(access_token='123456789abc')
+>>> details = await handler.getDetails("8.8.8.8")
+```
+
+### Plus API
+
+The library also supports the [Plus API](https://ipinfo.io/developers/data-types#plus-data), which provides enhanced data including mobile carrier info and privacy detection. Authentication with your token is required.
+
+```python
+>>> import ipinfo
+>>> handler = ipinfo.getHandlerPlus(access_token='123456789abc')
+>>> details = handler.getDetails("8.8.8.8")
+>>> details.ip
+'8.8.8.8'
+>>> details.geo
+{'city': 'Mountain View', 'region': 'California', 'region_code': 'CA', 'country': 'United States', 'country_code': 'US', ...}
+>>> details.mobile
+{'carrier': ..., 'mcc': ..., 'mnc': ...}
+>>> details.anonymous
+{'is_proxy': False, 'is_relay': False, 'is_tor': False, ...}
+```
+
+An asynchronous handler is also available:
+
+```python
+>>> handler = ipinfo.getHandlerAsyncPlus(access_token='123456789abc')
+>>> details = await handler.getDetails("8.8.8.8")
+```
+
+### Residential Proxy API
+
+The library also supports the [Residential Proxy API](https://ipinfo.io/developers/residential-proxy-api), which allows you to check if an IP address is a residential proxy. Authentication with your token is required.
+
+```python
+>>> import ipinfo
+>>> handler = ipinfo.getHandler(access_token='123456789abc')
+>>> details = handler.getResproxy("175.107.211.204")
+>>> details.ip
+'175.107.211.204'
+>>> details.last_seen
+'2025-01-20'
+>>> details.percent_days_seen
+0.85
+>>> details.service
+'Bright Data'
+```
+
+An asynchronous handler is also available:
+
+```python
+>>> handler = ipinfo.getHandlerAsync(access_token='123456789abc')
+>>> details = await handler.getResproxy("175.107.211.204")
+```
+
 ### Caching
 
 In-memory caching of `details` data is provided by default via the [cachetools](https://cachetools.readthedocs.io/en/latest/) library. This uses an LRU (least recently used) cache with a TTL (time to live) by default. This means that values will be cached for the specified duration; if the cache's max size is reached, cache values will be invalidated as necessary, starting with the oldest cached value.
