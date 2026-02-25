@@ -2,33 +2,34 @@
 Main API client handler for fetching data from the IPinfo service.
 """
 
-from ipaddress import IPv4Address, IPv6Address
 import time
+from ipaddress import IPv4Address, IPv6Address
 
 import requests
 
-from .error import APIError
-from .cache.default import DefaultCache
-from .details import Details
-from .exceptions import RequestQuotaExceededError, TimeoutExceededError
-from .handler_utils import (
-    API_URL,
-    RESPROXY_API_URL,
-    BATCH_MAX_SIZE,
-    CACHE_MAXSIZE,
-    CACHE_TTL,
-    REQUEST_TIMEOUT_DEFAULT,
-    BATCH_REQ_TIMEOUT_DEFAULT,
-    cache_key,
-)
 from . import handler_utils
 from .bogon import is_bogon
+from .cache.default import DefaultCache
 from .data import (
     continents,
     countries,
     countries_currencies,
-    eu_countries,
     countries_flags,
+    eu_countries,
+)
+from .details import Details
+from .error import APIError
+from .exceptions import RequestQuotaExceededError, TimeoutExceededError
+from .handler_utils import (
+    API_URL,
+    BATCH_MAX_SIZE,
+    BATCH_REQ_TIMEOUT_DEFAULT,
+    CACHE_MAXSIZE,
+    CACHE_TTL,
+    REQUEST_TIMEOUT_DEFAULT,
+    RESPROXY_API_URL,
+    cache_key,
+    is_prefixed_lookup,
 )
 
 
@@ -91,9 +92,7 @@ class Handler:
         # If the supplied IP address uses the objects defined in the built-in
         # module ipaddress extract the appropriate string notation before
         # formatting the URL.
-        if isinstance(ip_address, IPv4Address) or isinstance(
-            ip_address, IPv6Address
-        ):
+        if isinstance(ip_address, IPv4Address) or isinstance(ip_address, IPv6Address):
             ip_address = ip_address.exploded
 
         # check if bogon.
@@ -125,11 +124,11 @@ class Handler:
             raise RequestQuotaExceededError()
         if response.status_code >= 400:
             error_code = response.status_code
-            content_type = response.headers.get('Content-Type')
-            if content_type == 'application/json':
+            content_type = response.headers.get("Content-Type")
+            if content_type == "application/json":
                 error_response = response.json()
             else:
-                error_response = {'error': response.text}
+                error_response = {"error": response.text}
             raise APIError(error_code, error_response)
         details = response.json()
 
@@ -196,7 +195,6 @@ class Handler:
 
         return Details(details)
 
-
     def getBatchDetails(
         self,
         ip_addresses,
@@ -251,7 +249,11 @@ class Handler:
             ):
                 ip_address = ip_address.exploded
 
-            if ip_address and is_bogon(ip_address):
+            if (
+                ip_address
+                and not is_prefixed_lookup(ip_address)
+                and is_bogon(ip_address)
+            ):
                 details = {}
                 details["ip"] = ip_address
                 details["bogon"] = True
@@ -280,10 +282,7 @@ class Handler:
         headers["content-type"] = "application/json"
         for i in range(0, len(lookup_addresses), batch_size):
             # quit if total timeout is reached.
-            if (
-                timeout_total is not None
-                and time.time() - start_time > timeout_total
-            ):
+            if timeout_total is not None and time.time() - start_time > timeout_total:
                 return handler_utils.return_or_fail(
                     raise_on_fail, TimeoutExceededError(), result
                 )
@@ -292,9 +291,7 @@ class Handler:
 
             # lookup
             try:
-                response = requests.post(
-                    url, json=chunk, headers=headers, **req_opts
-                )
+                response = requests.post(url, json=chunk, headers=headers, **req_opts)
             except Exception as e:
                 return handler_utils.return_or_fail(raise_on_fail, e, result)
 
@@ -347,9 +344,7 @@ class Handler:
         url = f"{API_URL}/map?cli=1"
         headers = handler_utils.get_headers(None, self.headers)
         headers["content-type"] = "application/json"
-        response = requests.post(
-            url, json=ip_strs, headers=headers, **req_opts
-        )
+        response = requests.post(url, json=ip_strs, headers=headers, **req_opts)
         response.raise_for_status()
         return response.json()["reportUrl"]
 
@@ -370,7 +365,9 @@ class Handler:
             ):
                 ip_address = ip_address.exploded
 
-            if ip_address and is_bogon(ip_address):
+            if is_prefixed_lookup(ip_address):
+                lookup_addresses.append(ip_address)
+            elif ip_address and is_bogon(ip_address):
                 details = {}
                 details["ip"] = ip_address
                 details["bogon"] = True

@@ -3,8 +3,9 @@ import os
 import sys
 
 import aiohttp
-import ipinfo
 import pytest
+
+import ipinfo
 from ipinfo import handler_utils
 from ipinfo.cache.default import DefaultCache
 from ipinfo.details import Details
@@ -366,4 +367,60 @@ async def test_get_resproxy_caching(monkeypatch):
     assert details1.ip == details2.ip
     # Verify only one API call was made (second was cached)
     assert call_count == 1
+    await handler.deinit()
+
+
+class MockBatchResponse(MockResponse):
+    """MockResponse with raise_for_status for batch endpoint mocking."""
+
+    def raise_for_status(self):
+        if self.status >= 400:
+            raise Exception(f"HTTP {self.status}")
+
+
+@pytest.mark.asyncio
+async def test_get_batch_details_with_resproxy(monkeypatch):
+    """Prefixed lookups like 'resproxy/IP' should not crash in async getBatchDetails."""
+    mock_api_response = {
+        "resproxy/1.2.3.4": {"ip": "1.2.3.4", "service": "example"},
+        "8.8.8.8": {"ip": "8.8.8.8", "country": "US"},
+    }
+
+    async def mock_post(*args, **kwargs):
+        return MockBatchResponse(
+            json.dumps(mock_api_response),
+            200,
+            {"Content-Type": "application/json"},
+        )
+
+    handler = AsyncHandler("test_token")
+    handler._ensure_aiohttp_ready()
+    monkeypatch.setattr(handler.httpsess, "post", mock_post)
+    result = await handler.getBatchDetails(["resproxy/1.2.3.4", "8.8.8.8"])
+    assert "resproxy/1.2.3.4" in result
+    assert "8.8.8.8" in result
+    await handler.deinit()
+
+
+@pytest.mark.asyncio
+async def test_get_batch_details_mixed_resproxy_and_bogon(monkeypatch):
+    """Async getBatchDetails: mixing prefixed, plain, and bogon IPs."""
+    mock_api_response = {
+        "resproxy/1.2.3.4": {"ip": "1.2.3.4", "service": "ex"},
+        "8.8.8.8": {"ip": "8.8.8.8", "country": "US"},
+    }
+
+    async def mock_post(*args, **kwargs):
+        return MockBatchResponse(
+            json.dumps(mock_api_response),
+            200,
+            {"Content-Type": "application/json"},
+        )
+
+    handler = AsyncHandler("test_token")
+    handler._ensure_aiohttp_ready()
+    monkeypatch.setattr(handler.httpsess, "post", mock_post)
+    result = await handler.getBatchDetails(["resproxy/1.2.3.4", "8.8.8.8", "127.0.0.1"])
+    assert "resproxy/1.2.3.4" in result
+    assert "8.8.8.8" in result
     await handler.deinit()

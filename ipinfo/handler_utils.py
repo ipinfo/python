@@ -136,3 +136,13 @@ def cache_key(k):
     Transforms a user-input key into a versioned cache key.
     """
     return f"{k}:{CACHE_KEY_VSN}"
+
+
+def is_prefixed_lookup(ip_address):
+    """
+    Check if the address is a prefixed batch lookup (e.g., "resproxy/1.2.3.4",
+    "lookup/8.8.8.8", "domains/google.com").
+
+    Prefixed lookups skip bogon checking as they are not plain IP addresses.
+    """
+    return isinstance(ip_address, str) and "/" in ip_address

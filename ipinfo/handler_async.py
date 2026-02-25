@@ -2,35 +2,36 @@
 Main API client asynchronous handler for fetching data from the IPinfo service.
 """
 
-from ipaddress import IPv4Address, IPv6Address
 import asyncio
 import json
 import time
+from ipaddress import IPv4Address, IPv6Address
 
 import aiohttp
 
-from .error import APIError
-from .cache.default import DefaultCache
-from .details import Details
-from .exceptions import RequestQuotaExceededError, TimeoutExceededError
-from .handler_utils import (
-    API_URL,
-    RESPROXY_API_URL,
-    BATCH_MAX_SIZE,
-    CACHE_MAXSIZE,
-    CACHE_TTL,
-    REQUEST_TIMEOUT_DEFAULT,
-    BATCH_REQ_TIMEOUT_DEFAULT,
-    cache_key,
-)
 from . import handler_utils
 from .bogon import is_bogon
+from .cache.default import DefaultCache
 from .data import (
     continents,
     countries,
     countries_currencies,
-    eu_countries,
     countries_flags,
+    eu_countries,
+)
+from .details import Details
+from .error import APIError
+from .exceptions import RequestQuotaExceededError, TimeoutExceededError
+from .handler_utils import (
+    API_URL,
+    BATCH_MAX_SIZE,
+    BATCH_REQ_TIMEOUT_DEFAULT,
+    CACHE_MAXSIZE,
+    CACHE_TTL,
+    REQUEST_TIMEOUT_DEFAULT,
+    RESPROXY_API_URL,
+    cache_key,
+    is_prefixed_lookup,
 )
 
 
@@ -117,9 +118,7 @@ class AsyncHandler:
         # If the supplied IP address uses the objects defined in the built-in
         # module ipaddress, extract the appropriate string notation before
         # formatting the URL.
-        if isinstance(ip_address, IPv4Address) or isinstance(
-            ip_address, IPv6Address
-        ):
+        if isinstance(ip_address, IPv4Address) or isinstance(ip_address, IPv6Address):
             ip_address = ip_address.exploded
 
         # check if bogon.
@@ -147,11 +146,11 @@ class AsyncHandler:
                 raise RequestQuotaExceededError()
             if resp.status >= 400:
                 error_code = resp.status
-                content_type = resp.headers.get('Content-Type')
-                if content_type == 'application/json':
+                content_type = resp.headers.get("Content-Type")
+                if content_type == "application/json":
                     error_response = await resp.json()
                 else:
-                    error_response = {'error': resp.text()}
+                    error_response = {"error": resp.text()}
                 raise APIError(error_code, error_response)
             details = await resp.json()
 
@@ -277,11 +276,19 @@ class AsyncHandler:
             ):
                 ip_address = ip_address.exploded
 
-            try:
-                cached_ipaddr = self.cache[cache_key(ip_address)]
-                result[ip_address] = cached_ipaddr
-            except KeyError:
-                lookup_addresses.append(ip_address)
+            if (
+                ip_address
+                and not is_prefixed_lookup(ip_address)
+                and is_bogon(ip_address)
+            ):
+                details = {"ip": ip_address, "bogon": True}
+                result[ip_address] = Details(details)
+            else:
+                try:
+                    cached_ipaddr = self.cache[cache_key(ip_address)]
+                    result[ip_address] = cached_ipaddr
+                except KeyError:
+                    lookup_addresses.append(ip_address)
 
         # all in cache - return early.
         if not lookup_addresses:
@@ -296,22 +303,24 @@ class AsyncHandler:
         headers = handler_utils.get_headers(self.access_token, self.headers)
         headers["content-type"] = "application/json"
 
-        # prepare coroutines that will make reqs and update results.
+        # prepare tasks that will make reqs and update results.
         reqs = [
-            self._do_batch_req(
-                lookup_addresses[i : i + batch_size],
-                url,
-                headers,
-                timeout_per_batch,
-                raise_on_fail,
-                result,
+            asyncio.ensure_future(
+                self._do_batch_req(
+                    lookup_addresses[i : i + batch_size],
+                    url,
+                    headers,
+                    timeout_per_batch,
+                    raise_on_fail,
+                    result,
+                )
             )
             for i in range(0, len(lookup_addresses), batch_size)
         ]
 
         try:
             _, pending = await asyncio.wait(
-                {*reqs},
+                reqs,
                 timeout=timeout_total,
                 return_when=asyncio.FIRST_EXCEPTION,
             )
@@ -404,7 +413,11 @@ class AsyncHandler:
             ):
                 ip_address = ip_address.exploded
 
-            if ip_address and is_bogon(ip_address):
+            if (
+                ip_address
+                and not is_prefixed_lookup(ip_address)
+                and is_bogon(ip_address)
+            ):
                 details = {"ip": ip_address, "bogon": True}
                 yield Details(details)
             else:
