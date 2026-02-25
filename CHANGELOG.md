@@ -1,5 +1,9 @@
 # IPInfo Changelog
 
+## 5.4.1
+
+- Fix bug causing batch requests to fail when using prefixed data
+
 ## 5.4.0
 
 - Add support for IPinfo Residential Proxy Detection API
