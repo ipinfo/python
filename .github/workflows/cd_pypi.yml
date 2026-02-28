@@ -38,4 +38,4 @@ jobs:
       run: uv build --no-build-isolation
 
     - name: Publish package
-      uses: uv publish
+      run: uv publish
