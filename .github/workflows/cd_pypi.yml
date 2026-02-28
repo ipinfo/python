@@ -30,9 +30,12 @@ jobs:
       uses: astral-sh/setup-uv@v7
       with:
         enable-cache: true
-        
+
+    - name: Install dependencies
+      run: uv pip install --system -r requirements.txt
+      
     - name: Build package
-      run: uv build
+      run: uv build --no-build-isolation
 
     - name: Publish package
-      uses: pypa/gh-action-pypi-publish@release/v1
+      uses: uv publish
