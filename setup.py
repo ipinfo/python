@@ -1,6 +1,6 @@
 from setuptools import setup
 
-from ipinfo.version import SDK_VERSION
+from ipinfo.version import __version__ as SDK_VERSION
 
 long_description = """
 The official Python library for IPinfo.
