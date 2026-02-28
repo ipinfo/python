@@ -1,1 +1,1 @@
-SDK_VERSION = "5.4.1"
+__version__ = "5.4.1"

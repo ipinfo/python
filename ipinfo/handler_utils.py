@@ -7,7 +7,7 @@ import json
 import os
 import sys
 
-from .version import SDK_VERSION
+from .version import __version__ as SDK_VERSION
 
 # Base URL to make requests against.
 API_URL = "https://ipinfo.io"
