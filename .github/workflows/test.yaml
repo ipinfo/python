@@ -28,7 +28,7 @@ jobs:
           enable-cache: true
 
       - name: Install dependencies
-        run: uv pip install -r requirements.txt
+        run: uv pip install --system -r requirements.txt
 
       - name: Run tests
         run: uv run pytest
