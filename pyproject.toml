@@ -1,6 +1,6 @@
 [project]
 name = "ipinfo"
-dynamic = ["version"] # Use this if you want to keep SDK_VERSION in a python file
+dynamic = ["version"]
 description = "Official Python library for IPInfo"
 readme = "README.md"
 authors = [
