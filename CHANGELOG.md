@@ -1,5 +1,9 @@
 # IPInfo Changelog
 
+## 5.5.0
+
+- Update Bulgaria currency from BGN to EUR
+
 ## 5.4.1
 
 - Fix bug causing batch requests to fail when using prefixed data
