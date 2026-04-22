@@ -17,7 +17,7 @@ class MockResponse:
         self.status = status
         self.headers = headers
 
-    def text(self):
+    async def text(self):
         return self._text
 
     async def json(self):

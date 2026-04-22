@@ -489,9 +489,9 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "aiohttp", specifier = ">=3.12.14,<=4" },
-    { name = "cachetools", specifier = "==4.2.0" },
-    { name = "requests", specifier = ">=2.18.4" },
+    { name = "aiohttp", specifier = ">=3,<4" },
+    { name = "cachetools", specifier = ">=4.2,<8" },
+    { name = "requests", specifier = ">=2.18.4,<3" },
 ]
 
 [package.metadata.requires-dev]

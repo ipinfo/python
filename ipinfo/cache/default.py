@@ -2,16 +2,14 @@
 A default cache implementation that uses `cachetools` for an in-memory LRU cache.
 """
 
-import cachetools
-
 from .interface import CacheInterface
-
+from cachetools import TTLCache
 
 class DefaultCache(CacheInterface):
     """Default, in-memory cache."""
 
     def __init__(self, **cache_options):
-        self.cache = cachetools.TTLCache(**cache_options)
+        self.cache = TTLCache(**cache_options)
 
     def __contains__(self, key):
         return self.cache.__contains__(key)

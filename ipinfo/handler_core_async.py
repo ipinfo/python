@@ -153,7 +153,7 @@ class AsyncHandlerCore:
                 if content_type == "application/json":
                     error_response = await resp.json()
                 else:
-                    error_response = {"error": resp.text()}
+                    error_response = {"error": await resp.text()}
                 raise APIError(error_code, error_response)
             details = await resp.json()
 
