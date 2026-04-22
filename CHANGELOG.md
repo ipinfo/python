@@ -1,5 +1,9 @@
 # IPInfo Changelog
 
+## 5.6.0
+
+- Loosen dependencies versions constraints
+
 ## 5.5.0
 
 - Update Bulgaria currency from BGN to EUR
