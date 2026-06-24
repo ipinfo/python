@@ -232,7 +232,7 @@ class Handler:
         quota errors.
         Defaults to on.
         """
-        if batch_size == None:
+        if batch_size is None:
             batch_size = BATCH_MAX_SIZE
 
         result = {}
@@ -391,14 +391,20 @@ class Handler:
 
             try:
                 response = requests.post(url, json=batch, headers=headers)
-            except Exception as e:
-                raise e
+            except Exception:
+                raise
 
+            # evaluate HTTP status before parsing response body
+            status_code = response.status_code
             try:
-                if response.status_code == 429:
+                if status_code == 429:
                     raise RequestQuotaExceededError()
                 response.raise_for_status()
+            except RequestQuotaExceededError:
+                raise
             except Exception as e:
+                if status_code == 429 and not isinstance(e, RequestQuotaExceededError):
+                    raise RequestQuotaExceededError() from e
                 return handler_utils.return_or_fail(raise_on_fail, e)
 
             details = response.json()
