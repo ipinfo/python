@@ -232,7 +232,7 @@ class Handler:
         quota errors.
         Defaults to on.
         """
-        if batch_size == None:
+        if batch_size is None:
             batch_size = BATCH_MAX_SIZE
 
         result = {}
@@ -391,8 +391,8 @@ class Handler:
 
             try:
                 response = requests.post(url, json=batch, headers=headers)
-            except Exception as e:
-                raise e
+            except Exception:
+                raise
 
             try:
                 if response.status_code == 429:
