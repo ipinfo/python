@@ -10,7 +10,7 @@ license = { text = "Apache License 2.0" }
 requires-python = ">=3.10"
 dependencies = [
     "requests>=2.18.4,<3",
-    "cachetools>=4.2,<8",
+    "cachetools>=4.2,<9",
     "aiohttp>=3,<4",
 ]
 
